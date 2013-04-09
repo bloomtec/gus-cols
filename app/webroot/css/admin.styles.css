@@ -1,0 +1,25 @@
+/** Sobreescribir sección menú acciones por defecto de cake **/
+div#content div.actions {
+    float: none;
+}
+
+div.form, div.index, div.view {
+    border-left-color: whitesmoke;
+    border-left-style: none;
+    border-left-width: 0;
+    float: none;
+    padding: 10px 2%;
+    width: 96%;
+}
+
+/** Menú **/
+ul#admin-menu {
+    float: right;
+    margin-right:2%;
+}
+
+/** Items relacionados en view **/
+.related {
+    margin-left:2%;
+    margin-right:2%;
+}
