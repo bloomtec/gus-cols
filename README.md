@@ -1,1 +1,1 @@
-Gus-Colecciones
+Colecciones
