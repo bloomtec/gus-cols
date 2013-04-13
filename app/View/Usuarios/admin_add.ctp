@@ -4,7 +4,8 @@
 		<legend><?php echo __('Crear Usuario'); ?></legend>
 	<?php
 		echo $this->Form->input('documento');
-		echo $this->Form->input('contraseña', array('type' => 'password'));
+		echo $this->Form->input('contraseña', array('type' => 'password', 'value' => ''));
+		echo $this->Form->input('verificar_contraseña', array('type' => 'password', 'value' => ''));
 		echo $this->Form->input('nombres');
 		echo $this->Form->input('apellidos');
 		echo $this->Form->input('activo');
