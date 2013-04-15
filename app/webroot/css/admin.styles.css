@@ -1,8 +1,4 @@
-/** Sobreescribir sección menú acciones por defecto de cake **/
-div#content div.actions {
-    float: none;
-}
-
+/** Sección de contenido **/
 div.form, div.index, div.view {
     border-left-color: whitesmoke;
     border-left-style: none;
@@ -12,7 +8,7 @@ div.form, div.index, div.view {
     width: 96%;
 }
 
-/** Menú **/
+/** Menú administrativo **/
 ul#admin-menu {
     float: right;
     margin-right:2%;
@@ -22,4 +18,42 @@ ul#admin-menu {
 .related {
     margin-left:2%;
     margin-right:2%;
+}
+.related.grupos {
+    width: 30%;
+}
+.related.campos {
+    float: none;
+    width: 30%;
+}
+
+/** Agregar colección **/
+.crear-col-sec-2 div {
+    float: left;
+    clear: none;
+    padding-right: 50px;
+}
+
+.coleccion.crear.grupos {
+    width: 480px;
+}
+.coleccion.crear.campos {
+    width: 680px;
+}
+.grupo {
+    width: 420px;
+}
+.permiso {
+    width: 60px;
+}
+.info {
+    float: left;
+    width: 30%;
+}
+.campos {
+    float: left;
+    width: 66%;
+}
+.nombre {
+    width: 400px;
 }

@@ -2690,7 +2690,6 @@ class Model extends Object implements CakeEventListener {
 		if (is_null($query)) {
 			return null;
 		}
-
 		$results = $this->getDataSource()->read($this, $query);
 		$this->resetAssociations();
 

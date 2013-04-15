@@ -45,6 +45,9 @@
 			$this -> authConfig();
 			// Asignar el layout acorde el contexto
 			$this -> layoutConfig();
+			// Asignar dirección de retorno
+			$previous = $this -> referer();
+			$this->set('previous', $previous);
 		}
 
 		protected function authConfig() {
