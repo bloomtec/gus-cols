@@ -234,6 +234,13 @@
 				'conditions' => '',
 				'fields'     => '',
 				'order'      => ''
+			),
+			'TipoDeContenido'   => array(
+				'className'  => 'Coleccion',
+				'foreignKey' => 'coleccion_id',
+				'conditions' => '',
+				'fields'     => '',
+				'order'      => ''
 			)
 		);
 
@@ -284,6 +291,19 @@
 				'foreignKey'   => 'foreign_key',
 				'dependent'    => true,
 				'conditions'   => array('CamposColeccion.model' => 'Coleccion'),
+				'fields'       => '',
+				'order'        => '',
+				'limit'        => '',
+				'offset'       => '',
+				'exclusive'    => '',
+				'finderQuery'  => '',
+				'counterQuery' => ''
+			),
+			'Contenidos' => array(
+				'className'    => 'Coleccion',
+				'foreignKey'   => 'coleccion_id',
+				'dependent'    => false,
+				'conditions'   => '',
 				'fields'       => '',
 				'order'        => '',
 				'limit'        => '',

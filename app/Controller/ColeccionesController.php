@@ -10,12 +10,33 @@
 		public $uses = array('Coleccion', 'Campo');
 
 		/**
+		 * view_file method
+		 *
+		 * @param $file
+		 * @param $fileName
+		 * @param $fileExt
+		 * @param $path
+		 */
+		public function download($encoded) {
+			$decoded = html_entity_decode($encoded);
+			$json = (array) json_decode($decoded);
+			$this->response->file(
+				WWW_ROOT . 'files' . DS . $json[3] . DS . $json[4] . DS . $json[0],
+				array(
+					'download' => true,
+					'name' => $json[1]
+				)
+			);
+			return $this->response;
+		}
+
+		/**
 		 * index method
 		 *
 		 * @return void
 		 */
 		public function index() {
-			$this->Coleccion->recursive = 0;
+			$this->Coleccion->contain('TipoDeContenido');
 			$conditions = array();
 			$conditions['Coleccion.es_tipo_de_contenido'] = false;
 			if(!$this->Auth->user('id')) {
@@ -24,7 +45,8 @@
 			$this->paginate             = array(
 				'conditions' => $conditions
 			);
-			$this->set('colecciones', $this->paginate());
+			$paginated = $this->paginate();
+			$this->set('colecciones', $paginated);
 		}
 
 		/**
@@ -37,11 +59,13 @@
 		 * @return void
 		 */
 		public function view($id = null) {
+			$this->Coleccion->contain('Usuario', 'Grupo', 'CamposColeccion.TiposDeCampo', 'TipoDeContenido');
 			if(!$this->Coleccion->exists($id)) {
 				throw new NotFoundException(__('Invalid coleccion'));
 			}
 			$options = array('conditions' => array('Coleccion.' . $this->Coleccion->primaryKey => $id));
-			$this->set('coleccion', $this->Coleccion->find('first', $options));
+			$coleccion = $this->Coleccion->find('first', $options);
+			$this->set('coleccion', $coleccion);
 		}
 
 		/**
