@@ -28,9 +28,7 @@
 	echo $this->Html->meta('icon');
 
 	echo $this->Html->css('cake.generic');
-	echo $this->Html->css('admin.styles');
-
-	echo $this->Html->script('jquery-1.9.1');
+	echo $this->Html->css('styles');
 
 	echo $this->fetch('meta');
 	echo $this->fetch('css');
@@ -44,6 +42,9 @@
 	<div id="content">
 		<?php echo $this->Session->flash(); ?>
 		<?php echo $this->fetch('content'); ?>
+		<div class="actions">
+			<a href="<?php echo $previous; ?>">Volver</a>
+		</div>
 	</div>
 	<div id="footer">
 	</div>

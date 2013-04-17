@@ -4,6 +4,8 @@
 /app/tmp
 #/app/webroot/img/uploads
 #/app/webroot/img/uploads/*
+/app/webroot/files
+/app/webroot/files/*
 /lib/Cake/Console/Templates/skel/tmp/
 /plugins
 /vendors

@@ -41,7 +41,7 @@
 		<table class="coleccion crear campos">
 			<thead>
 				<tr>
-					<th class="nombre">Nombre</th><th>Tipo</th><th>Extensión</th><th>Requerido</th><th>Acciones</th>
+					<th class="nombre">Nombre</th><th>Tipo</th><th>Extensión</th><th class="multi">Opciones Lista</th><th>Requerido</th><th>Acciones</th>
 				</tr>
 			</thead>
 			<tbody id="CamposColeccion">
@@ -62,3 +62,8 @@
 	</fieldset>
 	<?php echo $this->Form->end(__('Crear')); ?>
 </div>
+<script type="text/javascript">
+	$(function() {
+		$('.campos').css('max-height', $('.info').height());
+	});
+</script>

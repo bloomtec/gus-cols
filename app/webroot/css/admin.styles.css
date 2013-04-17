@@ -35,10 +35,10 @@ ul#admin-menu {
 }
 
 .coleccion.crear.grupos {
-    width: 480px;
+    width: 300px;
 }
 .coleccion.crear.campos {
-    width: 680px;
+    width: 880px;
 }
 .grupo {
     width: 420px;
@@ -48,12 +48,21 @@ ul#admin-menu {
 }
 .info {
     float: left;
-    width: 30%;
+    width: 320px;
 }
 .campos {
+    display: table-column;
     float: left;
-    width: 66%;
+    max-width: 890px;
+    overflow: auto;
+    width: auto;
 }
 .nombre {
     width: 400px;
+}
+.multi {
+    width: 200px;
+}
+#content .campos .actions {
+    width: 200px;
 }

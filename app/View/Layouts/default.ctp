@@ -16,23 +16,26 @@
  * @since         CakePHP(tm) v 0.10.0.1076
  * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
-
-$cakeDescription = __d('cake_dev', 'CakePHP: the rapid development php framework');
 ?>
 <!DOCTYPE html>
 <html>
 <head>
 	<?php echo $this->Html->charset(); ?>
 	<title>
-		<?php echo $cakeDescription ?>:
 		<?php echo $title_for_layout; ?>
 	</title>
 	<?php
 	echo $this->Html->meta('icon');
 
 	echo $this->Html->css('cake.generic');
+	echo $this->Html->css('styles');
+	echo $this->Html->css('jquery-ui-1.10.2.custom');
+	echo $this->Html->css('uploadify');
 
-	echo $this->Html->script('jquery-1.9.1');
+	echo $this->Html->script('jquery-1.9.1.min');
+	echo $this->Html->script('jquery-ui-1.10.2.custom.min');
+	echo $this->Html->script('jquery.uploadify.min');
+	echo $this->Html->script('default');
 
 	echo $this->fetch('meta');
 	echo $this->fetch('css');
@@ -42,21 +45,19 @@ $cakeDescription = __d('cake_dev', 'CakePHP: the rapid development php framework
 <body>
 <div id="container">
 	<div id="header">
-		<h1><?php echo $this->Html->link($cakeDescription, 'http://cakephp.org'); ?></h1>
+		<?php echo $this -> element('menu'); ?>
 	</div>
 	<div id="content">
-
 		<?php echo $this->Session->flash(); ?>
-
 		<?php echo $this->fetch('content'); ?>
+		<div class="actions">
+			<?php if(!in_array($this->action, array('index'))) { ?>
+			<a href="<?php echo $previous; ?>">Volver</a>
+			<?php } ?>
+		</div>
 	</div>
 	<div id="footer">
-		<?php echo $this->Html->link(
-			$this->Html->image('cake.power.gif', array('alt' => $cakeDescription, 'border' => '0')),
-			'http://www.cakephp.org/',
-			array('target' => '_blank', 'escape' => false)
-		);
-		?>
+
 	</div>
 </div>
 <?php echo $this->element('sql_dump'); ?>

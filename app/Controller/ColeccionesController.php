@@ -16,6 +16,14 @@
 		 */
 		public function index() {
 			$this->Coleccion->recursive = 0;
+			$conditions = array();
+			$conditions['Coleccion.es_tipo_de_contenido'] = false;
+			if(!$this->Auth->user('id')) {
+				$conditions['Coleccion.acceso_anonimo'] = true;
+			}
+			$this->paginate             = array(
+				'conditions' => $conditions
+			);
 			$this->set('colecciones', $this->paginate());
 		}
 
@@ -41,20 +49,66 @@
 		 *
 		 * @return void
 		 */
-		public function add() {
-			if($this->request->is('post')) {
-				$this->Coleccion->create();
-				if($this->Coleccion->save($this->request->data)) {
-					$this->Session->setFlash(__('The coleccion has been saved'));
-					$this->redirect(array('action' => 'index'));
+		public function add($ct_id = false) {
+			$this->Coleccion->contain('CamposColeccion');
+			if(!$ct_id) {
+				$tipoDeContenidos = $this->Coleccion->find(
+					'list',
+					array(
+						'conditions' => array(
+							'Coleccion.es_tipo_de_contenido' => true
+						)
+					)
+				);
+				$this->set(compact('tipoDeContenidos'));
+				if($this->request->is('post')) {
+					$this->redirect(array('action' => 'add', $this->request->data['Coleccion']['tipo_de_contenido']));
+				}
+			} else {
+				if($this->request->is('put')) {
+					if($this->Auth->user('id')) {
+						$this->request->data['Coleccion']['usuario_id'] = $this->Auth->user('id');
+					}
+					$this->Coleccion->create();
+					if($this->Coleccion->save($this->request->data)) {
+						$this->Session->setFlash(__('The coleccion has been saved'));
+						$this->redirect(array('action' => 'index'));
+					} else {
+						$this->Session->setFlash(__('The coleccion could not be saved. Please, try again.'));
+						debug($this->Coleccion->invalidFields());
+					}
 				} else {
-					$this->Session->setFlash(__('The coleccion could not be saved. Please, try again.'));
+					$options = array('conditions' => array('Coleccion.' . $this->Coleccion->primaryKey => $ct_id));
+					$this->request->data = $this->Coleccion->find('first', $options);
 				}
 			}
-			$usuarios = $this->Coleccion->Usuario->find('list');
-			$grupos   = $this->Coleccion->Grupo->find('list');
-			$grupos   = $this->Coleccion->Grupo->find('list');
-			$this->set(compact('usuarios', 'grupos', 'grupos'));
+			$this->set('ct_id', $ct_id);
+		}
+
+		/**
+		 * add_campo_form_contenido method
+		 *
+		 * @param int $campo_id
+		 */
+		public function add_campo_form_contenido($campo_id, $c_name, $uid, $index) {
+			$this->layout = 'ajax';
+			$this->Campo->contain();
+			$campo = $this->Campo->read(null, $campo_id);
+			$ext = null;
+			$seleccionListaPredefinidas = null;
+			if($campo['Campo']['tipos_de_campo_id'] == 3) {
+				$ext = $campo['Campo']['extensión'];
+			} elseif($campo['Campo']['tipos_de_campo_id'] == 5) {
+				$seleccionListaPredefinidas = explode("\n", $campo['Campo']['lista_predefinida']);
+				foreach($seleccionListaPredefinidas as $key => $value) {
+					$value = trim($value);
+					unset($seleccionListaPredefinidas[$key]);
+					$seleccionListaPredefinidas[$value] = $value;
+				}
+			}
+			$c_name = urldecode($c_name);
+			$uid = urldecode($uid);
+			$this->set(compact('index', 'c_name', 'uid', 'campo', 'campo_id', 'ext', 'seleccionListaPredefinidas'));
 		}
 
 		/**

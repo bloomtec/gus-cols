@@ -46,7 +46,7 @@
 		<table class="coleccion crear campos">
 			<thead>
 			<tr>
-				<th class="nombre">Nombre</th><th>Tipo</th><th>Extensión</th><th>Requerido</th><th>Acciones</th>
+				<th class="nombre">Nombre</th><th>Tipo</th><th>Extensión</th><th class="multi">Opciones Lista</th><th>Requerido</th><th>Acciones</th>
 			</tr>
 			</thead>
 			<tbody id="CamposColeccion">
@@ -58,20 +58,31 @@
 						<td class="nombre"><?php echo $this->Form->input("Campo.$campo_id.nombre", array('label' => false, 'div' => false)); ?></td>
 						<td><?php echo $this->Form->input("Campo.$campo_id.tipos_de_campo_id", array('empty' => 'Seleccione...', 'label' => false, 'div' => false, 'class' => "tipo-campo-$uid")); ?></td>
 						<td><?php echo $this->Form->input("Campo.$campo_id.extensión", array('label' => false, 'div' => false, 'class' => "extensión-$uid")); ?></td>
+						<td class="multi"><?php echo $this->Form->input("Campo.$campo_id.lista_predefinida", array('label' => false, 'div' => false, 'class' => "lista-$uid", 'placeholder' => 'Una opción por línea')); ?></td>
 						<td><?php echo $this->Form->input("Campo.$campo_id.es_requerido", array('label' => false, 'div' => false)); ?></td>
 						<td class="actions"><a class="remover-campo-<?php echo $uid; ?>">Eliminar</a></td>
-						<script>
+						<script type="text/javascript">
 							$(function(){
-								var campoExt = $('.extensión-<?php echo $uid; ?>'), campoTipo = $('.tipo-campo-<?php echo $uid; ?>'), eliminarCampo = $('.remover-campo-<?php echo $uid; ?>');
-
-								campoExt.attr('disabled', 'disabled');
-								campoTipo.change(function(){
+								var campoLista = $('.lista-<?php echo $uid; ?>'), campoExt = $('.extensión-<?php echo $uid; ?>'), campoTipo = $('.tipo-campo-<?php echo $uid; ?>'), eliminarCampo = $('.remover-campo-<?php echo $uid; ?>');
+								function verificarTipo() {
 									if(campoTipo.val() == 3) {
 										campoExt.removeAttr('disabled');
 									} else {
-										campoExt.attr('disabled', 'disabled');
+										campoExt.prop('disabled', true);
 										campoExt.val('');
 									}
+									if(campoTipo.val() == 5) {
+										campoLista.removeAttr('disabled');
+									} else {
+										campoLista.prop('disabled', true);
+										campoLista.val('');
+									}
+								}
+								campoExt.prop('disabled', true);
+								campoLista.prop('disabled', true);
+								verificarTipo();
+								campoTipo.change(function(){
+									verificarTipo();
 								});
 								eliminarCampo.click(function() {
 									eliminarCampo.parent().parent().remove();
@@ -89,3 +100,8 @@
 	</fieldset>
 	<?php echo $this->Form->end(__('Modificar')); ?>
 </div>
+<script type="text/javascript">
+	$(function() {
+		$('.campos').css('max-height', $('.info').height());
+	});
+</script>

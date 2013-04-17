@@ -30,8 +30,9 @@
 	echo $this->Html->css('cake.generic');
 	echo $this->Html->css('admin.styles');
 
-	echo $this->Html->script('jquery-1.9.1');
-	echo $this->Html->script('generic');
+	echo $this->Html->script('jquery-1.9.1.min');
+	echo $this->Html->script('admin');
+	echo $this->Html->script('default');
 
 	echo $this->fetch('meta');
 	echo $this->fetch('css');
@@ -47,7 +48,9 @@
 		<?php echo $this->Session->flash(); ?>
 		<?php echo $this->fetch('content'); ?>
 		<div class="actions">
-			<a href="<?php echo $previous; ?>">Volver</a>
+			<?php if(!in_array($this->action, array('index', 'admin_index', 'admin_index_content', 'admin_index_content_type'))) { ?>
+				<a href="<?php echo $previous; ?>">Volver</a>
+			<?php } ?>
 		</div>
 	</div>
 	<div id="footer">

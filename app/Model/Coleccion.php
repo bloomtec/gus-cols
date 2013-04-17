@@ -106,6 +106,49 @@
 			if($this->data['Coleccion']['es_tipo_de_contenido']) {
 				$this->afterSaveTipoDeContenido($created);
 			} else {
+				$this->afterSaveContenido($created);
+			}
+		}
+
+		/**
+		 * afterSaveContenido method
+		 *
+		 * @param $created
+		 */
+		private function afterSaveContenido($created) {
+			if($created) {
+				// Crear los campos
+				if(isset($this->data['CamposColeccion'])) {
+					foreach($this->data['CamposColeccion'] as $key => $campo) {
+						$campoColeccion = array(
+							'CamposColeccion' => $campo
+						);
+						$campoColeccion['CamposColeccion']['model'] = 'Coleccion';
+						$campoColeccion['CamposColeccion']['foreign_key'] = $this->id;
+						$this->CamposColeccion->create();
+						$this->CamposColeccion->save($campoColeccion);
+					}
+				}
+				// Crear los permisos de acceso y creación
+				$colecciones_grupos = $this->ColeccionesGrupo->find(
+					'all',
+					array(
+						'conditions' => array(
+							'ColeccionesGrupo.coleccion_id' => $this->data['Coleccion']['coleccion_id']
+						),
+						'fields' => array(
+							'ColeccionesGrupo.grupo_id',
+							'ColeccionesGrupo.creación',
+							'ColeccionesGrupo.acceso'
+						)
+					)
+				);
+				foreach($colecciones_grupos as $key => $coleccion_grupo) {
+					$coleccion_grupo['ColeccionesGrupo']['coleccion_id'] = $this->id;
+					$this->ColeccionesGrupo->create();
+					$this->ColeccionesGrupo->save($coleccion_grupo);
+				}
+			} else {
 
 			}
 		}
@@ -166,6 +209,8 @@
 					$this->CamposColeccion->save($campoColeccion);
 				}
 			}
+			// Crear el directorio
+			mkdir(WWW_ROOT . 'files' . DS . $this->data['Coleccion']['nombre'], 0777);
 		}
 
 		//The Associations below have been created with all possible keys, those that are not needed can be removed
