@@ -1,0 +1,20 @@
+/** Sección de contenido **/
+div.form, div.index, div.view {
+    border-left-color: whitesmoke;
+    border-left-style: none;
+    border-left-width: 0;
+    float: none;
+    padding: 10px 2%;
+    width: 96%;
+}
+
+/** Menú administrativo **/
+ul#user-menu {
+    float: right;
+    margin-right:2%;
+}
+
+/** Campos **/
+.campo-fecha {
+    width: 130px;
+}
