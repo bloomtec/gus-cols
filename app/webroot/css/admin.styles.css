@@ -14,6 +14,19 @@ ul#admin-menu {
     margin-right:2%;
 }
 
+/** DIV volver **/
+.actions.volver {
+    clear: both;
+    float: right;
+}
+
+/** Ordenar **/
+.ordenar fieldset {
+    margin-left: auto;
+    margin-right: auto;
+    width: 10%;
+}
+
 /** Items relacionados en view **/
 .related {
     margin-left:2%;
@@ -50,18 +63,25 @@ ul#admin-menu {
     float: left;
     width: 320px;
 }
-.campos {
+.form .campos {
     display: table-column;
     float: left;
     max-width: 890px;
     overflow: auto;
     width: auto;
 }
-.nombre {
-    width: 400px;
+.campo-nombre {
+    width: auto;
 }
-.multi {
-    width: 200px;
+.nombre {
+    max-width: 300px;
+    min-width: 300px;
+    width: 300px;
+}
+.tipo {
+    max-width: 300px;
+    min-width: 300px;
+    width: 300px;
 }
 #content .campos .actions {
     width: 200px;

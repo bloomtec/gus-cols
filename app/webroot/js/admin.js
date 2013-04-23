@@ -59,7 +59,7 @@
     function agregarCampo() {
         var campos = $('#CamposColeccion'), campoClass = 'campo-' + campoId;
         campos.append('<tr class="' + campoClass + '"></tr>');
-        $('.' + campoClass).load('/admin/colecciones/add_campo/' + campoId);
+        $('.' + campoClass).load('/admin/colecciones/add_campo/' + campoId + '/' + $('#ColeccionId').val());
         campoId += 1;
     }
     $(function() {

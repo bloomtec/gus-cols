@@ -48,6 +48,35 @@
 		</dd>
 	</dl>
 </div>
+<div class="related campos">
+	<h3><?php echo __('Campos'); ?></h3>
+	<?php if(!empty($coleccion['CamposColeccion'])): ?>
+		<table cellpadding="0" cellspacing="0">
+			<tr>
+				<th><?php echo __('Nombre'); ?></th>
+				<th><?php echo __('Tipo de campo'); ?></th>
+				<th><?php echo __('Es requerido'); ?></th>
+			</tr>
+			<?php
+				$i = 0;
+				foreach($coleccion['CamposColeccion'] as $campo): ?>
+					<?php if(is_array($campo) && $campo['id'] != 2) : ?>
+						<tr>
+							<td><?php echo $campo['nombre']; ?></td>
+							<td><?php echo $campo['TiposDeCampo']['nombre']; ?></td>
+							<td>
+								<?php if($campo['es_requerido']) { ?>
+									<input type="checkbox" disabled="disabled" checked="checked">
+								<?php } else { ?>
+									<input type="checkbox" disabled="disabled">
+								<?php } ?>
+							</td>
+						</tr>
+					<?php endif; ?>
+				<?php endforeach; ?>
+		</table>
+	<?php endif; ?>
+</div>
 <div class="related grupos">
 	<h3><?php echo __('Grupos con permisos'); ?></h3>
 	<?php if(!empty($coleccion['Grupo'])): ?>
@@ -78,35 +107,6 @@
 						<?php } ?>
 					</td>
 				</tr>
-				<?php endif; ?>
-			<?php endforeach; ?>
-		</table>
-	<?php endif; ?>
-</div>
-<div class="related campos">
-	<h3><?php echo __('Campos'); ?></h3>
-	<?php if(!empty($coleccion['CamposColeccion'])): ?>
-		<table cellpadding="0" cellspacing="0">
-			<tr>
-				<th><?php echo __('Nombre'); ?></th>
-				<th><?php echo __('Tipo de campo'); ?></th>
-				<th><?php echo __('Es requerido'); ?></th>
-			</tr>
-			<?php
-			$i = 0;
-			foreach($coleccion['CamposColeccion'] as $campo): ?>
-				<?php if(is_array($campo) && $campo['id'] != 2) : ?>
-					<tr>
-						<td><?php echo $campo['nombre']; ?></td>
-						<td><?php echo $campo['TiposDeCampo']['nombre']; ?></td>
-						<td>
-							<?php if($campo['es_requerido']) { ?>
-								<input type="checkbox" disabled="disabled" checked="checked">
-							<?php } else { ?>
-								<input type="checkbox" disabled="disabled">
-							<?php } ?>
-						</td>
-					</tr>
 				<?php endif; ?>
 			<?php endforeach; ?>
 		</table>

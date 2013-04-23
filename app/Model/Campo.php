@@ -75,7 +75,7 @@
 				'numeric' => array(
 					'rule' => array('numeric'),
 					//'message' => 'Your custom message here',
-					//'allowEmpty' => false,
+					'allowEmpty' => true,
 					//'required' => false,
 					//'last' => false, // Stop validation after this rule
 					//'on' => 'create', // Limit validation to 'create' or 'update' operations
@@ -85,13 +85,33 @@
 				'date' => array(
 					'rule' => array('date'),
 					//'message' => 'Your custom message here',
-					//'allowEmpty' => false,
+					'allowEmpty' => true,
 					//'required' => false,
 					//'last' => false, // Stop validation after this rule
 					//'on' => 'create', // Limit validation to 'create' or 'update' operations
 				),
 			),
 			'coleccion_id'      => array(
+				'numeric' => array(
+					'rule' => array('numeric'),
+					//'message' => 'Your custom message here',
+					'allowEmpty' => true,
+					//'required' => false,
+					//'last' => false, // Stop validation after this rule
+					//'on' => 'create', // Limit validation to 'create' or 'update' operations
+				),
+			),
+			'campo_id'      => array(
+				'numeric' => array(
+					'rule' => array('numeric'),
+					//'message' => 'Your custom message here',
+					'allowEmpty' => true,
+					//'required' => false,
+					//'last' => false, // Stop validation after this rule
+					//'on' => 'create', // Limit validation to 'create' or 'update' operations
+				),
+			),
+			'posicion'      => array(
 				'numeric' => array(
 					'rule' => array('numeric'),
 					//'message' => 'Your custom message here',
@@ -124,6 +144,55 @@
 				'conditions' => '',
 				'fields'     => '',
 				'order'      => ''
+			),
+			'CampoElemento'    => array(
+				'className'  => 'Campo',
+				'foreignKey' => 'campo_id',
+				'conditions' => '',
+				'fields'     => '',
+				'order'      => ''
 			)
+		);
+
+		/**
+		 * hasOne associations
+		 *
+		 * @var array
+		 */
+		public $hasOne = array(
+			'Elemento' => array(
+				'className'    => 'Coleccion',
+				'foreignKey'   => 'coleccion_id',
+				'dependent'    => false,
+				'conditions'   => '',
+				'fields'       => '',
+				'order'        => '',
+				'limit'        => '',
+				'offset'       => '',
+				'exclusive'    => '',
+				'finderQuery'  => '',
+				'counterQuery' => ''
+			),
+		);
+
+		/**
+		 * hasMany associations
+		 *
+		 * @var array
+		 */
+		public $hasMany = array(
+			'CamposElemento' => array(
+				'className'    => 'Campo',
+				'foreignKey'   => 'campo_id',
+				'dependent'    => true,
+				'conditions'   => '',
+				'fields'       => '',
+				'order'        => 'CamposElemento.posicion ASC',
+				'limit'        => '',
+				'offset'       => '',
+				'exclusive'    => '',
+				'finderQuery'  => '',
+				'counterQuery' => ''
+			),
 		);
 	}

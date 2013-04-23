@@ -32,6 +32,7 @@
 				<td><?php echo h($coleccion['Coleccion']['modified']); ?>&nbsp;</td>
 				<td class="actions">
 					<?php echo $this->Html->link(__('Ver'), array('action' => 'view_content_type', $coleccion['Coleccion']['id'])); ?>
+					<?php echo $this->Html->link(__('Ordenar Campos'), array('action' => 'order_content_type_fields', $coleccion['Coleccion']['id'])); ?>
 					<?php echo $this->Html->link(__('Modificar'), array('action' => 'edit_content_type', $coleccion['Coleccion']['id'])); ?>
 					<?php echo $this->Form->postLink(__('Eliminar'), array('action' => 'delete_content_type', $coleccion['Coleccion']['id']), null, __('Are you sure you want to delete # %s?', $coleccion['Coleccion']['id'])); ?>
 				</td>

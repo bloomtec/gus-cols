@@ -58,6 +58,14 @@
 					//'last' => false, // Stop validation after this rule
 					//'on' => 'create', // Limit validation to 'create' or 'update' operations
 				),
+				'nombreValido' => array(
+					'rule' => array('nombreValido'),
+					'message' => 'El nombre no puede contener los caracteres: \ / : * ? " < > |',
+					//'allowEmpty' => false,
+					//'required' => false,
+					//'last' => false, // Stop validation after this rule
+					//'on' => 'create', // Limit validation to 'create' or 'update' operations
+				),
 			),
 			'es_auditable'   => array(
 				'boolean' => array(
@@ -95,6 +103,51 @@
 		}
 
 		/**
+		 * nombreValido method
+		 *
+		 * @return bool
+		 */
+		public function nombreValido() {
+			if(strpos($this->data['Coleccion']['nombre'], "\\") !== false) {
+				return false;
+			}
+			if(strpos($this->data['Coleccion']['nombre'], "/") !== false) {
+				return false;
+			}
+			if(strpos($this->data['Coleccion']['nombre'], "*") !== false) {
+				return false;
+			}
+			if(strpos($this->data['Coleccion']['nombre'], "?") !== false) {
+				return false;
+			}
+			if(strpos($this->data['Coleccion']['nombre'], '"') !== false) {
+				return false;
+			}
+			if(strpos($this->data['Coleccion']['nombre'], "<") !== false) {
+				return false;
+			}
+			if(strpos($this->data['Coleccion']['nombre'], ">") !== false) {
+				return false;
+			}
+			if(strpos($this->data['Coleccion']['nombre'], "|") !== false) {
+				return false;
+			}
+			return true;
+		}
+
+		/**
+		 * afterDelete method
+		 *
+		 * @return bool
+		 */
+		public function beforeDelete($cascade = true) {
+			$this->recursive = -1;
+			$coleccion = $this->read(null, $this->id);
+			$path = WWW_ROOT . 'files' . DS . $coleccion['Coleccion']['nombre'];
+			return rmdir($path);
+		}
+
+		/**
 		 * afterSave method
 		 *
 		 * @return void
@@ -108,6 +161,7 @@
 			} else {
 				$this->afterSaveContenido($created);
 			}
+			$this->limpiarDirectorios();
 		}
 
 		/**
@@ -159,12 +213,13 @@
 		 * @param $created
 		 */
 		private function afterSaveTipoDeContenido($created) {
+			$coleccion_id = $this->id;
 			if(!$created) {
 				$permisosActuales = $this->ColeccionesGrupo->find(
 					'all',
 					array(
 						'conditions' => array(
-							'ColeccionesGrupo.coleccion_id' => $this->id
+							'ColeccionesGrupo.coleccion_id' => $coleccion_id
 						)
 					)
 				);
@@ -174,7 +229,7 @@
 					array(
 						'conditions' => array(
 							'CamposColeccion.model' => 'Coleccion',
-							'CamposColeccion.foreign_key' => $this->id
+							'CamposColeccion.foreign_key' => $coleccion_id
 						)
 					)
 				);
@@ -182,12 +237,17 @@
 					$this->CamposColeccion->delete($campo['CamposColeccion']['id']);
 				}
 			}
+			// Crear el directorio
+			$path = WWW_ROOT . 'files' . DS . $this->data['Coleccion']['nombre'];
+			if(!file_exists($path)) {
+				mkdir($path, 0777);
+			}
 			// Crear los permisos de acceso y creación
 			foreach($this->data['Grupo'] as $grupo_id => $permisos) {
 				if($permisos['creación'] || $permisos['acceso']) {
 					$coleccionesGrupo = array(
 						'ColeccionesGrupo' => array(
-							'coleccion_id' => $this->id,
+							'coleccion_id' => $coleccion_id,
 							'grupo_id' => $grupo_id,
 							'creación' => $permisos['creación'],
 							'acceso' => $permisos['acceso']
@@ -204,13 +264,79 @@
 						'CamposColeccion' => $campo
 					);
 					$campoColeccion['CamposColeccion']['model'] = 'Coleccion';
-					$campoColeccion['CamposColeccion']['foreign_key'] = $this->id;
-					$this->CamposColeccion->create();
-					$this->CamposColeccion->save($campoColeccion);
+					$campoColeccion['CamposColeccion']['foreign_key'] = $coleccion_id;
+					if(!isset($campoColeccion['CamposColeccion']['campo_id'])) {
+						$this->CamposColeccion->create();
+						if($this->CamposColeccion->save($campoColeccion) && $campoColeccion['CamposColeccion']['tipos_de_campo_id'] == 8) {
+							$campo_id = $this->CamposColeccion->id;
+							$this->agregarCamposElemento($campo_id, $coleccion_id, $campoColeccion['CamposColeccion']['coleccion_id'], $created);
+						}
+					}
 				}
 			}
-			// Crear el directorio
-			mkdir(WWW_ROOT . 'files' . DS . $this->data['Coleccion']['nombre'], 0777);
+		}
+
+		/**
+		 * agregarCamposElemento method
+		 *
+		 * @param $coleccion_id
+		 * @param $elemento_id
+		 * @param $created
+		 */
+		private function agregarCamposElemento($campo_id, $coleccion_id, $elemento_id, $created) {
+			$this->CamposColeccion->contain();
+			$campos = $this->CamposColeccion->find(
+				'all',
+				array(
+					'conditions' => array(
+						'CamposColeccion.model' => 'Coleccion',
+						'CamposColeccion.foreign_key' => $elemento_id
+					)
+				)
+			);
+			foreach($campos as $key => $campo) {
+				unset($campo['CamposColeccion']['id']);
+				$campo['CamposColeccion']['foreign_key'] = $coleccion_id;
+				if(!$campo['CamposColeccion']['campo_id']) {
+					$campo['CamposColeccion']['campo_id'] = $campo_id;
+					$this->CamposColeccion->create();
+					if($this->CamposColeccion->save($campo) && $campo['CamposColeccion']['tipos_de_campo_id'] == 8) {
+						$new_campo_id = $this->CamposColeccion->id;
+						$this->agregarCamposElemento($new_campo_id, $coleccion_id, $campo['CamposColeccion']['coleccion_id'], $created);
+					}
+				}
+			}
+		}
+
+		/**
+		 * limpiarDirectorios method
+		 *
+		 * @return void
+		 */
+		private function limpiarDirectorios() {
+			$directories = $this->find(
+				'list',
+				array(
+					'conditions' => array(
+						'Coleccion.es_tipo_de_contenido' => 1
+					),
+					'fields' => array(
+						'Coleccion.nombre'
+					)
+				)
+			);
+			$path = WWW_ROOT . 'files';
+			$handle = opendir($path);
+			if ($handle) {
+				while (false !== ($entry = readdir($handle))) {
+					if ($entry != "." && $entry != ".." && $entry != "empty") {
+						if(!in_array($entry, $directories)) {
+							rmdir($path . DS . $entry);
+						}
+					}
+				}
+				closedir($handle);
+			}
 		}
 
 		//The Associations below have been created with all possible keys, those that are not needed can be removed
@@ -273,26 +399,13 @@
 		 * @var array
 		 */
 		public $hasMany = array(
-			'CampoTipoElemento' => array(
-				'className'    => 'Campo',
-				'foreignKey'   => 'coleccion_id',
-				'dependent'    => false,
-				'conditions'   => '',
-				'fields'       => '',
-				'order'        => '',
-				'limit'        => '',
-				'offset'       => '',
-				'exclusive'    => '',
-				'finderQuery'  => '',
-				'counterQuery' => ''
-			),
 			'CamposColeccion' => array(
 				'className'    => 'Campo',
 				'foreignKey'   => 'foreign_key',
 				'dependent'    => true,
 				'conditions'   => array('CamposColeccion.model' => 'Coleccion'),
 				'fields'       => '',
-				'order'        => '',
+				'order'        => 'CamposColeccion.posicion ASC',
 				'limit'        => '',
 				'offset'       => '',
 				'exclusive'    => '',

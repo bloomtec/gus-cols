@@ -50,7 +50,7 @@ if($campo['Campo']['tipos_de_campo_id'] == 1) {
 	);
 	echo $this->Form->hidden(
 		"CamposColeccion.$index.extensión",
-		array('value' => $campo['Campo']['extensión'])
+		array('value' => $campo['Campo']['extensiones'])
 	);
 	?>
 	<div class="upload-container">
@@ -63,8 +63,8 @@ if($campo['Campo']['tipos_de_campo_id'] == 1) {
 			$('#Upload<?php echo $campo_id; ?>').uploadify({
 				'multi'           : false,
 				'buttonText'      : 'Buscar archivo...',
-				'fileTypeDesc'    : 'Archivos <?php echo $campo['Campo']['extensión']; ?>',
-				'fileTypeExts'    : '*.<?php echo $campo['Campo']['extensión']; ?>',
+				'fileTypeDesc'    : 'Archivos <?php echo $campo['Campo']['extensiones']; ?>',
+				'fileTypeExts'    : '<?php echo $exts; ?>',
 				//'checkExisting'  : '/check-exists.php',
 				'swf'             : '/swf/swf-uploader.swf',
 				'uploader'        : '/swf-uploader.php',
@@ -75,9 +75,20 @@ if($campo['Campo']['tipos_de_campo_id'] == 1) {
 					'directory'  : '<?php echo $uid; ?>'
 				},
 				'onUploadComplete': function(file) {
-					$('#CamposColeccion<?php echo $index; ?>NombreDeArchivo<?php echo $campo_id; ?>').val(file.name);
-					$('#Upload<?php echo $campo_id; ?>').remove();
-					$('#Result<?php echo $campo_id; ?>').html('Se ha subido el archivo');
+					$.ajax({
+						url: "/colecciones/uploaded/<?php echo urlencode($c_name); ?>/<?php echo urlencode($uid); ?>",
+						cache: false,
+						async: false,
+						dataType: 'json',
+						success: function(response) {
+							if(response.success) {
+								$('#CamposColeccion<?php echo $index; ?>NombreDeArchivo<?php echo $campo_id; ?>').val(file.name);
+								$('#Upload<?php echo $campo_id; ?>').remove();
+								$('#Result<?php echo $campo_id; ?>').html('Se ha subido el archivo');
+							} else {
+								$('#Result<?php echo $campo_id; ?>').html('Ocurrió un error al subir el archivo. Por favor, intente de nuevo.');
+							}						}
+					});
 				}
 			});
 		});

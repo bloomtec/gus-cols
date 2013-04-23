@@ -10,6 +10,17 @@
 		public $uses = array('Coleccion', 'Campo');
 
 		/**
+		 * uploaded method
+		 *
+		 * @param $ruta
+		 */
+		public function uploaded($coleccion, $nombre) {
+			$ruta = WWW_ROOT . 'files' . DS . urldecode($coleccion) . DS .urldecode($nombre);
+			echo json_encode(array('success' => file_exists($ruta)));
+			exit(0);
+		}
+
+		/**
 		 * view_file method
 		 *
 		 * @param $file
@@ -40,7 +51,7 @@
 			$conditions = array();
 			$conditions['Coleccion.es_tipo_de_contenido'] = false;
 			if(!$this->Auth->user('id')) {
-				$conditions['Coleccion.acceso_anonimo'] = true;
+				$conditions['Coleccion.acceso_anonimo'] = 1;
 			}
 			$this->paginate             = array(
 				'conditions' => $conditions
@@ -74,7 +85,6 @@
 		 * @return void
 		 */
 		public function add($ct_id = false) {
-			$this->Coleccion->contain('CamposColeccion');
 			if(!$ct_id) {
 				$tipoDeContenidos = $this->Coleccion->find(
 					'list',
@@ -102,7 +112,16 @@
 						debug($this->Coleccion->invalidFields());
 					}
 				} else {
-					$options = array('conditions' => array('Coleccion.' . $this->Coleccion->primaryKey => $ct_id));
+					$contain = array(
+						'CamposColeccion' => array(
+							'order' => 'CamposColeccion.posicion ASC',
+							'conditions' => 'CamposColeccion.tipos_de_campo_id <> 8'
+						)
+					);
+					$options = array(
+						'contain' => $contain,
+						'conditions' => array('Coleccion.' . $this->Coleccion->primaryKey => $ct_id)
+					);
 					$this->request->data = $this->Coleccion->find('first', $options);
 				}
 			}
@@ -118,10 +137,18 @@
 			$this->layout = 'ajax';
 			$this->Campo->contain();
 			$campo = $this->Campo->read(null, $campo_id);
-			$ext = null;
+			$exts = '';
 			$seleccionListaPredefinidas = null;
 			if($campo['Campo']['tipos_de_campo_id'] == 3) {
-				$ext = $campo['Campo']['extensión'];
+				$TMPexts = explode(',', $campo['Campo']['extensiones']);
+				$j = count($TMPexts);
+				for($i = 0; $i < $j; $i += 1) {
+					if($i < $j - 1) {
+						$exts .= '*.' . trim($TMPexts[$i] . '; ');
+					} else {
+						$exts .= '*.' . trim($TMPexts[$i]);
+					}
+				}
 			} elseif($campo['Campo']['tipos_de_campo_id'] == 5) {
 				$seleccionListaPredefinidas = explode("\n", $campo['Campo']['lista_predefinida']);
 				foreach($seleccionListaPredefinidas as $key => $value) {
@@ -132,7 +159,7 @@
 			}
 			$c_name = urldecode($c_name);
 			$uid = urldecode($uid);
-			$this->set(compact('index', 'c_name', 'uid', 'campo', 'campo_id', 'ext', 'seleccionListaPredefinidas'));
+			$this->set(compact('index', 'c_name', 'uid', 'campo', 'campo_id', 'exts', 'seleccionListaPredefinidas'));
 		}
 
 		/**
@@ -317,10 +344,24 @@
 		 *
 		 * @param $campo_id
 		 */
-		public function admin_add_campo($campo_id) {
+		public function admin_add_campo($campo_id, $coleccion_id = null) {
 			$this->layout  = 'ajax';
 			$tiposDeCampos = $this->Campo->TiposDeCampo->find('list');
-			$this->set(compact('campo_id', 'tiposDeCampos'));
+			$colecciones = array();
+			if($coleccion_id) {
+				$colecciones = $this->Coleccion->find(
+					'list',
+					array(
+						'conditions' => array(
+							'Coleccion.es_tipo_de_contenido' => 1,
+							'Coleccion.id <>' => $coleccion_id
+						)
+					)
+				);
+			} else {
+				$colecciones = $this->Coleccion->find('list', array('conditions' => 'Coleccion.es_tipo_de_contenido = 1'));
+			}
+			$this->set(compact('campo_id', 'tiposDeCampos', 'colecciones'));
 		}
 
 		/**
@@ -333,7 +374,12 @@
 		 * @return void
 		 */
 		public function admin_edit_content_type($id = null) {
-			$this->Coleccion->contain('CamposColeccion', 'Grupo', 'Usuario');
+			$this->Coleccion->contain(
+				'CamposColeccion.TiposDeCampo',
+				'CamposColeccion.Coleccion',
+				'Grupo',
+				'Usuario'
+			);
 			if(!$this->Coleccion->exists($id)) {
 				throw new NotFoundException(__('Invalid coleccion'));
 			}
@@ -373,7 +419,79 @@
 			}
 			$grupos        = $this->Coleccion->Grupo->find('list', array('conditions' => array('Grupo.id <>' => 2)));
 			$tiposDeCampos = $this->Campo->TiposDeCampo->find('list');
-			$this->set(compact('grupos', 'tiposDeCampos'));
+			$colecciones = $this->Coleccion->find(
+				'list',
+				array(
+					'conditions' => array(
+						'Coleccion.es_tipo_de_contenido' => 1,
+						'Coleccion.id <>' => $id
+					)
+				)
+			);
+			$this->set(compact('grupos', 'tiposDeCampos', 'colecciones'));
+		}
+
+		/**
+		 * admin_order_content_type_fields method
+		 *
+		 * @throws NotFoundException
+		 *
+		 * @param string $id
+		 *
+		 * @return void
+		 */
+		public function admin_order_content_type_fields($id = null) {
+			$contain = array(
+				'CamposColeccion' => array(
+					'conditions' => array(
+						'CamposColeccion.tipos_de_campo_id <>' => 8
+					),
+					'order' => 'CamposColeccion.posicion ASC'
+				),
+				'CamposColeccion.TiposDeCampo',
+				'CamposColeccion.Coleccion',
+				'Grupo',
+				'Usuario'
+			);
+			if(!$this->Coleccion->exists($id)) {
+				throw new NotFoundException(__('Invalid coleccion'));
+			}
+
+			// Obtener la Coleccion
+			$options             = array(
+				'contain' => $contain,
+				'conditions' => array('Coleccion.' . $this->Coleccion->primaryKey => $id)
+			);
+			$this->request->data = $this->Coleccion->find('first', $options); //debug($this->request->data);
+			// Procesar los campos
+			$this->request->data['Campo'] = $this->request->data['CamposColeccion'];
+			unset($this->request->data['CamposColeccion']);
+			// Procesar los grupos (los permisos)
+			foreach($this->request->data['Grupo'] as $key => $grupo) {
+				if(!$grupo) {
+					unset($this->request->data['Grupo'][$key]);
+				}
+			}
+			$permisos                     = $this->request->data['Grupo'];
+			$this->request->data['Grupo'] = array();
+			foreach($permisos as $key => $permiso) {
+				if(is_array($permiso) && $permiso['ColeccionesGrupo']['grupo_id'] != 2) {
+					$this->request->data['Grupo'][$permiso['ColeccionesGrupo']['grupo_id']] = $permiso['ColeccionesGrupo'];
+				}
+			}
+
+			$grupos        = $this->Coleccion->Grupo->find('list', array('conditions' => array('Grupo.id <>' => 2)));
+			$tiposDeCampos = $this->Campo->TiposDeCampo->find('list');
+			$colecciones = $this->Coleccion->find(
+				'list',
+				array(
+					'conditions' => array(
+						'Coleccion.es_tipo_de_contenido' => 1,
+						'Coleccion.id <>' => $id
+					)
+				)
+			);
+			$this->set(compact('grupos', 'tiposDeCampos', 'colecciones'));
 		}
 
 		/**

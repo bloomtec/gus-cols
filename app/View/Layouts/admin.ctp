@@ -28,11 +28,12 @@
 	echo $this->Html->meta('icon');
 
 	echo $this->Html->css('cake.generic');
+	echo $this->Html->css('jquery-ui-1.10.2.custom');
 	echo $this->Html->css('admin.styles');
 
 	echo $this->Html->script('jquery-1.9.1.min');
+	echo $this->Html->script('jquery-ui-1.10.2.custom.min');
 	echo $this->Html->script('admin');
-	echo $this->Html->script('default');
 
 	echo $this->fetch('meta');
 	echo $this->fetch('css');
@@ -47,7 +48,7 @@
 	<div id="content">
 		<?php echo $this->Session->flash(); ?>
 		<?php echo $this->fetch('content'); ?>
-		<div class="actions">
+		<div class="actions volver">
 			<?php if(!in_array($this->action, array('index', 'admin_index', 'admin_index_content', 'admin_index_content_type'))) { ?>
 				<a href="<?php echo $previous; ?>">Volver</a>
 			<?php } ?>
