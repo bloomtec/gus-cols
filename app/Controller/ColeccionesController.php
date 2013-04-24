@@ -141,15 +141,26 @@
 					)
 				)
 			);
-			$interseccion = array_intersect($gruposUsuario, $gruposColeccion);
 
 			// Validación por contenido creado
 			$this->Coleccion->contain('Contenido');
 			$coleccion = $this->Coleccion->read(null, $coleccion_id);
-			if(!empty($interseccion) && empty($coleccion['Contenido'])) {
-				return true;
+
+			if($coleccion['Coleccion']['es_tipo_de_contenido']) {
+				$grupoPermitido = array(0 => 2);
+				$interseccion = array_intersect($gruposUsuario, $gruposColeccion, $grupoPermitido);
+				if(!empty($interseccion) && empty($coleccion['Contenido'])) {
+					return true;
+				} else {
+					return false;
+				}
 			} else {
-				return false;
+				$interseccion = array_intersect($gruposUsuario, $gruposColeccion);
+				if(!empty($interseccion)) {
+					return true;
+				} else {
+					return false;
+				}
 			}
 		}
 
@@ -174,8 +185,15 @@
 		 * @param $ruta
 		 */
 		public function uploaded($coleccion, $nombre) {
-			$ruta = WWW_ROOT . 'files' . DS . urldecode($coleccion) . DS .urldecode($nombre);
-			echo json_encode(array('success' => file_exists($ruta)));
+			$ruta = WWW_ROOT . 'files' . DS . $coleccion . DS . $nombre;
+			echo json_encode(
+				array(
+					'success' => file_exists($ruta),
+					'coleccion' => $coleccion,
+					'nombre' => $nombre,
+					'ruta' => $ruta
+				)
+			);
 			exit(0);
 		}
 
@@ -259,7 +277,7 @@
 				}
 				$this->Session->setFlash(__('No se pudo eliminar la colección'));
 			} else {
-				$this->Session->setFlash(__('No tiene permiso para realizar esta acción'));
+				$this->Session->setFlash(__('No tiene permiso para realizar esta acción o la colección tiene listados'));
 			}
 			$this->redirect(array('action' => 'index'));
 		}
@@ -294,11 +312,14 @@
 			$conditions = array();
 
 			if($coleccion_id) {
-				$this->Coleccion->contain();
+				$this->Coleccion->contain(
+					'TipoDeContenido',
+					'CamposColeccion.listado = 1'
+				);
 				$conditions['Coleccion.es_tipo_de_contenido'] = false;
 				$conditions['Coleccion.coleccion_id'] = $coleccion_id;
 			} else {
-				$this->Coleccion->contain('TipoDeContenido');
+				$this->Coleccion->contain('TipoDeContenido', 'Contenido');
 				$conditions['Coleccion.es_tipo_de_contenido'] = true;
 			}
 
@@ -312,6 +333,20 @@
 			);
 
 			$paginated = $this->paginate();
+
+			if($coleccion_id) {
+				foreach($paginated as $key => $value) {
+					$tmp = $value['CamposColeccion'];
+					unset($paginated[$key]['CamposColeccion']);
+					$paginated[$key]['Campo'] = $tmp;
+				}
+			} else {
+				foreach($paginated as $key => $value) {
+					if(empty($value['Contenido'])) {
+						unset($paginated[$key]);
+					}
+				}
+			}
 
 			$this->set('colecciones', $paginated);
 			$this->set('coleccion_id', $coleccion_id);
@@ -458,8 +493,8 @@
 					}
 				}
 			}
-			$c_name = urldecode($c_name);
-			$uid = urldecode($uid);
+			//$c_name = urldecode($c_name);
+			//$uid = urldecode($uid);
 			$this->set(compact('index', 'c_name', 'uid', 'campo', 'campo_id', 'exts', 'seleccionListaPredefinidas'));
 		}
 
@@ -622,40 +657,45 @@
 		 * @return void
 		 */
 		public function admin_modificar_presentacion($id = null) {
-			if($this->request->is('post')) {
-				foreach($this->request->data['Campo'] as $key => $data) {
-					$campo = array('CamposColeccion' => $data);
-					$this->Coleccion->CamposColeccion->save($data);
-				}
-				$this->Session->setFlash('Se modificó la presentación de la colección');
-				$this->redirect(array('action' => 'index'));
-			} else {
-				$contain = array(
-					'CamposColeccion' => array(
-						'conditions' => array(
-							'CamposColeccion.tipos_de_campo_id <>' => 8
+			if($this->verificarModificar($this->Auth->user('id'), $id)) {
+				if($this->request->is('post')) {
+					foreach($this->request->data['Campo'] as $key => $data) {
+						$campo = array('CamposColeccion' => $data);
+						$this->Coleccion->CamposColeccion->save($data);
+					}
+					$this->Session->setFlash('Se modificó la presentación de la colección');
+					$this->redirect(array('action' => 'index'));
+				} else {
+					$contain = array(
+						'CamposColeccion' => array(
+							'conditions' => array(
+								'CamposColeccion.tipos_de_campo_id <>' => 8
+							),
+							'order' => 'CamposColeccion.posicion ASC'
 						),
-						'order' => 'CamposColeccion.posicion ASC'
-					),
-					'CamposColeccion.TiposDeCampo',
-					'CamposColeccion.Coleccion'
-				);
+						'CamposColeccion.TiposDeCampo',
+						'CamposColeccion.Coleccion'
+					);
 
-				if(!$this->Coleccion->exists($id)) {
-					throw new NotFoundException(__('Invalid coleccion'));
+					if(!$this->Coleccion->exists($id)) {
+						throw new NotFoundException(__('Invalid coleccion'));
+					}
+
+					// Obtener la Coleccion
+					$options             = array(
+						'contain' => $contain,
+						'conditions' => array('Coleccion.' . $this->Coleccion->primaryKey => $id)
+					);
+					$this->request->data = $this->Coleccion->find('first', $options);
+
+					// Procesar los campos
+					$this->request->data['Campo'] = $this->request->data['CamposColeccion'];
+					unset($this->request->data['CamposColeccion']);
+					unset($this->request->data['Coleccion']);
 				}
-
-				// Obtener la Coleccion
-				$options             = array(
-					'contain' => $contain,
-					'conditions' => array('Coleccion.' . $this->Coleccion->primaryKey => $id)
-				);
-				$this->request->data = $this->Coleccion->find('first', $options);
-
-				// Procesar los campos
-				$this->request->data['Campo'] = $this->request->data['CamposColeccion'];
-				unset($this->request->data['CamposColeccion']);
-				unset($this->request->data['Coleccion']);
+			} else  {
+				$this->Session->setFlash('Esta colección tiene listados así que no puede ser modificada');
+				$this->redirect(array('action' => 'index'));
 			}
 		}
 

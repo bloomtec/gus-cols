@@ -40,7 +40,7 @@
 							if($campo['tipos_de_campo_id'] == 1) {
 								//Texto multilínea
 								?>
-								<td class="dato texto-multilínea"></td>
+								<td class="dato texto-multilínea"><?php echo $campo['multilinea']; ?></td>
 							<?php
 							} elseif($campo['tipos_de_campo_id'] == 2) {
 								//Texto
@@ -108,12 +108,12 @@
 							} elseif($campo['tipos_de_campo_id'] == 5) {
 								//Lista predefinida
 								?>
-								<td class="dato lista-predefinida"><?php echo $campo['selección_lista_predefinida']; ?></td>
+								<td class="dato lista-predefinida"><?php echo $campo['seleccion_lista_predefinida']; ?></td>
 							<?php
 							} elseif($campo['tipos_de_campo_id'] == 6) {
 								//Número
 								?>
-								<td class="dato número"><?php echo $campo['número']; ?></td>
+								<td class="dato número"><?php echo $campo['numero']; ?></td>
 							<?php
 							} elseif($campo['tipos_de_campo_id'] == 7) {
 								//Fecha

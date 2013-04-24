@@ -27,9 +27,10 @@ echo $this->Form->hidden(
 if($campo['Campo']['tipos_de_campo_id'] == 1) {
 	// Texto multilínea
 	$options['class'] = "campo-$uid campo-multilínea";
-	$options['id']    = "CamposColeccion$index" . "Multilínea$campo_id";
+	$options['id']    = "CamposColeccion$index" . "Multilinea$campo_id";
+	$options['type']  = 'textarea';
 	echo $this->Form->input(
-		"CamposColeccion.$index.multilínea",
+		"CamposColeccion.$index.multilinea",
 		$options
 	);
 } elseif($campo['Campo']['tipos_de_campo_id'] == 2) {
@@ -61,6 +62,7 @@ if($campo['Campo']['tipos_de_campo_id'] == 1) {
 	<script type="text/javascript">
 		$(function() {
 			$('#Upload<?php echo $campo_id; ?>').uploadify({
+				//'debug'           : true,
 				'multi'           : false,
 				'buttonText'      : 'Buscar archivo...',
 				'fileTypeDesc'    : 'Archivos <?php echo $campo['Campo']['extensiones']; ?>',
@@ -87,7 +89,9 @@ if($campo['Campo']['tipos_de_campo_id'] == 1) {
 								$('#Result<?php echo $campo_id; ?>').html('Se ha subido el archivo');
 							} else {
 								$('#Result<?php echo $campo_id; ?>').html('Ocurrió un error al subir el archivo. Por favor, intente de nuevo.');
-							}						}
+								console.log(response);
+							}
+						}
 					});
 				}
 			});
@@ -140,7 +144,7 @@ if($campo['Campo']['tipos_de_campo_id'] == 1) {
 	$options['class']   = "campo-$uid campo-selección-lista";
 	$options['id']      = "CamposColeccion$index" . "SelecciónListaPredefinida$campo_id";
 	echo $this->Form->input(
-		"CamposColeccion.$index.selección_lista_predefinida",
+		"CamposColeccion.$index.seleccion_lista_predefinida",
 		$options
 	);
 	echo $this->Form->hidden(
@@ -150,9 +154,9 @@ if($campo['Campo']['tipos_de_campo_id'] == 1) {
 } elseif($campo['Campo']['tipos_de_campo_id'] == 6) {
 	// Número
 	$options['class'] = "campo-$uid campo-número";
-	$options['id']    = "CamposColeccion$index" . "Número$campo_id";
+	$options['id']    = "CamposColeccion$index" . "Numero$campo_id";
 	echo $this->Form->input(
-		"CamposColeccion.$index.número",
+		"CamposColeccion.$index.numero",
 		$options
 	);
 } elseif($campo['Campo']['tipos_de_campo_id'] == 7) {

@@ -11,9 +11,6 @@ echo $this -> Html -> script('supersubs');
 	<li>
 		<?php echo $this -> Html -> link('Inicio', array('controller' => 'colecciones', 'action' => 'index')); ?>
 	</li>
-	<li>
-		<?php echo $this -> Html -> link('Crear Contenido', array('controller' => 'colecciones', 'action' => 'add')); ?>
-	</li>
 	<?php if($this->Session->read('Auth.User')) { ?>
 	<li>
 		<?php echo $this -> Html -> link('Cerrar Sesión', array('controller' => 'usuarios', 'action' => 'logout')); ?>

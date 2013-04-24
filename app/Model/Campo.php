@@ -71,7 +71,7 @@
 					//'on' => 'create', // Limit validation to 'create' or 'update' operations
 				),
 			),
-			'número'            => array(
+			'numero'            => array(
 				'numeric' => array(
 					'rule' => array('numeric'),
 					//'message' => 'Your custom message here',
