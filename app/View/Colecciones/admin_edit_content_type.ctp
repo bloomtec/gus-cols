@@ -74,6 +74,7 @@
 						<?php $uid = uniqid(); ?>
 						<?php echo $this->Form->hidden("Campo.$campo_id.id"); ?>
 						<?php echo $this->Form->hidden("Campo.$campo_id.posicion", array('class' => 'posicion')); ?>
+						<?php echo $this->Form->hidden("Campo.$campo_id.usuario_id"); ?>
 						<td class="nombre">
 							<?php
 								if(isset($campo['campo_id']) || $campo['tipos_de_campo_id'] == 8) {

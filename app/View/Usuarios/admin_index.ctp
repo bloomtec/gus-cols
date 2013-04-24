@@ -33,5 +33,5 @@
 			</tr>
 		<?php endforeach; ?>
 	</table>
-	<?php echo $this -> element('admin/paginator'); ?>
+	<?php echo $this -> element('paginator'); ?>
 </div>

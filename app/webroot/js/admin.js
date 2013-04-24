@@ -1,36 +1,44 @@
-(function($) {
+/*global jQuery*/
+(function ($) {
+    'use strict';
+    // Variables
+    var campoId = 0;
+
     /**
      * Verificar si la colección está auditable o no
      * y aplicar visibilidad acorde esto.
      */
-    function verificarSeleccionAuditable() {
-        if ($('#ColeccionEsAuditable').is(':checked')) {
-            $('#ColeccionGrupoId').parent().css('visibility', 'visible');
-        } else {
-            $('#ColeccionGrupoId').parent().css('visibility', 'hidden');
+    function verificarSeleccionAuditable(campoColeccionAuditable) {
+        var listaGrupos = $('#ColeccionGrupoId');
+        if (listaGrupos.attr('type') !== 'hidden') {
+            if (campoColeccionAuditable.is(':checked')) {
+                listaGrupos.parent().css('visibility', 'visible');
+            } else {
+                listaGrupos.val('');
+                listaGrupos.parent().css('visibility', 'hidden');
+            }
         }
     }
 
     /**
      * Verificar los permisos de acceso
      */
-    function verificarAcceso() {
-        var alguna = false, todos = false;
-        $.each($('.permiso-acceso'), function(i, node) {
-            if($(node).is(':checked')) {
+    function verificarAcceso(checkboxAnonimo) {
+        var alguna = false, todos = false, camposPermiso = $('.permiso-acceso');
+        $.each(camposPermiso, function (i, node) {
+            if ($(node).is(':checked')) {
                 alguna = true;
             }
         });
-        var anonimo = $('#ColeccionAccesoAnonimo');
-        if(alguna && anonimo.is(':checked')) {
-            anonimo.prop('checked', false);
+        if (alguna && checkboxAnonimo.is(':checked')) {
+            checkboxAnonimo.prop('checked', false);
         }
-        $.each($('.permiso-acceso'), function(i, node) {
+        $.each(camposPermiso, function (i, node) {
             var permiso = $(node);
-            if(permiso.is(':checked') && permiso.attr('id') == 'Grupo1Acceso') {
+            if (permiso.is(':checked') && permiso.attr('id') === 'Grupo1Acceso') {
                 todos = true;
             }
-            if(todos) {
+            if (todos) {
                 permiso.prop('checked', true);
             }
         });
@@ -41,12 +49,12 @@
      */
     function verificarCrear() {
         var todos = false;
-        $.each($('.permiso-creación'), function(i, node) {
+        $.each($('.permiso-creación'), function (i, node) {
             var permiso = $(node);
-            if(permiso.is(':checked') && permiso.attr('id') == 'Grupo1Creación') {
+            if (permiso.is(':checked') && permiso.attr('id') === 'Grupo1Creación') {
                 todos = true;
             }
-            if(todos) {
+            if (todos) {
                 permiso.prop('checked', true);
             }
         });
@@ -55,40 +63,56 @@
     /**
      * Agrega un campo a la colección
      */
-    var campoId = 0;
     function agregarCampo() {
         var campos = $('#CamposColeccion'), campoClass = 'campo-' + campoId;
-        campos.append('<tr class="' + campoClass + '"></tr>');
-        $('.' + campoClass).load('/admin/colecciones/add_campo/' + campoId + '/' + $('#ColeccionId').val());
-        campoId += 1;
+        if (campos) {
+            campos.append('<tr class="' + campoClass + '"></tr>');
+            $('.' + campoClass).load('/admin/colecciones/add_campo/' + campoId + '/' + $('#ColeccionId').val());
+            campoId += 1;
+        }
     }
-    $(function() {
+
+    /**
+     * Sección Document.ready
+     */
+    $(function () {
+
+        var camposPermisos = $('.permiso-acceso'), campoColeccionAuditable = $('#ColeccionEsAuditable'), botonAgregarCampo = $('#AgregarCampo'), checkboxAnonimo = $('#ColeccionAccesoAnonimo');
+
         campoId = $('#CamposColeccion').children().length;
-        verificarSeleccionAuditable();
-        verificarAcceso();
-        $('#ColeccionEsAuditable').change(function() {
-            verificarSeleccionAuditable();
-        });
-        $('#AgregarCampo').click(function() {
+
+        if (campoColeccionAuditable) {
+            verificarSeleccionAuditable(campoColeccionAuditable);
+            campoColeccionAuditable.change(function () {
+                verificarSeleccionAuditable(campoColeccionAuditable);
+            });
+        }
+
+        botonAgregarCampo.click(function () {
             agregarCampo();
         });
-        var anonimo = $('#ColeccionAccesoAnonimo');
-        anonimo.change(function() {
-            if (anonimo.is(':checked')) {
-                $.each($('.permiso-acceso'), function(i, node) {
-                    $(node).prop('checked', false);
-                });
-            }
-        });
-        $.each($('.permiso-acceso'), function(i, node) {
-            $(node).change(function() {
-                verificarAcceso();
+
+        if (checkboxAnonimo) {
+            verificarAcceso(checkboxAnonimo);
+            checkboxAnonimo.change(function () {
+                if (checkboxAnonimo.is(':checked')) {
+                    $.each(camposPermisos, function (i, node) {
+                        $(node).prop('checked', false);
+                    });
+                }
             });
-        });
-        $.each($('.permiso-creación'), function(i, node) {
-            $(node).change(function() {
+            $.each(camposPermisos, function (i, node) {
+                $(node).change(function () {
+                    verificarAcceso(checkboxAnonimo);
+                });
+            });
+        }
+
+        $.each($('.permiso-creación'), function (i, node) {
+            $(node).change(function () {
                 verificarCrear();
             });
         });
+
     });
-})(jQuery);
+}(jQuery));

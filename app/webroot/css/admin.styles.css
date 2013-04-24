@@ -14,17 +14,15 @@ ul#admin-menu {
     margin-right:2%;
 }
 
-/** DIV volver **/
-.actions.volver {
-    clear: both;
-    float: right;
-}
-
-/** Ordenar **/
-.ordenar fieldset {
+/** Modificar presentación **/
+.presentacion form {
     margin-left: auto;
     margin-right: auto;
-    width: 10%;
+    width: 1280px;
+}
+
+.presentacion fieldset td.posicion {
+    width: 60px;
 }
 
 /** Items relacionados en view **/

@@ -1,5 +1,7 @@
-(function($) {
-    $(function() {
+/*global jQuery*/
+(function ($) {
+    'use strict';
+    $(function () {
 
     });
-})(jQuery);
+}(jQuery));

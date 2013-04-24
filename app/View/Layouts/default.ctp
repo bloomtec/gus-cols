@@ -50,11 +50,6 @@
 	<div id="content">
 		<?php echo $this->Session->flash(); ?>
 		<?php echo $this->fetch('content'); ?>
-		<div class="actions volver">
-			<?php if(!in_array($this->action, array('index'))) { ?>
-			<a href="<?php echo $previous; ?>">Volver</a>
-			<?php } ?>
-		</div>
 	</div>
 	<div id="footer">
 

@@ -37,6 +37,11 @@
 
 		protected $exclusiveActions = array();
 
+		/**
+		 * beforeFilter method
+		 *
+		 * @return void
+		 */
 		public function beforeFilter() {
 			// Contener las relaciones
 			$Class = $this -> modelClass;
@@ -45,11 +50,13 @@
 			$this -> authConfig();
 			// Asignar el layout acorde el contexto
 			$this -> layoutConfig();
-			// Asignar dirección de retorno
-			$previous = $this -> referer();
-			$this->set('previous', $previous);
 		}
 
+		/**
+		 * authConfig method
+		 *
+		 * @return void
+		 */
 		protected function authConfig() {
 			$this -> Auth -> deny();
 			$this -> Auth -> authorize = 'Controller';
@@ -75,6 +82,11 @@
 			}
 		}
 
+		/**
+		 * layoutConfig method
+		 *
+		 * @return void
+		 */
 		protected function layoutConfig() {
 			if(in_array($this->action, array('login', 'admin_login'))) {
 				$this -> layout = 'login';
@@ -85,6 +97,11 @@
 			}
 		}
 
+		/**
+		 * isAuthorized method
+		 *
+		 * @return bool
+		 */
 		public function isAuthorized() {
 			if(!isset($this -> params['prefix'])) {
 				return true;
@@ -99,6 +116,11 @@
 			}
 		}
 
+		/**
+		 * getGruposUsuario method
+		 *
+		 * @return array
+		 */
 		protected function getGruposUsuario() {
 			$usuario_id = $this -> Auth -> user('id');
 			$this -> loadModel('GruposUsuario');

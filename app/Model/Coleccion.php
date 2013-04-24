@@ -179,6 +179,7 @@
 						);
 						$campoColeccion['CamposColeccion']['model'] = 'Coleccion';
 						$campoColeccion['CamposColeccion']['foreign_key'] = $this->id;
+						$campoColeccion['CamposColeccion']['usuario_id'] = $this->data['Coleccion']['usuario_id'];
 						$this->CamposColeccion->create();
 						$this->CamposColeccion->save($campoColeccion);
 					}
@@ -214,6 +215,7 @@
 		 */
 		private function afterSaveTipoDeContenido($created) {
 			$coleccion_id = $this->id;
+			$user_id = null;
 			if(!$created) {
 				$permisosActuales = $this->ColeccionesGrupo->find(
 					'all',
@@ -236,6 +238,10 @@
 				foreach($camposActuales as $key => $campo) {
 					$this->CamposColeccion->delete($campo['CamposColeccion']['id']);
 				}
+				$user_id = $this->data['Coleccion']['user_id'];
+			} else {
+				// Asignar el user_id
+				$user_id = $this->data['Coleccion']['usuario_id'];
 			}
 			// Crear el directorio
 			$path = WWW_ROOT . 'files' . DS . $this->data['Coleccion']['nombre'];
@@ -265,11 +271,16 @@
 					);
 					$campoColeccion['CamposColeccion']['model'] = 'Coleccion';
 					$campoColeccion['CamposColeccion']['foreign_key'] = $coleccion_id;
+					if(!isset($campoColeccion['CamposColeccion']['usuario_id'])) {
+						$campoColeccion['CamposColeccion']['usuario_id'] = $user_id;
+					} elseif(empty($campoColeccion['CamposColeccion']['usuario_id'])) {
+						$campoColeccion['CamposColeccion']['usuario_id'] = $user_id;
+					}
 					if(!isset($campoColeccion['CamposColeccion']['campo_id'])) {
 						$this->CamposColeccion->create();
 						if($this->CamposColeccion->save($campoColeccion) && $campoColeccion['CamposColeccion']['tipos_de_campo_id'] == 8) {
 							$campo_id = $this->CamposColeccion->id;
-							$this->agregarCamposElemento($campo_id, $coleccion_id, $campoColeccion['CamposColeccion']['coleccion_id'], $created);
+							$this->agregarCamposElemento($user_id, $campo_id, $coleccion_id, $campoColeccion['CamposColeccion']['coleccion_id'], $created);
 						}
 					}
 				}
@@ -283,7 +294,7 @@
 		 * @param $elemento_id
 		 * @param $created
 		 */
-		private function agregarCamposElemento($campo_id, $coleccion_id, $elemento_id, $created) {
+		private function agregarCamposElemento($user_id, $campo_id, $coleccion_id, $elemento_id, $created) {
 			$this->CamposColeccion->contain();
 			$campos = $this->CamposColeccion->find(
 				'all',
@@ -297,6 +308,7 @@
 			foreach($campos as $key => $campo) {
 				unset($campo['CamposColeccion']['id']);
 				$campo['CamposColeccion']['foreign_key'] = $coleccion_id;
+				$campo['CamposColeccion']['usuario_id'] = $user_id;
 				if(!$campo['CamposColeccion']['campo_id']) {
 					$campo['CamposColeccion']['campo_id'] = $campo_id;
 					$this->CamposColeccion->create();
@@ -412,7 +424,7 @@
 				'finderQuery'  => '',
 				'counterQuery' => ''
 			),
-			'Contenidos' => array(
+			'Contenido' => array(
 				'className'    => 'Coleccion',
 				'foreignKey'   => 'coleccion_id',
 				'dependent'    => false,

@@ -1,12 +1,17 @@
-<div class="colecciones ordenar">
-	<h2><?php echo __('Ordenar Campos'); ?></h2>
+<div class="colecciones presentacion">
+	<?php echo $this->Form->create('Coleccion'); ?>
+	<h2><?php echo __('Modificar Presentación'); ?></h2>
 	<fieldset class="campos">
 		<legend><?php echo __('Campos de la colección'); ?></legend>
 		<table id="sortable" class="coleccion crear campos">
 			<thead>
 			<tr class="ui-state-disabled">
+				<th class="posicion">Posición</th>
 				<th class="nombre">Nombre</th>
 				<th class="tipo">Tipo</th>
+				<th class="listado">Listado</th>
+				<th class="unico">Único</th>
+				<th class="filtro">Filtro</th>
 			</tr>
 			</thead>
 			<tbody id="CamposColeccion">
@@ -28,7 +33,8 @@
 					<tr id="<?php echo $campo['id']; ?>" class="ui-state-default campo-<?php echo $campo_id; ?>" relationship="<?php echo $relationship; ?>" element="<?php echo $element; ?>">
 						<?php $uid = uniqid(); ?>
 						<?php echo $this->Form->hidden("Campo.$campo_id.id"); ?>
-						<?php echo $this->Form->hidden("Campo.$campo_id.posicion", array('class' => 'posicion')); ?>
+						<?php echo $this->Form->hidden("Campo.$campo_id.posicion", array('class' => 'position')); ?>
+						<td class="posicion"><?php echo $this->request->data['Campo'][$campo_id]['posicion']; ?></td>
 						<td class="nombre">
 							<?php
 								echo $this->Form->hidden("Campo.$campo_id.nombre", array('label' => false, 'div' => false, 'class' => 'campo-nombre'));
@@ -68,54 +74,22 @@
 								}
 							?>
 						</td>
-						<script type="text/javascript">
-							$(function() {
-								var campoReq = $('.req-<?php echo $uid; ?>'), campoEle = $('.elementos-<?php echo $uid; ?>'), divEle = $('.elemento-<?php echo $uid; ?>'), divLista = $('.div-lista-<?php echo $uid; ?>'), campoLista = $('.lista-<?php echo $uid; ?>'), divExt = $('.div-ext-<?php echo $uid; ?>'), campoExt = $('.extensiones-<?php echo $uid; ?>'), campoTipo = $('.tipo-campo-<?php echo $uid; ?>'), eliminarCampo = $('.remover-campo-<?php echo $uid; ?>');
-
-								function verificarTipo() {
-									if(campoTipo.val() == 3) {
-										divExt.css('display', 'inline');
-									} else {
-										campoExt.val('');
-										divExt.css('display', 'none');
-									}
-									if(campoTipo.val() == 5) {
-										divLista.css('display', 'inline');
-									} else {
-										campoLista.val('');
-										divLista.css('display', 'none');
-									}
-									if(campoTipo.val() == 8) {
-										divEle.css('display', 'inline');
-										campoReq.prop('disabled', true);
-									} else {
-										campoEle.val('');
-										campoReq.prop('disabled', false);
-										divEle.css('display', 'none');
-									}
+						<td class="listado"><?php echo $this->Form->input("Campo.$campo_id.listado", array('label' => false, 'div' => false)); ?></td>
+						<td class="unico"><?php echo $this->Form->input("Campo.$campo_id.unico", array('label' => false, 'div' => false)); ?></td>
+						<td class="filtro">
+							<?php
+								if(in_array($this->request->data['Campo'][$campo_id]['tipos_de_campo_id'], array(2, 5, 6, 7))) {
+									echo $this->Form->input("Campo.$campo_id.filtro", array('label' => false, 'div' => false));
 								}
-
-								verificarTipo();
-								campoTipo.change(function() {
-									verificarTipo();
-								});
-								eliminarCampo.click(function() {
-									id = eliminarCampo.parent().parent().attr('relationship');
-									$.each($('tr.ui-state-default'), function(i, k) {
-										row = $(k);
-										if(row.attr('relationship') == id) {
-											row.remove();
-										}
-									});
-								});
-							});
-						</script>
+							?>
+						</td>
 					</tr>
 				<?php endforeach; ?>
 			<?php endif; ?>
 			</tbody>
 		</table>
 	</fieldset>
+	<?php echo $this->Form->end('Modificar'); ?>
 </div>
 <script type="text/javascript">
 	$(function() {
@@ -129,7 +103,11 @@
 			items : "tr:not(.ui-state-disabled)",
 			update: function(event, ui) {
 				info = $(this).sortable("toArray");
-				data = {};
+				for( i = 0; i < info.length; i += 1) {
+					$('tr#' + info[i]).children('.position').val(i + 1);
+					$('tr#' + info[i]).children('.posicion').text(i + 1);
+				}
+				/*data = {};
 				for( i = 0; i < info.length; i += 1) {
 					data["data[Campo][" + info[i] + "]"] = (i + 1);
 				}
@@ -142,13 +120,13 @@
 					success: function(response) {
 						if(response.success) {
 							for( i = 0; i < info.length; i += 1) {
-								$('tr#' + info[i]).children('.posicion').val(i + 1);
+								$('tr#' + info[i]).children('.position').val(i + 1);
 							}
 						} else {
 							alert('Error al tratar de reordenar los elementos');
 						}
 					}
-				});
+				});*/
 			}
 		});
 	});

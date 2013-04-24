@@ -1,6 +1,6 @@
 <div class="colecciones form">
 	<?php echo $this->Form->create('Coleccion'); ?>
-	<h2><?php echo __('Crear Base De Contenido'); ?></h2>
+	<h2><?php echo __('Crear Colección'); ?></h2>
 	<fieldset class="info">
 		<legend><?php echo __('Datos de la colección'); ?></legend>
 		<div class="crear-col-sec-1">

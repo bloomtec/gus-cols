@@ -42,9 +42,6 @@
 	<div id="content">
 		<?php echo $this->Session->flash(); ?>
 		<?php echo $this->fetch('content'); ?>
-		<div class="actions">
-			<a href="<?php echo $previous; ?>">Volver</a>
-		</div>
 	</div>
 	<div id="footer">
 	</div>
