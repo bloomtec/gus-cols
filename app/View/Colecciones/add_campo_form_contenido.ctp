@@ -3,7 +3,11 @@ $timestamp = time();
 $token = md5('8206092654127895411132256' . $timestamp);
 $options = array();
 $options['label'] = $campo['Campo']['nombre'];
-if($campo['Campo']['es_requerido']) {
+$es_unico = $campo['Campo']['unico'] ? 1 : 0;
+$es_filtro = $campo['Campo']['filtro'] ? 1 : 0;
+$es_listado = $campo['Campo']['listado'] ? 1 : 0;
+$es_requerido = $campo['Campo']['es_requerido'] ? 1 : 0;
+if($es_requerido) {
 	$options['required'] = 'required';
 }
 /**
@@ -15,11 +19,27 @@ echo $this->Form->hidden(
 );
 echo $this->Form->hidden(
 	"CamposColeccion.$index.es_requerido",
-	array('value' => $campo['Campo']['es_requerido'])
+	array('value' => $es_requerido)
 );
 echo $this->Form->hidden(
 	"CamposColeccion.$index.tipos_de_campo_id",
 	array('value' => $campo['Campo']['tipos_de_campo_id'])
+);
+echo $this->Form->hidden(
+	"CamposColeccion.$index.filtro",
+	array('value' => $es_filtro)
+);
+echo $this->Form->hidden(
+	"CamposColeccion.$index.listado",
+	array('value' => $es_listado)
+);
+echo $this->Form->hidden(
+	"CamposColeccion.$index.unico",
+	array('value' => $es_unico)
+);
+echo $this->Form->hidden(
+	"CamposColeccion.$index.posicion",
+	array('value' => $campo['Campo']['posicion'])
 );
 /**
  * Campos acorde el tipo de campo

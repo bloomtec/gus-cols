@@ -11,7 +11,13 @@
 				<td><?php echo h($coleccion['Coleccion']['nombre']); ?>&nbsp;</td>
 				<td><?php echo h($coleccion['Coleccion']['created']); ?>&nbsp;</td>
 				<td class="actions">
-					<?php echo $this->Html->link(__('Listar'), array('action' => 'index', $coleccion['Coleccion']['id'])); ?>
+					<?php
+						if($this->requestAction('/colecciones/verificarListar/' . $coleccion['Coleccion']['id'])) {
+							echo $this->Html->link(__('Listar'), array('action' => 'index', $coleccion['Coleccion']['id']));
+						} else {
+							echo '<a>No hay ítems listados</a>';
+						}
+					?>
 					<?php
 						$user_id = $this->Session->read('Auth.User.id');
 						if($user_id && $this->requestAction('/colecciones/verificarCrear/' . $user_id . '/' . $coleccion['Coleccion']['id'])) {

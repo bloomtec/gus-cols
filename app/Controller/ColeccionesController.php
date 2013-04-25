@@ -66,6 +66,23 @@
 		/**
 		 * verificarEliminar method
 		 *
+		 * @param $coleccion_id
+		 *
+		 * @return bool
+		 */
+		public function verificarListar($coleccion_id) {
+			$this->Coleccion->contain('Contenido');
+			$coleccion = $this->Coleccion->read(null, $coleccion_id);
+			if(empty($coleccion['Contenido'])) {
+				return false;
+			} else {
+				return true;
+			}
+		}
+
+		/**
+		 * verificarEliminar method
+		 *
 		 * @param $usuario_id
 		 * @param $coleccion_id
 		 *
@@ -312,12 +329,17 @@
 			$conditions = array();
 
 			if($coleccion_id) {
+				$filtrado = $this->Session->read('Filtro') ? 1 : 0;
 				$this->Coleccion->contain(
 					'TipoDeContenido',
 					'CamposColeccion.listado = 1'
 				);
 				$conditions['Coleccion.es_tipo_de_contenido'] = false;
 				$conditions['Coleccion.coleccion_id'] = $coleccion_id;
+				if($this->request->is('post')) {
+					//debug($this->request->data);
+				}
+				$this->set('filtrado', $filtrado);
 			} else {
 				$this->Coleccion->contain('TipoDeContenido', 'Contenido');
 				$conditions['Coleccion.es_tipo_de_contenido'] = true;
@@ -339,12 +361,6 @@
 					$tmp = $value['CamposColeccion'];
 					unset($paginated[$key]['CamposColeccion']);
 					$paginated[$key]['Campo'] = $tmp;
-				}
-			} else {
-				foreach($paginated as $key => $value) {
-					if(empty($value['Contenido'])) {
-						unset($paginated[$key]);
-					}
 				}
 			}
 

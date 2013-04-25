@@ -181,7 +181,9 @@
 						$campoColeccion['CamposColeccion']['foreign_key'] = $this->id;
 						$campoColeccion['CamposColeccion']['usuario_id'] = $this->data['Coleccion']['usuario_id'];
 						$this->CamposColeccion->create();
-						$this->CamposColeccion->save($campoColeccion);
+						if(!$this->CamposColeccion->save($campoColeccion)) {
+							$this->CamposColeccion->log('Coleccion (185)::' . print_r($this->CamposColeccion->invalidFields(), true));
+						}
 					}
 				}
 				// Crear los permisos de acceso y creación

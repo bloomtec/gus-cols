@@ -30,6 +30,7 @@
 	echo $this->Html->css('cake.generic');
 	echo $this->Html->css('jquery-ui-1.10.2.custom');
 	echo $this->Html->css('uploadify');
+	echo $this->Html->css('styles');
 	echo $this->Html->css('admin.styles');
 
 	echo $this->Html->script('jquery-1.9.1.min');

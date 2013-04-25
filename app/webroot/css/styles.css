@@ -11,10 +11,110 @@ div.form, div.index, div.view {
 /** Menú administrativo **/
 ul#user-menu {
     float: right;
-    margin-right:2%;
+    margin-right: 2%;
 }
 
 /** Campos **/
 .campo-fecha {
     width: 130px;
+}
+
+/** TABLA DE FILSTROS **/
+#FiltrosForm {
+    clear: none;
+    margin: 0 auto;
+    padding: 0;
+    width: 98%;
+}
+
+#FiltrosForm table tr td {
+    border: 0 none;
+    padding: 0;
+}
+
+#FiltrosForm table {
+    border: medium none;
+    clear: none;
+    color: black;
+    margin: 0 auto;
+    padding: 0;
+    width: 1270px;
+}
+#FiltrosForm .label {
+    font-size: 12px;
+    font-weight: bold;
+    min-width: 145px;
+    padding-right: 5px;
+    text-align: right;
+}
+
+#FiltrosForm .input.select {
+}
+
+#FiltrosForm .input.select select {
+    font-size: 12px;
+    font-weight: normal;
+    height: 20px;
+    width: 92px;
+}
+
+#FiltrosForm .input.select option {
+    font-size: 12px;
+    font-weight: normal;
+}
+
+#FiltrosForm .input.dates {
+    min-width: 190px;
+}
+
+#FiltrosForm .input.dates input {
+    font-size: 12px;
+    font-weight: normal;
+    height: 14px;
+    width: 80px;
+}
+
+#FiltrosForm .input.number {
+    min-width: 130px;
+}
+
+#FiltrosForm .input.number input {
+    font-size: 12px;
+    font-weight: normal;
+    height: 14px;
+    width: 50px;
+}
+
+#FiltrosForm .input.text {
+}
+
+#FiltrosForm .input.text input {
+    font-size: 12px;
+    font-weight: normal;
+    height: 14px;
+    width: 100px;
+}
+
+#FiltrosForm td.input.submit {
+    border: medium none;
+    margin: 0;
+    padding: 0;
+    text-align: center;
+    vertical-align: middle;
+}
+
+#FiltrosForm div.submit {
+    border: medium none;
+    clear: none;
+    margin: 0;
+    padding: 0;
+    vertical-align: middle;
+}
+
+#FiltrosForm div.submit input {
+    font-size: 12px;
+    font-weight: bolder;
+    height: 20px;
+    padding: 0;
+    width: 60px;
 }

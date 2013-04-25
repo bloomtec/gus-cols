@@ -1,36 +1,88 @@
 <?php
-	$unContenido = $colecciones[0];
+	// Obtener el ID del usuario (si lo hay)
 	$user_id = $this->Session->read('Auth.User.id');
+	// Obtener el primer contenido para crear de manera dinámica la tabla y los filtros
+	$unContenido = $colecciones[0];
+	$filtros = array();
+	foreach($unContenido['Campo'] as $key => $campo) {
+		if($campo['filtro']) $filtros[] = $campo;
+	}
 ?>
 <div class="colecciones index">
 	<h2><?php echo __('Listado de: ' . $unContenido['TipoDeContenido']['nombre']); ?></h2>
+	<?php if(!empty($filtros)) { ?>
+	<?php echo $this->Form->create('Coleccion', array('id' => 'FiltrosForm', 'action' => 'index/' . $unContenido['TipoDeContenido']['id'])); ?>
+	<table class="filtro">
+		<tr>
+			<?php
+			foreach($filtros as $key => $campo) {
+				echo '<td class="label">' . $campo['nombre'] . '</td>';
+				if($campo['tipos_de_campo_id'] == 2) {
+					// TEXTO
+					echo '<td class="input text">' . $this->Form->input('2.value', array('label' => false, 'div' => false, 'type' => 'text')) . '</td>';
+				} elseif($campo['tipos_de_campo_id'] == 5) {
+					// LISTA
+					$TMPOpciones = explode("\n", $campo['lista_predefinida']);
+					$opciones = array();
+					foreach($TMPOpciones as $TMPOpcionesKey => $opcion) {
+						$opciones[] = trim($opcion);
+					}
+					echo '<td class="input select">' . $this->Form->input('5.value', array('empty' => 'Seleccione...', 'label' => false, 'div' => false, 'type' => 'select', 'options' => $opciones)) . '</td>';
+				} elseif($campo['tipos_de_campo_id'] == 6) {
+					// NUMERO
+					echo
+						'<td class="input number">'
+						. $this->Form->input('6.value.min', array('label' => false, 'div' => false, 'type' => 'number'))
+						. ' - '
+						. $this->Form->input('6.value.max', array('label' => false, 'div' => false, 'type' => 'number'))
+						. '</td>';
+				} elseif($campo['tipos_de_campo_id'] == 7) {
+					// FECHA
+					echo
+						'<td class="input dates">'
+						. $this->Form->input('7.value.min', array('placeholder' => 'aaaa-mm-dd', 'label' => false, 'div' => false, 'type' => 'text', 'class' => 'date'))
+						. ' - '
+						. $this->Form->input('7.value.max', array('placeholder' => 'aaaa-mm-dd', 'label' => false, 'div' => false, 'type' => 'text', 'class' => 'date'))
+						. '</td>';
+				}
+			}
+			?>
+			<td class="input submit"><?php echo $this->Form->submit('Filtrar'); ?></td>
+			<?php if($filtrado) : ?>
+			<td><?php echo $this->Html->link(__('Remover filtro actual'), array('action' => 'removerFiltro', $unContenido['Coleccion']['id'])); ?></td>
+			<?php endif; ?>
+		</tr>
+	</table>
+	<?php echo $this->Form->end(); ?>
+	<script type="text/javascript">
+		$(function() {
+			if($(".date")) {
+				var currentYear = (new Date).getFullYear();
+				var minRange = (currentYear - 100).toString();
+				var maxRange = (currentYear + 100).toString();
+				$(".date").datepicker({
+					dateFormat     : "yy-mm-dd",
+					dayNames       : [ "Domingo", "Lunes", "Martes", "Miercoles", "Jueves", "Viernes", "Sabado" ],
+					dayNamesMin    : [ "Do", "Lu", "Ma", "Mi", "Ju", "Vi", "Sa" ],
+					dayNamesShort  : [ "Dom", "Lun", "Mar", "Mie", "Jue", "Vie", "Sab" ],
+					monthNames     : [ "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre" ],
+					monthNamesShort: [ "Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic" ],
+					changeMonth    : true,
+					changeYear     : true,
+					yearRange      : minRange + ":" + maxRange
+				});
+			}
+		});
+	</script>
+	<?php } else { ?>
+	<h4>Este listado no tiene filtros definidos</h4>
+	<?php } ?>
 	<table cellpadding="0" cellspacing="0">
 		<tr>
 			<?php foreach($unContenido['Campo'] as $key => $campo) : ?>
-				<th><?php echo $campo['nombre']; //$this->Paginator->sort('Campo.multilinea', $campo['nombre']); ?></th>
-				<?php /*if($campo['tipos_de_campo_id'] == 1) : ?>
-				<th><?php echo $this->Paginator->sort('Campo.multilinea', $campo['nombre']); ?></th>
-				<?php endif; ?>
-				<?php if($campo['tipos_de_campo_id'] == 2) : ?>
-					<th><?php echo $this->Paginator->sort('Campo.texto', $campo['nombre']); ?></th>
-				<?php endif; ?>
-				<?php if($campo['tipos_de_campo_id'] == 3) : ?>
-					<th><?php echo $this->Paginator->sort('Campo.nombre_de_archivo', $campo['nombre']); ?></th>
-				<?php endif; ?>
-				<?php if($campo['tipos_de_campo_id'] == 4) : ?>
-					<th><?php echo $this->Paginator->sort('Campo.imagen', $campo['nombre']); ?></th>
-				<?php endif; ?>
-				<?php if($campo['tipos_de_campo_id'] == 5) : ?>
-					<th><?php echo $this->Paginator->sort('Campo.seleccion_lista_predefinida', $campo['nombre']); ?></th>
-				<?php endif; ?>
-				<?php if($campo['tipos_de_campo_id'] == 6) : ?>
-					<th><?php echo $this->Paginator->sort('Campo.numero', $campo['nombre']); ?></th>
-				<?php endif; ?>
-				<?php if($campo['tipos_de_campo_id'] == 7) : ?>
-					<th><?php echo $this->Paginator->sort('Campo.fecha', $campo['nombre']); ?></th>
-				<?php endif; */?>
+				<th><?php echo $campo['nombre']; ?></th>
 			<?php endforeach; ?>
-			<th>Fecha de ingreso<?php //echo $this->Paginator->sort('created', 'Fecha De Ingreso'); ?></th>
+			<th>Fecha de ingreso</th>
 			<th class="actions"><?php echo __('Acciones'); ?></th>
 		</tr>
 		<?php foreach($colecciones as $coleccion): ?>
@@ -146,4 +198,4 @@
 	</table>
 	<?php echo $this -> element('paginator'); ?>
 </div>
-<?php //debug($colecciones); ?>
+<?php //debug($unContenido); ?>
