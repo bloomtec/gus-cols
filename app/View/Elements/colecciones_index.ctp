@@ -2,54 +2,64 @@
 	// Obtener el ID del usuario (si lo hay)
 	$user_id = $this->Session->read('Auth.User.id');
 	// Obtener el primer contenido para crear de manera dinámica la tabla y los filtros
-	$unContenido = $colecciones[0];
+	$unContenido = null;
 	$filtros = array();
+	if(!empty($colecciones)) {
+		$unContenido = $colecciones[0];
+	} elseif(!empty($ultimosCampos)) {
+		$unContenido = $ultimosCampos;
+	}
 	foreach($unContenido['Campo'] as $key => $campo) {
 		if($campo['filtro']) $filtros[] = $campo;
 	}
+	$_SESSION['Filtros']['ultimo'] = $unContenido;
 ?>
 <div class="colecciones index">
 	<h2><?php echo __('Listado de: ' . $unContenido['TipoDeContenido']['nombre']); ?></h2>
 	<?php if(!empty($filtros)) { ?>
-	<?php echo $this->Form->create('Coleccion', array('id' => 'FiltrosForm', 'action' => 'index/' . $unContenido['TipoDeContenido']['id'])); ?>
+	<?php echo $this->Form->create('Coleccion', array('id' => 'FiltrosForm', 'action' => 'index/' . $coleccion_id)); ?>
 	<table class="filtro">
 		<tr>
 			<?php
+			$filter_counter = 0;
 			foreach($filtros as $key => $campo) {
 				echo '<td class="label">' . $campo['nombre'] . '</td>';
 				if($campo['tipos_de_campo_id'] == 2) {
 					// TEXTO
-					echo '<td class="input text">' . $this->Form->input('2.value', array('label' => false, 'div' => false, 'type' => 'text')) . '</td>';
+					echo '<td class="input text">' . $this->Form->input("Filtros.$filter_counter.2.value", array('label' => false, 'div' => false, 'type' => 'text')) . '</td>';
 				} elseif($campo['tipos_de_campo_id'] == 5) {
 					// LISTA
 					$TMPOpciones = explode("\n", $campo['lista_predefinida']);
 					$opciones = array();
 					foreach($TMPOpciones as $TMPOpcionesKey => $opcion) {
-						$opciones[] = trim($opcion);
+						$val = trim($opcion);
+						$opciones[$val] = $val;
 					}
-					echo '<td class="input select">' . $this->Form->input('5.value', array('empty' => 'Seleccione...', 'label' => false, 'div' => false, 'type' => 'select', 'options' => $opciones)) . '</td>';
+					echo '<td class="input select">' . $this->Form->input("Filtros.$filter_counter.5.value", array('empty' => 'Seleccione...', 'label' => false, 'div' => false, 'type' => 'select', 'options' => $opciones)) . '</td>';
+					echo $this->Form->hidden("Filtros.$filter_counter.5.lista", array('value' => $campo['lista_predefinida']));
 				} elseif($campo['tipos_de_campo_id'] == 6) {
 					// NUMERO
 					echo
 						'<td class="input number">'
-						. $this->Form->input('6.value.min', array('label' => false, 'div' => false, 'type' => 'number'))
+						. $this->Form->input("Filtros.$filter_counter.6.value.min", array('label' => false, 'div' => false, 'type' => 'number'))
 						. ' - '
-						. $this->Form->input('6.value.max', array('label' => false, 'div' => false, 'type' => 'number'))
+						. $this->Form->input("Filtros.$filter_counter.6.value.max", array('label' => false, 'div' => false, 'type' => 'number'))
 						. '</td>';
 				} elseif($campo['tipos_de_campo_id'] == 7) {
 					// FECHA
 					echo
 						'<td class="input dates">'
-						. $this->Form->input('7.value.min', array('placeholder' => 'aaaa-mm-dd', 'label' => false, 'div' => false, 'type' => 'text', 'class' => 'date'))
+						. $this->Form->input("Filtros.$filter_counter.7.value.min", array('placeholder' => 'aaaa-mm-dd', 'label' => false, 'div' => false, 'type' => 'text', 'class' => 'date'))
 						. ' - '
-						. $this->Form->input('7.value.max', array('placeholder' => 'aaaa-mm-dd', 'label' => false, 'div' => false, 'type' => 'text', 'class' => 'date'))
+						. $this->Form->input("Filtros.$filter_counter.7.value.max", array('placeholder' => 'aaaa-mm-dd', 'label' => false, 'div' => false, 'type' => 'text', 'class' => 'date'))
 						. '</td>';
 				}
+				$filter_counter += 1;
 			}
 			?>
 			<td class="input submit"><?php echo $this->Form->submit('Filtrar'); ?></td>
 			<?php if($filtrado) : ?>
-			<td><?php echo $this->Html->link(__('Remover filtro actual'), array('action' => 'removerFiltro', $unContenido['Coleccion']['id'])); ?></td>
+			<td class="actions"><?php echo $this->Html->link(__('Remover filtro actual'), array('action' => 'removerFiltro', $coleccion_id)); ?></td>
 			<?php endif; ?>
 		</tr>
 	</table>
@@ -78,6 +88,7 @@
 	<h4>Este listado no tiene filtros definidos</h4>
 	<?php } ?>
 	<table cellpadding="0" cellspacing="0">
+		<?php if(isset($unContenido)) : ?>
 		<tr>
 			<?php foreach($unContenido['Campo'] as $key => $campo) : ?>
 				<th><?php echo $campo['nombre']; ?></th>
@@ -85,6 +96,7 @@
 			<th>Fecha de ingreso</th>
 			<th class="actions"><?php echo __('Acciones'); ?></th>
 		</tr>
+		<?php endif; ?>
 		<?php foreach($colecciones as $coleccion): ?>
 			<tr>
 			<?php foreach($coleccion['Campo'] as $campo): ?>

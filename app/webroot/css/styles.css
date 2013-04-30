@@ -64,7 +64,7 @@ ul#user-menu {
 }
 
 #FiltrosForm .input.dates {
-    min-width: 190px;
+    min-width: 194px;
 }
 
 #FiltrosForm .input.dates input {
@@ -75,7 +75,7 @@ ul#user-menu {
 }
 
 #FiltrosForm .input.number {
-    min-width: 130px;
+    min-width: 132px;
 }
 
 #FiltrosForm .input.number input {
@@ -116,5 +116,13 @@ ul#user-menu {
     font-weight: bolder;
     height: 20px;
     padding: 0;
+    width: 60px;
+}
+
+#FiltrosForm td.actions a {
+    font-size: 12px;
+    font-weight: bolder;
+    height: 20px;
+    padding: 1px 4px;
     width: 60px;
 }
