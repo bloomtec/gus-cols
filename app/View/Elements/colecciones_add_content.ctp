@@ -25,7 +25,7 @@
 			</fieldset>
 			<?php echo $this->Form->end(__('Enviar')); ?>
 		</div>
-		<script type="text/javascript">
+		<script type="text/javascript" language="JavaScript">
 			$(function() {
 				$.each($('.campos'), function(key, node) {
 					var div = $(node);

@@ -97,7 +97,7 @@ if($campo['Campo']['tipos_de_campo_id'] == 1) {
 		<div id="Upload<?php echo $campo_id; ?>"></div>
 		<div id="Result<?php echo $campo_id; ?>"></div>
 	</div>
-	<script type="text/javascript">
+	<script type="text/javascript" language="JavaScript">
 		$(function() {
 			$('#Upload<?php echo $campo_id; ?>').uploadify({
 				//'debug'           : true,
@@ -150,7 +150,7 @@ if($campo['Campo']['tipos_de_campo_id'] == 1) {
 		<div id="Upload<?php echo $campo_id; ?>"></div>
 		<div id="Result<?php echo $campo_id; ?>"></div>
 	</div>
-	<script type="text/javascript">
+	<script type="text/javascript" language="JavaScript">
 		$(function() {
 			$('#Upload<?php echo $campo_id; ?>').uploadify({
 				'multi'           : false,
@@ -210,7 +210,7 @@ if($campo['Campo']['tipos_de_campo_id'] == 1) {
 		$options
 	);
 	?>
-	<script type="text/javascript">
+	<script type="text/javascript" language="JavaScript">
 		$(function() {
 			if($(".campo-fecha")) {
 				var currentYear = (new Date).getFullYear();
@@ -236,7 +236,7 @@ if($campo['Campo']['tipos_de_campo_id'] == 1) {
 	/** Y esto es... **/
 }
 ?>
-<script type="text/javascript">
+<script type="text/javascript" language="JavaScript">
 	$(function() {
 		var campo = $('.campo-<?php echo $uid; ?>');
 		if(campo.attr('required')) {

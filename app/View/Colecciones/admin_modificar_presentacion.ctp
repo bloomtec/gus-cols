@@ -91,12 +91,12 @@
 	</fieldset>
 	<?php echo $this->Form->end('Modificar'); ?>
 </div>
-<script type="text/javascript">
+<script type="text/javascript" language="JavaScript">
 	$(function() {
 		$('.campos').css('max-height', $('.info').height());
 	});
 </script>
-<script type="text/javascript">
+<script type="text/javascript" language="JavaScript">
 	$(function() {// Posicionamiento de los campos
 		$('#sortable').sortable({
 			revert: true,

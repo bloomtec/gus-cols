@@ -62,7 +62,7 @@
 	</fieldset>
 	<?php echo $this->Form->end(__('Crear')); ?>
 </div>
-<script type="text/javascript">
+<script type="text/javascript" language="JavaScript">
 	$(function() {
 		$('.campos').css('max-height', $('.info').height());
 	});

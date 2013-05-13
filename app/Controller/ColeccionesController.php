@@ -1029,9 +1029,18 @@
 					foreach($this->request->data['Campo'] as $key1 => $data) {
 						$this->Coleccion->CamposColeccion->contain('Hijos');
 						$campo = $this->Coleccion->CamposColeccion->read(null, $data['id']);
+						//debug($campo);
 						$campo['CamposColeccion']['posicion'] = $data['posicion'];
+						$campo['CamposColeccion']['listado'] = $data['listado'];
+						if(isset($data['filtro']))
+							$campo['CamposColeccion']['filtro'] = $data['filtro'];
+						$campo['CamposColeccion']['unico'] = $data['unico'];
 						foreach($campo['Hijos'] as $key2 => $hijo) {
 							$hijo['posicion'] = $data['posicion'];
+							$hijo['listado'] = $data['listado'];
+							if(isset($data['filtro']))
+								$hijo['filtro'] = $data['filtro'];
+							$hijo['unico'] = $data['unico'];
 							$this->Coleccion->CamposColeccion->save($hijo);
 						}
 						$this->Coleccion->CamposColeccion->save($campo);
