@@ -30,6 +30,12 @@
 						if($user_id && $this->requestAction('/colecciones/verificarEliminar/' . $user_id . '/' . $coleccion['Coleccion']['id'])) {
 							echo $this->Html->link(__('Eliminar'), array('action' => 'delete', $coleccion['Coleccion']['id']));
 						}
+						if($this->requestAction('/colecciones/esAuditable/' . $coleccion['Coleccion']['id'] . '/1')) {
+							echo $this->Html->link(__('Contenido Para Auditar'), array('action' => 'index', $coleccion['Coleccion']['id'], 1));
+						}
+						if($this->requestAction('/colecciones/verificarContenidoARevisar/' . $coleccion['Coleccion']['id'])) {
+							echo $this->Html->link(__('Contenido Para Revisar'), array('action' => 'index', $coleccion['Coleccion']['id'], 0, 1));
+						}
 					?>
 				</td>
 			</tr>

@@ -8,6 +8,8 @@
 	 */
 	class Campo extends AppModel {
 
+		public $actsAs = array('Logger');
+
 		/**
 		 * Display field
 		 *
@@ -188,6 +190,19 @@
 				'conditions'   => '',
 				'fields'       => '',
 				'order'        => 'CamposElemento.posicion ASC',
+				'limit'        => '',
+				'offset'       => '',
+				'exclusive'    => '',
+				'finderQuery'  => '',
+				'counterQuery' => ''
+			),
+			'Hijos' => array(
+				'className'    => 'Campo',
+				'foreignKey'   => 'campo_padre',
+				'dependent'    => true,
+				'conditions'   => '',
+				'fields'       => '',
+				'order'        => '',
 				'limit'        => '',
 				'offset'       => '',
 				'exclusive'    => '',

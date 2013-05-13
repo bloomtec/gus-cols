@@ -8,6 +8,8 @@
 	 */
 	class Coleccion extends AppModel {
 
+		public $actsAs = array('Logger');
+
 		/**
 		 * Display field
 		 *
@@ -206,7 +208,23 @@
 					$this->ColeccionesGrupo->save($coleccion_grupo);
 				}
 			} else {
-
+				// Crear los campos
+				if(isset($this->data['CamposColeccion'])) {
+					foreach($this->data['CamposColeccion'] as $key => $campo) {
+						$campoColeccion = array(
+							'CamposColeccion' => $campo
+						);
+						$campoColeccion['CamposColeccion']['model'] = 'Coleccion';
+						$campoColeccion['CamposColeccion']['foreign_key'] = $this->id;
+						$campoColeccion['CamposColeccion']['usuario_id'] = $this->data['Coleccion']['user_id'];
+						if(!isset($campoColeccion['CamposColeccion']['id'])) {
+							$this->CamposColeccion->create();
+						}
+						if(!$this->CamposColeccion->save($campoColeccion)) {
+							$this->CamposColeccion->log('Coleccion (185)::' . print_r($this->CamposColeccion->invalidFields(), true));
+						}
+					}
+				}
 			}
 		}
 
@@ -237,9 +255,9 @@
 						)
 					)
 				);
-				foreach($camposActuales as $key => $campo) {
+				/*foreach($camposActuales as $key => $campo) {
 					$this->CamposColeccion->delete($campo['CamposColeccion']['id']);
-				}
+				}*/
 				$user_id = $this->data['Coleccion']['user_id'];
 			} else {
 				// Asignar el user_id
@@ -267,12 +285,15 @@
 			}
 			// Crear los campos
 			if(isset($this->data['Campo'])) {
+				$posicion = 1;
 				foreach($this->data['Campo'] as $key => $campo) {
 					$campoColeccion = array(
 						'CamposColeccion' => $campo
 					);
 					$campoColeccion['CamposColeccion']['model'] = 'Coleccion';
 					$campoColeccion['CamposColeccion']['foreign_key'] = $coleccion_id;
+					$campoColeccion['CamposColeccion']['posicion'] = $posicion;
+					$posicion += 1;
 					if(!isset($campoColeccion['CamposColeccion']['usuario_id'])) {
 						$campoColeccion['CamposColeccion']['usuario_id'] = $user_id;
 					} elseif(empty($campoColeccion['CamposColeccion']['usuario_id'])) {
@@ -316,7 +337,13 @@
 					$this->CamposColeccion->create();
 					if($this->CamposColeccion->save($campo) && $campo['CamposColeccion']['tipos_de_campo_id'] == 8) {
 						$new_campo_id = $this->CamposColeccion->id;
-						$this->agregarCamposElemento($new_campo_id, $coleccion_id, $campo['CamposColeccion']['coleccion_id'], $created);
+						$this->agregarCamposElemento(
+							$user_id,
+							$new_campo_id,
+							$coleccion_id,
+							$campo['CamposColeccion']['coleccion_id'],
+							$created
+						);
 					}
 				}
 			}
@@ -438,7 +465,20 @@
 				'exclusive'    => '',
 				'finderQuery'  => '',
 				'counterQuery' => ''
-			)
+			),
+			'Auditoria' => array(
+				'className'    => 'Auditoria',
+				'foreignKey'   => 'foreign_key',
+				'dependent'    => false,
+				'conditions'   => array('Auditoria.model' => 'Coleccion'),
+				'fields'       => '',
+				'order'        => '',
+				'limit'        => '',
+				'offset'       => '',
+				'exclusive'    => '',
+				'finderQuery'  => '',
+				'counterQuery' => ''
+			),
 		);
 
 	}

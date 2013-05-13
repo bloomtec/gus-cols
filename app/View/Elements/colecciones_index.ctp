@@ -4,12 +4,17 @@
 	// Obtener el primer contenido para crear de manera dinámica la tabla y los filtros
 	$unContenido = null;
 	$filtros = array();
-	if(!empty($colecciones)) {
+	/*if(!empty($colecciones)) {
 		$unContenido = $colecciones[0];
 	} elseif(!empty($ultimosCampos)) {
 		$unContenido = $ultimosCampos;
+	}*/
+	$unContenido = $coleccionBase;
+	$camposIDs = array();
+	foreach($unContenido['CamposColeccion'] as $key => $campo) {
+		$camposIDs[] = $campo['id'];
 	}
-	foreach($unContenido['Campo'] as $key => $campo) {
+	foreach($unContenido['CamposColeccion'] as $key => $campo) {
 		if($campo['filtro']) $filtros[] = $campo;
 	}
 	$_SESSION['Filtros']['ultimo'] = $unContenido;
@@ -17,7 +22,7 @@
 <div class="colecciones index">
 	<h2><?php echo __('Listado de: ' . $unContenido['TipoDeContenido']['nombre']); ?></h2>
 	<?php if(!empty($filtros)) { ?>
-	<?php echo $this->Form->create('Coleccion', array('id' => 'FiltrosForm', 'action' => 'index/' . $coleccion_id)); ?>
+	<?php echo $this->Form->create('Coleccion', array('id' => 'FiltrosForm', 'action' => 'index/' . $coleccion_id . '/' . $auditable)); ?>
 	<table class="filtro">
 		<tr>
 			<?php
@@ -59,7 +64,7 @@
 			?>
 			<td class="input submit"><?php echo $this->Form->submit('Filtrar'); ?></td>
 			<?php if($filtrado) : ?>
-			<td class="actions"><?php echo $this->Html->link(__('Remover filtro actual'), array('action' => 'removerFiltro', $coleccion_id)); ?></td>
+			<td class="actions"><?php echo $this->Html->link(__('Remover filtro actual'), array('action' => 'removerFiltro', $coleccion_id, $auditable)); ?></td>
 			<?php endif; ?>
 		</tr>
 	</table>
@@ -90,7 +95,7 @@
 	<table cellpadding="0" cellspacing="0">
 		<?php if(isset($unContenido)) : ?>
 		<tr>
-			<?php foreach($unContenido['Campo'] as $key => $campo) : ?>
+			<?php foreach($unContenido['CamposColeccion'] as $key => $campo) : ?>
 				<th><?php echo $campo['nombre']; ?></th>
 			<?php endforeach; ?>
 			<th>Fecha de ingreso</th>
@@ -99,103 +104,30 @@
 		<?php endif; ?>
 		<?php foreach($colecciones as $coleccion): ?>
 			<tr>
-			<?php foreach($coleccion['Campo'] as $campo): ?>
-				<!--<td><?php //echo h($coleccion['Coleccion']['nombre']); ?>&nbsp;</td>-->
 				<?php
-				/**
-				 * Organizar acorde el tipo de campo
-				 */
-				if($campo['tipos_de_campo_id'] == 1) {
-					//Texto multilínea
-					?>
-					<td class="dato texto-multilínea"><?php echo $campo['multilinea']; ?></td>
-				<?php
-				} elseif($campo['tipos_de_campo_id'] == 2) {
-					//Texto
-					?>
-					<td class="dato texto"><?php echo $campo['texto']; ?></td>
-				<?php
-				} elseif($campo['tipos_de_campo_id'] == 3) {
-					//Archivo
-					?>
-					<td class="dato archivo">
-						<?php
-							$ct_path = $coleccion['TipoDeContenido']['nombre'];
-							$co_path = $coleccion['Coleccion']['nombre'];
-							$file = $campo['nombre_de_archivo'];
-							$fileName = explode('.', $file);
-							$fileExt = $fileName[count($fileName) - 1];
-							$fileNameTMP = '';
-							unset($fileName[count($fileName) - 1]);
-							foreach($fileName as $key => $fileNamePart) {
-								$fileNameTMP .= $fileNamePart;
+					foreach($unContenido['CamposColeccion'] as $keyBase => $campoBase) {
+						$tdVacio = true;
+						$elCampo = null;
+						foreach($coleccion['Campo'] as $campo) {
+							if($campo['campo_padre'] === $campoBase['id']) {
+								$tdVacio = false;
+								$elCampo = $campo;
+								break;
 							}
-							$fileName = $fileNameTMP;
-							$encoded = json_encode(array($file, $fileName, $fileExt, $ct_path, $co_path));
-							$encoded = htmlentities($encoded, ENT_SUBSTITUTE, 'UTF-8', false);
-							echo $this->Html->link(
-								'Descargar',
+						}
+						if($tdVacio) {
+							echo '<td></td>';
+						} else {
+							echo $this->element(
+								'filtradoTipoCampo',
 								array(
-									'controller' => 'colecciones',
-									'action' => 'download',
-									$encoded
+									'campo' => $elCampo,
+									'coleccion' => $coleccion
 								)
 							);
-						?>
-					</td>
-				<?php
-				} elseif($campo['tipos_de_campo_id'] == 4) {
-					//Imagen
-					?>
-					<td class="dato imagen">
-						<?php
-							$ct_path = $coleccion['TipoDeContenido']['nombre'];
-							$co_path = $coleccion['Coleccion']['nombre'];
-							$file = $campo['imagen'];
-							$fileName = explode('.', $file);
-							$fileExt = $fileName[count($fileName) - 1];
-							$fileNameTMP = '';
-							unset($fileName[count($fileName) - 1]);
-							foreach($fileName as $key => $fileNamePart) {
-								$fileNameTMP .= $fileNamePart;
-							}
-							$fileName = $fileNameTMP;
-							$encoded = json_encode(array($file, $fileName, $fileExt, $ct_path, $co_path));
-							$encoded = htmlentities($encoded, ENT_SUBSTITUTE, 'UTF-8', false);
-							echo $this->Html->link(
-								'Descargar',
-								array(
-									'controller' => 'colecciones',
-									'action' => 'download',
-									$encoded
-								)
-							);
-						?>
-					</td>
-				<?php
-				} elseif($campo['tipos_de_campo_id'] == 5) {
-					//Lista predefinida
-					?>
-					<td class="dato lista-predefinida"><?php echo $campo['seleccion_lista_predefinida']; ?></td>
-				<?php
-				} elseif($campo['tipos_de_campo_id'] == 6) {
-					//Número
-					?>
-					<td class="dato número"><?php echo $campo['numero']; ?></td>
-				<?php
-				} elseif($campo['tipos_de_campo_id'] == 7) {
-					//Fecha
-					?>
-					<td class="dato fecha"><?php echo $campo['fecha']; ?></td>
-				<?php
-				} elseif($campo['tipos_de_campo_id'] == 8) {
-					//Elemento
-					?>
-					<td class="dato elemento"></td>
-				<?php
-				}
+						}
+					}
 				?>
-			<?php endforeach; ?>
 				<td><?php echo $coleccion['Coleccion']['created']; ?></td>
 				<td class="actions">
 					<?php echo $this->Html->link(__('Ver'), array('action' => 'view', $coleccion['Coleccion']['id'])); ?>

@@ -135,12 +135,33 @@
 								} else {
 									echo $this->Form->input("Campo.$campo_id.es_requerido", array('class' => "req-$uid", 'label' => false, 'div' => false));
 								}
-
 							?>
 						</td>
 						<td class="actions">
-							<?php if(!$campo['campo_id']) : ?>
+							<?php if(!$campo['campo_id'] && empty($campo['Hijos'])) : ?>
 							<a class="remover-campo-<?php echo $uid; ?>">Eliminar</a>
+							<script>
+								$(function() {
+									$('.remover-campo-<?php echo $uid; ?>').click(function() {
+										if(confirm('¿Seguro desea eliminar el campo <?php echo $campo['nombre']; ?>?')) {
+											$.ajax({
+												url: '/campos/eliminar',
+												data: { id : <?php echo $campo['id']; ?> },
+												cache: false,
+												async: false,
+												dataType: 'json',
+												success: function(response) {
+													if(response.success) {
+														alert('Se ha eliminado el campo');
+													} else {
+														alert('No se pudo eliminar el campo');
+													}
+												}
+											});
+										}
+									});
+								});
+							</script>
 							<?php endif; ?>
 						</td>
 						<script type="text/javascript">

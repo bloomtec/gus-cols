@@ -28,8 +28,8 @@
 		 *
 		 * @param $coleccion_id
 		 */
-		public function removerFiltro($coleccion_id) {
-			$this->_removerFiltro($coleccion_id);
+		public function removerFiltro($coleccion_id, $auditable) {
+			$this->_removerFiltro($coleccion_id, $auditable);
 		}
 
 		/**
@@ -37,13 +37,104 @@
 		 *
 		 * @param $coleccion_id
 		 */
-		public function admin_removerFiltro($coleccion_id) {
-			$this->_removerFiltro($coleccion_id);
+		public function admin_removerFiltro($coleccion_id, $auditable) {
+			$this->_removerFiltro($coleccion_id, $auditable);
 		}
 
-		private function _removerFiltro($coleccion_id) {
+		private function _removerFiltro($coleccion_id, $auditable) {
 			$this->Session->write('Filtros.activos', 0);
-			$this->redirect(array('action' => 'index', $coleccion_id));
+			$this->redirect(array('action' => 'index', $coleccion_id, $auditable));
+		}
+
+		/**
+		 * @return array
+		 */
+		public function esAuditable($id, $ct_index) {
+			$user_id = $this->Auth->user('id');
+			$grupos_usuario = $this->Coleccion->Usuario->GruposUsuario->find(
+				'list',
+				array(
+					'conditions' => array(
+						'GruposUsuario.usuario_id' => $user_id
+					),
+					'fields' => array(
+						'GruposUsuario.grupo_id'
+					)
+				)
+			);
+			$this->Coleccion->contain('Grupo');
+			$conditions = array(
+				'Coleccion.es_auditable' => 1,
+				'Coleccion.auditada' => 0,
+				'Coleccion.grupo_id' => $grupos_usuario,
+				'Coleccion.es_tipo_de_contenido' => 0
+			);
+			if($ct_index) {
+				$conditions['Coleccion.coleccion_id'] = $id;
+			} else {
+				// TODO
+			}
+			$auditables = $this->Coleccion->find(
+				'list',
+				array(
+					'conditions' => $conditions,
+					'fields' => array(
+						'Coleccion.id'
+					)
+				)
+			);
+			return !empty($auditables) ? 1 : 0;
+		}
+
+		public function verificarContenidoARevisar($coleccion_id) {
+			$user_id = $this->Auth->user('id');
+			$colecciones = $this->Coleccion->find(
+				'all',
+				array(
+					'conditions' => array(
+						'Coleccion.es_auditable' => 1,
+						'Coleccion.auditada' => 1,
+						'Coleccion.publicada' => 0,
+						'Coleccion.usuario_id' => $user_id,
+						'Coleccion.coleccion_id' => $coleccion_id
+					)
+				)
+			);
+			return empty($colecciones) ? 0 : 1;
+		}
+
+		/**
+		 * @return array
+		 */
+		public function verificarAuditables() {
+			$user_id = $this->Auth->user('id');
+			$grupos_usuario = $this->Coleccion->Usuario->GruposUsuario->find(
+				'list',
+				array(
+					'conditions' => array(
+						'GruposUsuario.usuario_id' => $user_id
+					),
+					'fields' => array(
+						'GruposUsuario.grupo_id'
+					)
+				)
+			);
+			$this->Coleccion->contain('Grupo');
+			$auditables = $this->Coleccion->find(
+				'list',
+				array(
+					'conditions' => array(
+						'Coleccion.es_auditable' => 1,
+						'Coleccion.auditada' => 0,
+						'Coleccion.grupo_id' => $grupos_usuario,
+						'Coleccion.es_tipo_de_contenido' => 0
+					),
+					'fields' => array(
+						'Coleccion.id'
+					)
+				)
+			);
+			return $auditables;
 		}
 
 		/**
@@ -95,8 +186,19 @@
 		 */
 		public function verificarListar($coleccion_id) {
 			$this->Coleccion->contain('Contenido');
-			$coleccion = $this->Coleccion->read(null, $coleccion_id);
-			if(empty($coleccion['Contenido'])) {
+			$colecciones = $this->Coleccion->find(
+				'all',
+				array(
+					'conditions' => array(
+						'Coleccion.coleccion_id' => $coleccion_id,
+						'OR' => array(
+							'Coleccion.es_auditable' => 0,
+							'Coleccion.publicada' => 1
+						)
+					)
+				)
+			);
+			if(empty($colecciones)) {
 				return false;
 			} else {
 				return true;
@@ -182,14 +284,13 @@
 				)
 			);
 
-			// Validación por contenido creado
 			$this->Coleccion->contain('Contenido');
 			$coleccion = $this->Coleccion->read(null, $coleccion_id);
 
 			if($coleccion['Coleccion']['es_tipo_de_contenido']) {
 				$grupoPermitido = array(0 => 2);
 				$interseccion = array_intersect($gruposUsuario, $gruposColeccion, $grupoPermitido);
-				if(!empty($interseccion) && empty($coleccion['Contenido'])) {
+				if(!empty($interseccion)) {
 					return true;
 				} else {
 					return false;
@@ -327,8 +428,8 @@
 		 *
 		 * @return void
 		 */
-		public function admin_index($coleccion_id = null) {
-			$this->_index($coleccion_id);
+		public function admin_index($coleccion_id = null, $auditable = 0, $revision = 0) {
+			$this->_index($coleccion_id, $auditable, $revision);
 		}
 
 		/**
@@ -336,8 +437,8 @@
 		 *
 		 * @return void
 		 */
-		public function index($coleccion_id = null) {
-			$this->_index($coleccion_id);
+		public function index($coleccion_id = null, $auditable = 0, $revision = 0) {
+			$this->_index($coleccion_id, $auditable, $revision);
 		}
 
 		/**
@@ -347,12 +448,17 @@
 		 *
 		 * @return void
 		 */
-		private function _index($coleccion_id) {
+		private function _index($coleccion_id, $auditable, $revision) {
 			// Condiciones
 			$conditions = array();
 			$ultimosCampos = array();
 
-			if($coleccion_id) {
+			if($coleccion_id || $auditable || $revision) {
+				$this->Coleccion->contain(
+					'CamposColeccion',
+					'TipoDeContenido'
+				);
+				$this->set('coleccionBase', $this->Coleccion->read(null, $coleccion_id));
 				if(!$this->Session->read('Filtros.activos')) {
 					$this->Session->write('Filtros.activos', 0);
 				}
@@ -360,7 +466,17 @@
 					'TipoDeContenido',
 					'CamposColeccion.listado = 1'
 				);
-				$conditions['Coleccion.es_tipo_de_contenido'] = false;
+				if(!$auditable && !$revision) {
+					$conditions['Coleccion.publicada'] = 1;
+				} elseif($revision) {
+					$conditions['Coleccion.es_auditable'] = 1;
+					$conditions['Coleccion.auditada'] = 1;
+					$conditions['Coleccion.publicada'] = 0;
+				} else {
+					$conditions['Coleccion.es_auditable'] = 1;
+					$conditions['Coleccion.auditada'] = 0;
+				}
+				$conditions['Coleccion.es_tipo_de_contenido'] = 0;
 				$conditions['Coleccion.coleccion_id'] = $coleccion_id;
 				if($this->request->is('post')) {
 					$ultimosCampos = $this->Session->read('Filtros.ultimo');
@@ -499,6 +615,8 @@
 				$conditions['Coleccion.acceso_anonimo'] = 1;
 			}
 
+			//debug($conditions);
+
 			$this->paginate = array(
 				'conditions' => $conditions
 			);
@@ -516,7 +634,18 @@
 			$this->set('ultimosCampos', $ultimosCampos);
 			$this->set('colecciones', $paginated);
 			$this->set('coleccion_id', $coleccion_id);
+
+			// Sección para ver auditables
+			$this->set('auditable', $auditable);
+			$auditables = $this->verificarAuditables();
+			if(!empty($auditables)) {
+				$this->set('auditables', 1);
+			} else {
+				$this->set('auditables', 0);
+			}
 		}
+
+
 
 		/**
 		 * admin_view method
@@ -550,13 +679,52 @@
 		 * @return void
 		 */
 		private function _view($id = null) {
-			$this->Coleccion->contain('Usuario', 'Grupo', 'CamposColeccion.TiposDeCampo', 'TipoDeContenido');
+			$this->Coleccion->contain(
+				'Usuario',
+				'Grupo',
+				'CamposColeccion.TiposDeCampo',
+				'TipoDeContenido',
+				'Auditoria'
+			);
 			if(!$this->Coleccion->exists($id)) {
 				throw new NotFoundException(__('Invalid coleccion'));
 			}
 			$options = array('conditions' => array('Coleccion.' . $this->Coleccion->primaryKey => $id));
 			$coleccion = $this->Coleccion->find('first', $options);
+			$auditables = $this->verificarAuditables();
+			$auditar = false;
+			if(in_array($id, $auditables)) {
+				$auditar = true;
+				$this->set('user_id', $this->Auth->user('id'));
+			}
+			$this->set('auditar', $auditar);
 			$this->set('coleccion', $coleccion);
+			if($this->request->is('post') || $this->request->is('put')) {
+				if(!(!$this->request->data['Coleccion']['publicada'] && empty($this->request->data['Coleccion']['observación']))) {
+					if($this->Coleccion->save($this->request->data)) {
+						$this->Coleccion->Auditoria->create();
+						$auditoria = array(
+							'Auditoria' => array(
+								'usuario_id' => $this->request->data['Coleccion']['user_id'],
+								'model' => 'Coleccion',
+								'foreign_key' => $this->request->data['Coleccion']['id'],
+								'coleccion_aprobada' => $this->request->data['Coleccion']['publicada'],
+								'observación' => $this->request->data['Coleccion']['observación']
+							)
+						);
+						if($this->Coleccion->Auditoria->save($auditoria)) {
+							$this->Session->setFlash('Se guardó su revisión');
+						} else {
+							$this->Session->setFlash('Ocurrió un error al tratar de guardar la información de auditoría');
+						}
+					} else {
+						$this->Session->setFlash('No se pudo guardar su revisión. Por favor, intente de nuevo.');
+					}
+					$this->redirect(array('action' => 'index', $coleccion['Coleccion']['coleccion_id'], 1));
+				} else {
+					$this->Session->setFlash('Debe ingresar su observación');
+				}
+			}
 		}
 
 		/**
@@ -585,12 +753,13 @@
 		 * @return void
 		 */
 		private function _add($ct_id) {
+			if(!$this->verificarCrear($this->Auth->user('id'), $ct_id)) $this->redirect(array('action' => 'index'));
 			if(!$ct_id) {
 				$tipoDeContenidos = $this->Coleccion->find(
 					'list',
 					array(
 						'conditions' => array(
-							'Coleccion.es_tipo_de_contenido' => true
+							'Coleccion.es_tipo_de_contenido' => 1
 						)
 					)
 				);
@@ -665,6 +834,20 @@
 		}
 
 		/**
+		 * @param null $id
+		 */
+		public function admin_edit($id = null) {
+			$this->_edit($id);
+		}
+
+		/**
+		 * @param null $id
+		 */
+		public function edit($id = null) {
+			$this->_edit($id);
+		}
+
+		/**
 		 * edit method
 		 *
 		 * @throws NotFoundException
@@ -673,24 +856,41 @@
 		 *
 		 * @return void
 		 */
-		public function edit($id = null) {
-			if(!$this->Coleccion->exists($id)) {
-				throw new NotFoundException(__('Invalid coleccion'));
-			}
-			if($this->request->is('post') || $this->request->is('put')) {
+		private function _edit($id = null) {
+			if(($this->request->is('post') || $this->request->is('put')) && $this->verificarModificar($this->Auth->user('id'), $id)) {
+				$this->request->data['Coleccion']['user_id'] = $this->Auth->user('id');
+				if($this->request->data['Coleccion']['es_auditable']) {
+					$this->request->data['Coleccion']['publicada'] = 0;
+					$this->request->data['Coleccion']['auditada'] = 0;
+				}
 				if($this->Coleccion->save($this->request->data)) {
 					$this->Session->setFlash(__('The coleccion has been saved'));
-					$this->redirect(array('action' => 'index'));
+					$this->redirect(array('action' => 'index', $this->request->data['Coleccion']['coleccion_id']));
 				} else {
 					$this->Session->setFlash(__('The coleccion could not be saved. Please, try again.'));
+					debug($this->Coleccion->invalidFields());
 				}
 			} else {
-				$options             = array('conditions' => array('Coleccion.' . $this->Coleccion->primaryKey => $id));
+				$contain = array(
+					'CamposColeccion' => array(
+						'order' => 'CamposColeccion.posicion ASC',
+						'conditions' => 'CamposColeccion.tipos_de_campo_id <> 8'
+					),
+					'Auditoria' => array(
+						'order' => 'Auditoria.created DESC'
+					)
+				);
+				$options = array(
+					'contain' => $contain,
+					'conditions' => array('Coleccion.' . $this->Coleccion->primaryKey => $id)
+				);
 				$this->request->data = $this->Coleccion->find('first', $options);
+				$options = array(
+					'contain' => $contain,
+					'conditions' => array('Coleccion.' . $this->Coleccion->primaryKey => $this->request->data['Coleccion']['coleccion_id'])
+				);
+				$this->set('coleccionBase', $this->Coleccion->find('first', $options));
 			}
-			$usuarios = $this->Coleccion->Usuario->find('list');
-			$grupos   = $this->Coleccion->Grupo->find('list');
-			$this->set(compact('usuarios', 'grupos', 'grupos'));
 		}
 
 		/**
@@ -758,6 +958,7 @@
 			$this->Coleccion->contain(
 				'CamposColeccion.TiposDeCampo',
 				'CamposColeccion.Coleccion',
+				'CamposColeccion.Hijos',
 				'Grupo',
 				'Usuario'
 			);
@@ -814,7 +1015,7 @@
 		}
 
 		/**
-		 * admin_order_content_type_fields method
+		 * admin_modificar_presentacion method
 		 *
 		 * @throws NotFoundException
 		 *
@@ -825,9 +1026,15 @@
 		public function admin_modificar_presentacion($id = null) {
 			if($this->verificarModificar($this->Auth->user('id'), $id)) {
 				if($this->request->is('post')) {
-					foreach($this->request->data['Campo'] as $key => $data) {
-						$campo = array('CamposColeccion' => $data);
-						$this->Coleccion->CamposColeccion->save($data);
+					foreach($this->request->data['Campo'] as $key1 => $data) {
+						$this->Coleccion->CamposColeccion->contain('Hijos');
+						$campo = $this->Coleccion->CamposColeccion->read(null, $data['id']);
+						$campo['CamposColeccion']['posicion'] = $data['posicion'];
+						foreach($campo['Hijos'] as $key2 => $hijo) {
+							$hijo['posicion'] = $data['posicion'];
+							$this->Coleccion->CamposColeccion->save($hijo);
+						}
+						$this->Coleccion->CamposColeccion->save($campo);
 					}
 					$this->Session->setFlash('Se modificó la presentación de la colección');
 					$this->redirect(array('action' => 'index'));

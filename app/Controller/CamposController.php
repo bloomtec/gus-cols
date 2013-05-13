@@ -27,4 +27,14 @@
 			exit(0);
 		}
 
+		/**
+		 * eliminar method
+		 */
+		public function eliminar() {
+			$this->Campo->contain();
+			$success = $this->Campo->delete($_GET['id']);
+			echo json_encode(array('success' => $success));
+			exit(0);
+		}
+
 	}

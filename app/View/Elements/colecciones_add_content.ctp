@@ -4,6 +4,7 @@
 		$nombre = $uid;
 		$auditable = $this->request->data['Coleccion']['es_auditable'] ? 1 : 0;
 		$anonimo = $this->request->data['Coleccion']['acceso_anonimo'] ? 1 : 0;
+		$publicada = $auditable ? 0 : 1;
 		mkdir(WWW_ROOT . 'files' . DS . $this->request->data['Coleccion']['nombre'] . DS . $uid, 0777);
 		?>
 		<div class="colecciones form">
@@ -15,6 +16,7 @@
 				<?php echo $this->Form->hidden('coleccion_id', array('value' => $this->request->data['Coleccion']['id'])); ?>
 				<?php echo $this->Form->hidden('es_auditable', array('value' => $auditable)); ?>
 				<?php echo $this->Form->hidden('acceso_anonimo', array('value' => $anonimo)); ?>
+				<?php echo $this->Form->hidden('publicada', array('value' => $publicada)); ?>
 				<?php echo $this->Form->hidden('grupo_id', array('value' => $this->request->data['Coleccion']['grupo_id'])); ?>
 				<?php echo $this->Form->hidden('es_tipo_de_contenido', array('value' => 0)); ?>
 				<?php foreach($this->request->data['CamposColeccion'] as $key => $campo) : ?>

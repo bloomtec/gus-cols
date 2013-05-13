@@ -8,6 +8,8 @@
 	 */
 	class Grupo extends AppModel {
 
+		public $actsAs = array('Logger');
+
 		/**
 		 * Display field
 		 *

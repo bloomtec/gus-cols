@@ -13,6 +13,21 @@ if($es_requerido) {
 /**
  * Campos Generales
  */
+if(isset($campo['Campo']['id']) && !empty($campo['Campo']['id']) && !empty($campo['Campo']['campo_padre'])) {
+	echo $this->Form->hidden(
+		"CamposColeccion.$index.id",
+		array('value' => $campo['Campo']['id'])
+	);
+	echo $this->Form->hidden(
+		"CamposColeccion.$index.campo_padre",
+		array('value' => $campo['Campo']['campo_padre'])
+	);
+} else {
+	echo $this->Form->hidden(
+		"CamposColeccion.$index.campo_padre",
+		array('value' => $campo_id)
+	);
+}
 echo $this->Form->hidden(
 	"CamposColeccion.$index.nombre",
 	array('value' => $campo['Campo']['nombre'])
@@ -49,6 +64,7 @@ if($campo['Campo']['tipos_de_campo_id'] == 1) {
 	$options['class'] = "campo-$uid campo-multilínea";
 	$options['id']    = "CamposColeccion$index" . "Multilinea$campo_id";
 	$options['type']  = 'textarea';
+	if(!empty($campo['Campo']['multilinea'])) $options['value'] = $campo['Campo']['multilinea'];
 	echo $this->Form->input(
 		"CamposColeccion.$index.multilinea",
 		$options
@@ -57,6 +73,7 @@ if($campo['Campo']['tipos_de_campo_id'] == 1) {
 	// Texto
 	$options['class'] = "campo-$uid campo-texto";
 	$options['id']    = "CamposColeccion$index" . "Texto$campo_id";
+	if(!empty($campo['Campo']['texto'])) $options['value'] = $campo['Campo']['texto'];
 	echo $this->Form->input(
 		"CamposColeccion.$index.texto",
 		$options
@@ -65,12 +82,13 @@ if($campo['Campo']['tipos_de_campo_id'] == 1) {
 	// Archivo
 	$options['class'] = "campo-$uid campo-archivo";
 	$options['id']    = "CamposColeccion$index" . "NombreDeArchivo$campo_id";
+	if(!empty($campo['Campo']['nombre_de_archivo'])) $options['value'] = $campo['Campo']['nombre_de_archivo'];
 	echo $this->Form->hidden(
 		"CamposColeccion.$index.nombre_de_archivo",
 		$options
 	);
 	echo $this->Form->hidden(
-		"CamposColeccion.$index.extensión",
+		"CamposColeccion.$index.extensiones",
 		array('value' => $campo['Campo']['extensiones'])
 	);
 	?>
@@ -163,6 +181,7 @@ if($campo['Campo']['tipos_de_campo_id'] == 1) {
 	$options['options'] = $seleccionListaPredefinidas;
 	$options['class']   = "campo-$uid campo-selección-lista";
 	$options['id']      = "CamposColeccion$index" . "SelecciónListaPredefinida$campo_id";
+	if(!empty($campo['Campo']['seleccion_lista_predefinida'])) $options['value'] = $campo['Campo']['seleccion_lista_predefinida'];
 	echo $this->Form->input(
 		"CamposColeccion.$index.seleccion_lista_predefinida",
 		$options
@@ -175,6 +194,7 @@ if($campo['Campo']['tipos_de_campo_id'] == 1) {
 	// Número
 	$options['class'] = "campo-$uid campo-número";
 	$options['id']    = "CamposColeccion$index" . "Numero$campo_id";
+	if(!empty($campo['Campo']['numero'])) $options['value'] = $campo['Campo']['numero'];
 	echo $this->Form->input(
 		"CamposColeccion.$index.numero",
 		$options
@@ -184,6 +204,7 @@ if($campo['Campo']['tipos_de_campo_id'] == 1) {
 	$options['placeholder'] = 'aaaa-mm-dd';
 	$options['class']       = "campo-$uid campo-fecha";
 	$options['id']          = "CamposColeccion$index" . "Fecha$campo_id";
+	if(!empty($campo['Campo']['fecha'])) $options['value'] = $campo['Campo']['fecha'];
 	echo $this->Form->input(
 		"CamposColeccion.$index.fecha",
 		$options
