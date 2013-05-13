@@ -27,9 +27,15 @@
 		</div>
 		<script type="text/javascript" language="JavaScript">
 			$(function() {
-				$.each($('.campos'), function(key, node) {
+				var campos = $('.campos').add(), count = campos.length;
+				campos.each(function(key, node) {
 					var div = $(node);
-					div.load('/colecciones/add_campo_form_contenido/' + div.attr('campo_id') + '/' + '<?php echo urlencode($this->request->data['Coleccion']['nombre']); ?>' + '/' + '<?php echo urlencode($uid); ?>' + '/' + key);
+					div.load('/colecciones/add_campo_form_contenido/' + div.attr('campo_id') + '/' + '<?php echo urlencode($this->request->data['Coleccion']['nombre']); ?>' + '/' + '<?php echo $uid; ?>' + '/' + key);
+					count--;
+					if(!count) {
+						//Agregar la validación del form
+						//$('#ColeccionAddForm').validator();
+					}
 				});
 			});
 		</script>

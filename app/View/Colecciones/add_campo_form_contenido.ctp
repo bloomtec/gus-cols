@@ -9,6 +9,8 @@ $es_listado = $campo['Campo']['listado'] ? 1 : 0;
 $es_requerido = $campo['Campo']['es_requerido'] ? 1 : 0;
 if($es_requerido) {
 	$options['required'] = 'required';
+} else {
+	if(isset($options['required'])) unset($options['required']);
 }
 /**
  * Campos Generales
@@ -61,7 +63,7 @@ echo $this->Form->hidden(
  */
 if($campo['Campo']['tipos_de_campo_id'] == 1) {
 	// Texto multilínea
-	$options['class'] = "campo-$uid campo-multilínea";
+	$options['class'] = "campo-$index campo-multilínea";
 	$options['id']    = "CamposColeccion$index" . "Multilinea$campo_id";
 	$options['type']  = 'textarea';
 	if(!empty($campo['Campo']['multilinea'])) $options['value'] = $campo['Campo']['multilinea'];
@@ -71,7 +73,7 @@ if($campo['Campo']['tipos_de_campo_id'] == 1) {
 	);
 } elseif($campo['Campo']['tipos_de_campo_id'] == 2) {
 	// Texto
-	$options['class'] = "campo-$uid campo-texto";
+	$options['class'] = "campo-$index campo-texto";
 	$options['id']    = "CamposColeccion$index" . "Texto$campo_id";
 	if(!empty($campo['Campo']['texto'])) $options['value'] = $campo['Campo']['texto'];
 	echo $this->Form->input(
@@ -80,7 +82,7 @@ if($campo['Campo']['tipos_de_campo_id'] == 1) {
 	);
 } elseif($campo['Campo']['tipos_de_campo_id'] == 3) {
 	// Archivo
-	$options['class'] = "campo-$uid campo-archivo";
+	$options['class'] = "campo-$index campo-archivo";
 	$options['id']    = "CamposColeccion$index" . "NombreDeArchivo$campo_id";
 	if(!empty($campo['Campo']['nombre_de_archivo'])) $options['value'] = $campo['Campo']['nombre_de_archivo'];
 	echo $this->Form->hidden(
@@ -138,7 +140,7 @@ if($campo['Campo']['tipos_de_campo_id'] == 1) {
 <?php
 } elseif($campo['Campo']['tipos_de_campo_id'] == 4) {
 	// Imagen
-	$options['class'] = "campo-$uid campo-imagen";
+	$options['class'] = "campo-$index campo-imagen";
 	$options['id']    = "CamposColeccion$index" . "Imagen$campo_id";
 	echo $this->Form->hidden(
 		"CamposColeccion.$index.imagen",
@@ -179,7 +181,7 @@ if($campo['Campo']['tipos_de_campo_id'] == 1) {
 	// Lista predefinida
 	$options['type']    = 'select';
 	$options['options'] = $seleccionListaPredefinidas;
-	$options['class']   = "campo-$uid campo-selección-lista";
+	$options['class']   = "campo-$index campo-selección-lista";
 	$options['id']      = "CamposColeccion$index" . "SelecciónListaPredefinida$campo_id";
 	if(!empty($campo['Campo']['seleccion_lista_predefinida'])) $options['value'] = $campo['Campo']['seleccion_lista_predefinida'];
 	echo $this->Form->input(
@@ -192,7 +194,7 @@ if($campo['Campo']['tipos_de_campo_id'] == 1) {
 	);
 } elseif($campo['Campo']['tipos_de_campo_id'] == 6) {
 	// Número
-	$options['class'] = "campo-$uid campo-número";
+	$options['class'] = "campo-$index campo-número";
 	$options['id']    = "CamposColeccion$index" . "Numero$campo_id";
 	if(!empty($campo['Campo']['numero'])) $options['value'] = $campo['Campo']['numero'];
 	echo $this->Form->input(
@@ -202,7 +204,7 @@ if($campo['Campo']['tipos_de_campo_id'] == 1) {
 } elseif($campo['Campo']['tipos_de_campo_id'] == 7) {
 	// Fecha
 	$options['placeholder'] = 'aaaa-mm-dd';
-	$options['class']       = "campo-$uid campo-fecha";
+	$options['class']       = "campo-$index campo-fecha";
 	$options['id']          = "CamposColeccion$index" . "Fecha$campo_id";
 	if(!empty($campo['Campo']['fecha'])) $options['value'] = $campo['Campo']['fecha'];
 	echo $this->Form->input(
@@ -238,7 +240,7 @@ if($campo['Campo']['tipos_de_campo_id'] == 1) {
 ?>
 <script type="text/javascript" language="JavaScript">
 	$(function() {
-		var campo = $('.campo-<?php echo $uid; ?>');
+		var campo = $('.campo-<?php echo $index; ?>');
 		if(campo.attr('required')) {
 			$(campo.parent()).addClass('required');
 		}

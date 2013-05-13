@@ -75,7 +75,13 @@
 							?>
 						</td>
 						<td class="listado"><?php echo $this->Form->input("Campo.$campo_id.listado", array('label' => false, 'div' => false)); ?></td>
-						<td class="unico"><?php echo $this->Form->input("Campo.$campo_id.unico", array('label' => false, 'div' => false)); ?></td>
+						<td class="unico">
+							<?php
+								if(in_array($this->request->data['Campo'][$campo_id]['tipos_de_campo_id'], array(2, 6, 7))) {
+									echo $this->Form->input("Campo.$campo_id.unico", array('label' => false, 'div' => false));
+								}
+							?>
+						</td>
 						<td class="filtro">
 							<?php
 								if(in_array($this->request->data['Campo'][$campo_id]['tipos_de_campo_id'], array(2, 5, 6, 7))) {
