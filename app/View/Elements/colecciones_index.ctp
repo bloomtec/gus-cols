@@ -96,7 +96,9 @@
 		<?php if(isset($unContenido)) : ?>
 		<tr>
 			<?php foreach($unContenido['CamposColeccion'] as $key => $campo) : ?>
+				<?php if($campo['listado']) : ?>
 				<th><?php echo $campo['nombre']; ?></th>
+				<?php endif; ?>
 			<?php endforeach; ?>
 			<th>Fecha de ingreso</th>
 			<th class="actions"><?php echo __('Acciones'); ?></th>
@@ -115,7 +117,7 @@
 								break;
 							}
 						}
-						if($tdVacio) {
+						if($tdVacio && $campoBase['listado']) {
 							echo '<td></td>';
 						} else {
 							echo $this->element(
