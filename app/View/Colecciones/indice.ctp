@@ -117,7 +117,7 @@
 						} else {
 
 							echo $this->element(
-								'filtradoTipoCampo',
+								'filtradoTipoCampoPublico',
 								array(
 									'campo' => $elCampo,
 									'coleccion' => $coleccion

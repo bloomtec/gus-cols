@@ -9,9 +9,9 @@
 		<dt><?php echo __('Publicado'); ?></dt>
 		<dd>
 			<?php if($coleccion['Coleccion']['publicada']) { ?>
-			<input type="checkbox" disabled="disabled" checked="checked" />
+				<input type="checkbox" disabled="disabled" checked="checked" />
 			<?php } else { ?>
-			<input type="checkbox" disabled="disabled" />
+				<input type="checkbox" disabled="disabled" />
 			<?php } ?>
 			&nbsp;
 		</dd>
@@ -147,24 +147,24 @@
 	<?php endif; ?>
 </div>
 <?php if($auditar) : ?>
-<?php echo $this->Form->create('Coleccion'); ?>
-<fieldset>
-	<?php echo $this->Form->hidden('es_tipo_de_contenido', array('value' => $coleccion['Coleccion']['es_tipo_de_contenido'])); ?>
-	<?php echo $this->Form->hidden('auditada', array('value' => 1)); ?>
-	<?php echo $this->Form->hidden('user_id', array('value' => $user_id)); ?>
-	<?php echo $this->Form->input('id', array('value' => $coleccion['Coleccion']['id'])); ?>
-	<?php
-		echo $this->Form->input(
-			'publicada',
-			array(
-				'type' => 'select',
-				'value' => $coleccion['Coleccion']['publicada'] ? 1 : 0,
-				'options' => array('1' => 'Sí', '0' => 'No')
-			)
-		);
-	?>
-	<?php echo $this->Form->input('observación', array('type' => 'textarea')); ?>
-	<?php echo $this->Form->submit('Enviar'); ?>
-</fieldset>
-<?php echo $this->Form->end(); ?>
+	<?php echo $this->Form->create('Coleccion'); ?>
+	<fieldset>
+		<?php echo $this->Form->hidden('es_tipo_de_contenido', array('value' => $coleccion['Coleccion']['es_tipo_de_contenido'])); ?>
+		<?php echo $this->Form->hidden('auditada', array('value' => 1)); ?>
+		<?php echo $this->Form->hidden('user_id', array('value' => $user_id)); ?>
+		<?php echo $this->Form->input('id', array('value' => $coleccion['Coleccion']['id'])); ?>
+		<?php
+			echo $this->Form->input(
+				'publicada',
+				array(
+					'type' => 'select',
+					'value' => $coleccion['Coleccion']['publicada'] ? 1 : 0,
+					'options' => array('1' => 'Sí', '0' => 'No')
+				)
+			);
+		?>
+		<?php echo $this->Form->input('observación', array('type' => 'textarea')); ?>
+		<?php echo $this->Form->submit('Enviar'); ?>
+	</fieldset>
+	<?php echo $this->Form->end(); ?>
 <?php endif; ?>

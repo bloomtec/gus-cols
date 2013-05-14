@@ -6,12 +6,18 @@
 		if($campo['tipos_de_campo_id'] == 1) {
 			//Texto multilínea
 			?>
-			<td class="dato texto-multilínea"><?php echo $campo['multilinea']; ?></td>
+			<td class="dato texto-multilínea">
+				<?php //echo $campo['multilinea']; ?>
+				<?php echo $this->Html->link($campo['multilinea'], array('action' => 'ver', $coleccion['Coleccion']['id'])); ?>
+			</td>
 		<?php
 		} elseif($campo['tipos_de_campo_id'] == 2) {
 			//Texto
 			?>
-			<td class="dato texto"><?php echo $campo['texto']; ?></td>
+			<td class="dato texto">
+				<?php //echo $campo['texto']; ?>
+				<?php echo $this->Html->link($campo['texto'], array('action' => 'ver', $coleccion['Coleccion']['id'])); ?>
+			</td>
 		<?php
 		} elseif($campo['tipos_de_campo_id'] == 3) {
 			//Archivo

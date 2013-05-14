@@ -840,7 +840,57 @@
 			}
 		}
 
-
+		/**
+		 * @param null $id
+		 */
+		public function ver($id = null) {
+			$this->Coleccion->contain(
+				'Usuario',
+				'Grupo',
+				'CamposColeccion.TiposDeCampo',
+				'TipoDeContenido',
+				'Auditoria'
+			);
+			if(!$this->Coleccion->exists($id)) {
+				throw new NotFoundException(__('Invalid coleccion'));
+			}
+			$options = array('conditions' => array('Coleccion.' . $this->Coleccion->primaryKey => $id));
+			$coleccion = $this->Coleccion->find('first', $options);
+			$auditables = $this->verificarAuditables();
+			$auditar = false;
+			if(in_array($id, $auditables)) {
+				$auditar = true;
+				$this->set('user_id', $this->Auth->user('id'));
+			}
+			$this->set('auditar', $auditar);
+			$this->set('coleccion', $coleccion);
+			if($this->request->is('post') || $this->request->is('put')) {
+				if(!(!$this->request->data['Coleccion']['publicada'] && empty($this->request->data['Coleccion']['observación']))) {
+					if($this->Coleccion->save($this->request->data)) {
+						$this->Coleccion->Auditoria->create();
+						$auditoria = array(
+							'Auditoria' => array(
+								'usuario_id' => $this->request->data['Coleccion']['user_id'],
+								'model' => 'Coleccion',
+								'foreign_key' => $this->request->data['Coleccion']['id'],
+								'coleccion_aprobada' => $this->request->data['Coleccion']['publicada'],
+								'observación' => $this->request->data['Coleccion']['observación']
+							)
+						);
+						if($this->Coleccion->Auditoria->save($auditoria)) {
+							$this->Session->setFlash('Se guardó su revisión');
+						} else {
+							$this->Session->setFlash('Ocurrió un error al tratar de guardar la información de auditoría');
+						}
+					} else {
+						$this->Session->setFlash('No se pudo guardar su revisión. Por favor, intente de nuevo.');
+					}
+					$this->redirect(array('action' => 'index', $coleccion['Coleccion']['coleccion_id'], 1));
+				} else {
+					$this->Session->setFlash('Debe ingresar su observación');
+				}
+			}
+		}
 
 		/**
 		 * admin_view method
