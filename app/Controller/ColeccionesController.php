@@ -435,7 +435,7 @@
 			$this->redirect(array('action' => 'index'));
 		}
 
-		public function getPublicMenu($json = false) {
+		public function getPublicMenu() {
 			$colecciones = $this->Coleccion->find(
 				'all',
 				array(
@@ -449,13 +449,8 @@
 			foreach($colecciones as $key => $coleccion) {
 				$links[$coleccion['Coleccion']['id']] = FULL_BASE_URL . '/colecciones/indice/' . $coleccion['Coleccion']['id'];
 			}
-
-			if($json) {
-				echo json_encode($links);
-				exit(0);
-			} else {
-				return $links;
-			}
+			echo json_encode($links);
+			exit(0);
 		}
 
 		/**
@@ -1161,10 +1156,10 @@
 					} else {
 						$this->Coleccion->create();
 						if($this->Coleccion->save($this->request->data)) {
-							$this->Session->setFlash(__('The coleccion has been saved'));
+							$this->Session->setFlash(__('Se guardó la información'));
 							$this->redirect(array('action' => 'index'));
 						} else {
-							$this->Session->setFlash(__('The coleccion could not be saved. Please, try again.'));
+							$this->Session->setFlash(__('No se pudo guardar la información. Por favor, intente de nuevo.'));
 							debug($this->Coleccion->invalidFields());
 						}
 					}
@@ -1367,10 +1362,10 @@
 						$this->Session->setFlash($errMsg);
 					} else {
 						if($this->Coleccion->save($this->request->data)) {
-							$this->Session->setFlash(__('The coleccion has been saved'));
+							$this->Session->setFlash(__('Se guardó la información'));
 							$this->redirect(array('action' => 'index', $this->request->data['Coleccion']['coleccion_id']));
 						} else {
-							$this->Session->setFlash(__('The coleccion could not be saved. Please, try again.'));
+							$this->Session->setFlash(__('No se pudo guardar la información. Por favor, intente de nuevo.'));
 							debug($this->Coleccion->invalidFields());
 						}
 					}
@@ -1422,7 +1417,7 @@
 					$this->Session->setFlash(__('Se creó la colección. Si desea modificar la presentación hagalo ahora.'));
 					$this->redirect(array('action' => 'modificar_presentacion', $this->Coleccion->getLastInsertID()));
 				} else {
-					$this->Session->setFlash(__('The coleccion could not be saved. Please, try again.'));
+					$this->Session->setFlash(__('No se pudo crear la colección. Por favor, intente de nuevo.'));
 				}
 			}
 			$grupos        = $this->Coleccion->Grupo->find('list', array('conditions' => array('Grupo.id <>' => 2)));
@@ -1487,7 +1482,7 @@
 					$this->Session->setFlash(__('Ha modificado la colección. Revise la presentación de la misma ahora.'));
 					$this->redirect(array('action' => 'modificar_presentacion', $this->Coleccion->getID()));
 				} else {
-					$this->Session->setFlash(__('The coleccion could not be saved. Please, try again.'));
+					$this->Session->setFlash(__('No se pudo crear la colección. Por favor, intente de nuevo.'));
 				}
 			} else {
 				// Obtener la Coleccion
