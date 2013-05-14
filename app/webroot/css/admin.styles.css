@@ -14,7 +14,9 @@ ul#admin-menu {
 .presentacion fieldset td.posicion {
     width: 60px;
 }
-
+#sortable tr{
+    cursor: move;
+}
 /** Items relacionados en view **/
 .related {
     margin-left:2%;

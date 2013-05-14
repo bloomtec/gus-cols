@@ -438,6 +438,7 @@
 		 * @return void
 		 */
 		public function index($coleccion_id = null, $auditable = 0, $revision = 0) {
+            $this -> layout ="front";
 			$this->_index($coleccion_id, $auditable, $revision);
 		}
 
