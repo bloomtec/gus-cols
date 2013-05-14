@@ -102,8 +102,10 @@
 				<th><?php echo $campo['nombre']; ?></th>
 				<?php endif; ?>
 			<?php endforeach; ?>
+            <?php /*
 			<th>Fecha de ingreso</th>
 			<th class="actions"><?php echo __('Acciones'); ?></th>
+                */ ?>
 		</tr>
 		<?php endif; ?>
 		<?php foreach($colecciones as $coleccion): ?>
@@ -122,6 +124,7 @@
 						if($tdVacio && $campoBase['listado']) {
 							echo '<td></td>';
 						} else {
+
 							echo $this->element(
 								'filtradoTipoCampo',
 								array(
@@ -132,7 +135,9 @@
 						}
 					}
 				?>
+               <?php /*
 				<td><?php echo $coleccion['Coleccion']['created']; ?></td>
+
 				<td class="actions">
 					<?php echo $this->Html->link(__('Ver'), array('action' => 'view', $coleccion['Coleccion']['id'])); ?>
 					<?php
@@ -141,6 +146,7 @@
 						}
 					?>
 				</td>
+				*/?>
 			</tr>
 		<?php endforeach; ?>
 	</table>
