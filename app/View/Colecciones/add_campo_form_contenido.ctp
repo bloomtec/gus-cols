@@ -129,7 +129,6 @@ if($campo['Campo']['tipos_de_campo_id'] == 1) {
 								$('#Result<?php echo $campo_id; ?>').html('Se ha subido el archivo');
 							} else {
 								$('#Result<?php echo $campo_id; ?>').html('Ocurrió un error al subir el archivo. Por favor, intente de nuevo.');
-								console.log(response);
 							}
 						}
 					});

@@ -435,7 +435,7 @@
 			$this->redirect(array('action' => 'index'));
 		}
 
-		public function getPublicMenu() {
+		public function getPublicMenu($json = false) {
 			$colecciones = $this->Coleccion->find(
 				'all',
 				array(
@@ -445,7 +445,17 @@
 					)
 				)
 			);
-			$this->exit(0);
+			$links = array();
+			foreach($colecciones as $key => $coleccion) {
+				$links[$coleccion['Coleccion']['id']] = FULL_BASE_URL . '/colecciones/indice/' . $coleccion['Coleccion']['id'];
+			}
+
+			if($json) {
+				echo json_encode($links);
+				exit(0);
+			} else {
+				return $links;
+			}
 		}
 
 		/**
