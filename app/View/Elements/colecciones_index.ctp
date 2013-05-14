@@ -28,38 +28,40 @@
 			<?php
 			$filter_counter = 0;
 			foreach($filtros as $key => $campo) {
-				echo '<td class="label">' . $campo['nombre'] . '</td>';
-				if($campo['tipos_de_campo_id'] == 2) {
-					// TEXTO
-					echo '<td class="input text">' . $this->Form->input("Filtros.$filter_counter.2.value", array('label' => false, 'div' => false, 'type' => 'text')) . '</td>';
-				} elseif($campo['tipos_de_campo_id'] == 5) {
-					// LISTA
-					$TMPOpciones = explode("\n", $campo['lista_predefinida']);
-					$opciones = array();
-					foreach($TMPOpciones as $TMPOpcionesKey => $opcion) {
-						$val = trim($opcion);
-						$opciones[$val] = $val;
+				if($campo['listado']){
+					echo '<td class="label">' . $campo['nombre'] . '</td>';
+					if($campo['tipos_de_campo_id'] == 2) {
+						// TEXTO
+						echo '<td class="input text">' . $this->Form->input("Filtros.$filter_counter.2.value", array('label' => false, 'div' => false, 'type' => 'text')) . '</td>';
+					} elseif($campo['tipos_de_campo_id'] == 5) {
+						// LISTA
+						$TMPOpciones = explode("\n", $campo['lista_predefinida']);
+						$opciones = array();
+						foreach($TMPOpciones as $TMPOpcionesKey => $opcion) {
+							$val = trim($opcion);
+							$opciones[$val] = $val;
+						}
+						echo '<td class="input select">' . $this->Form->input("Filtros.$filter_counter.5.value", array('empty' => 'Seleccione...', 'label' => false, 'div' => false, 'type' => 'select', 'options' => $opciones)) . '</td>';
+						echo $this->Form->hidden("Filtros.$filter_counter.5.lista", array('value' => $campo['lista_predefinida']));
+					} elseif($campo['tipos_de_campo_id'] == 6) {
+						// NUMERO
+						echo
+							'<td class="input number">'
+							. $this->Form->input("Filtros.$filter_counter.6.value.min", array('label' => false, 'div' => false, 'type' => 'number'))
+							. ' - '
+							. $this->Form->input("Filtros.$filter_counter.6.value.max", array('label' => false, 'div' => false, 'type' => 'number'))
+							. '</td>';
+					} elseif($campo['tipos_de_campo_id'] == 7) {
+						// FECHA
+						echo
+							'<td class="input dates">'
+							. $this->Form->input("Filtros.$filter_counter.7.value.min", array('placeholder' => 'aaaa-mm-dd', 'label' => false, 'div' => false, 'type' => 'text', 'class' => 'date'))
+							. ' - '
+							. $this->Form->input("Filtros.$filter_counter.7.value.max", array('placeholder' => 'aaaa-mm-dd', 'label' => false, 'div' => false, 'type' => 'text', 'class' => 'date'))
+							. '</td>';
 					}
-					echo '<td class="input select">' . $this->Form->input("Filtros.$filter_counter.5.value", array('empty' => 'Seleccione...', 'label' => false, 'div' => false, 'type' => 'select', 'options' => $opciones)) . '</td>';
-					echo $this->Form->hidden("Filtros.$filter_counter.5.lista", array('value' => $campo['lista_predefinida']));
-				} elseif($campo['tipos_de_campo_id'] == 6) {
-					// NUMERO
-					echo
-						'<td class="input number">'
-						. $this->Form->input("Filtros.$filter_counter.6.value.min", array('label' => false, 'div' => false, 'type' => 'number'))
-						. ' - '
-						. $this->Form->input("Filtros.$filter_counter.6.value.max", array('label' => false, 'div' => false, 'type' => 'number'))
-						. '</td>';
-				} elseif($campo['tipos_de_campo_id'] == 7) {
-					// FECHA
-					echo
-						'<td class="input dates">'
-						. $this->Form->input("Filtros.$filter_counter.7.value.min", array('placeholder' => 'aaaa-mm-dd', 'label' => false, 'div' => false, 'type' => 'text', 'class' => 'date'))
-						. ' - '
-						. $this->Form->input("Filtros.$filter_counter.7.value.max", array('placeholder' => 'aaaa-mm-dd', 'label' => false, 'div' => false, 'type' => 'text', 'class' => 'date'))
-						. '</td>';
+					$filter_counter += 1;
 				}
-				$filter_counter += 1;
 			}
 			?>
 			<td class="input submit"><?php echo $this->Form->submit('Filtrar'); ?></td>
@@ -96,7 +98,9 @@
 		<?php if(isset($unContenido)) : ?>
 		<tr>
 			<?php foreach($unContenido['CamposColeccion'] as $key => $campo) : ?>
+				<?php if($campo['listado']) : ?>
 				<th><?php echo $campo['nombre']; ?></th>
+				<?php endif; ?>
 			<?php endforeach; ?>
 			<th>Fecha de ingreso</th>
 			<th class="actions"><?php echo __('Acciones'); ?></th>
@@ -115,7 +119,7 @@
 								break;
 							}
 						}
-						if($tdVacio) {
+						if($tdVacio && $campoBase['listado']) {
 							echo '<td></td>';
 						} else {
 							echo $this->element(
