@@ -33,7 +33,6 @@
 	<?php if (!empty($coleccion['CamposColeccion'])): ?>
 		<table cellpadding = "0" cellspacing = "0">
 			<tr>
-				<th><?php echo __('Tipo De Campo'); ?></th>
 				<th><?php echo __('Nombre'); ?></th>
 				<th><?php echo __('Dato'); ?></th>
 			</tr>
@@ -41,7 +40,6 @@
 				$i = 0;
 				foreach ($coleccion['CamposColeccion'] as $campo): ?>
 					<tr>
-						<td><?php echo $campo['TiposDeCampo']['nombre']; ?></td>
 						<td><?php echo $campo['nombre']; ?></td>
 						<?php
 							/**
@@ -146,25 +144,3 @@
 		</table>
 	<?php endif; ?>
 </div>
-<?php if($auditar) : ?>
-	<?php echo $this->Form->create('Coleccion'); ?>
-	<fieldset>
-		<?php echo $this->Form->hidden('es_tipo_de_contenido', array('value' => $coleccion['Coleccion']['es_tipo_de_contenido'])); ?>
-		<?php echo $this->Form->hidden('auditada', array('value' => 1)); ?>
-		<?php echo $this->Form->hidden('user_id', array('value' => $user_id)); ?>
-		<?php echo $this->Form->input('id', array('value' => $coleccion['Coleccion']['id'])); ?>
-		<?php
-			echo $this->Form->input(
-				'publicada',
-				array(
-					'type' => 'select',
-					'value' => $coleccion['Coleccion']['publicada'] ? 1 : 0,
-					'options' => array('1' => 'Sí', '0' => 'No')
-				)
-			);
-		?>
-		<?php echo $this->Form->input('observación', array('type' => 'textarea')); ?>
-		<?php echo $this->Form->submit('Enviar'); ?>
-	</fieldset>
-	<?php echo $this->Form->end(); ?>
-<?php endif; ?>
