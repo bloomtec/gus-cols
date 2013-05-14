@@ -26,3 +26,5 @@
 Icon?
 ehthumbs.db
 Thumbs.db
+
+app/tmp/cache/persistent/myapp_cake_core_file_map
