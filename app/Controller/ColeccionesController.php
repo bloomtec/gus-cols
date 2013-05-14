@@ -447,7 +447,7 @@
 			);
 			$links = array();
 			foreach($colecciones as $key => $coleccion) {
-				$links[$coleccion['Coleccion']['id']] = FULL_BASE_URL . '/colecciones/indice/' . $coleccion['Coleccion']['id'];
+				$links[$coleccion['Coleccion']['nombre']] = FULL_BASE_URL . '/colecciones/indice/' . $coleccion['Coleccion']['id'];
 			}
 			echo json_encode($links);
 			exit(0);
