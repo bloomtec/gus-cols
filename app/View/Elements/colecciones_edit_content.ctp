@@ -1,5 +1,5 @@
 <?php
-$uid = uniqid();
+$uid = $this->request->data['Coleccion']['nombre'];
 $nombre = $uid;
 $auditable = $this->request->data['Coleccion']['es_auditable'] ? 1 : 0;
 $anonimo = $this->request->data['Coleccion']['acceso_anonimo'] ? 1 : 0;
@@ -8,7 +8,7 @@ $publicada = $auditable ? 0 : 1;
 <div class="colecciones form">
 	<?php echo $this->Form->create('Coleccion', array('controller' => 'colecciones', 'action' => 'edit', $this->request->data['Coleccion']['id'])); ?>
 	<fieldset>
-		<legend><?php echo $this->request->data['Coleccion']['nombre']; ?></legend>
+		<legend><?php echo $uid; ?></legend>
 		<h3><?php echo __('Nombre interno: ' . $nombre); ?></h3>
 		<?php echo $this->Form->hidden('id', array('value' => $this->request->data['Coleccion']['id'])); ?>
 		<?php echo $this->Form->hidden('nombre', array('value' => $nombre)); ?>
@@ -35,17 +35,22 @@ $publicada = $auditable ? 0 : 1;
 	</fieldset>
 	<?php echo $this->Form->end(__('Enviar')); ?>
 </div>
-<script type="text/javascript">
+	<script type="text/javascript" language="JavaScript">
 	$(function() {
-		$.each($('.campos'), function(key, node) {
+		var campos = $('.campos').add(), count = campos.length;
+		campos.each(function(key, node) {
 			var div = $(node);
-			div.load('/colecciones/add_campo_form_contenido/' + div.attr('campo_id') + '/' + '<?php echo urlencode($this->request->data['Coleccion']['nombre']); ?>' + '/' + '<?php echo urlencode($uid); ?>' + '/' + key);
+			div.load('/colecciones/add_campo_form_contenido/' + div.attr('campo_id') + '/' + '<?php echo urlencode($coleccionBase['Coleccion']['nombre']); ?>' + '/' + '<?php echo $uid; ?>' + '/' + key);
+			count--;
+			if(!count) {
+				//Agregar la validación del form
+				//$('#ColeccionEditForm').validator();
+			}
 		});
 	});
 </script>
 <?php if(!empty($this->request->data['Auditoria']) && !$this->request->data['Coleccion']['publicada']) : ?>
 	<div class="colecciones info">
-		<?php //debug($this->request->data); ?>
 		<table>
 			<tr>
 				<th>Fecha Revision</th>

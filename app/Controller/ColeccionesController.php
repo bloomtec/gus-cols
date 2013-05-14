@@ -753,7 +753,13 @@
 		 * @return void
 		 */
 		private function _add($ct_id) {
-			if(!$this->verificarCrear($this->Auth->user('id'), $ct_id)) $this->redirect(array('action' => 'index'));
+			if($ct_id && !$this->verificarCrear($this->Auth->user('id'), $ct_id)) {
+				$this->Session->setFlash('No tiene permiso para ver esta sección');
+				$this->redirect(array('action' => 'index'));
+			} elseif(!$ct_id) {
+				$this->Session->setFlash('Está tratando de acceder de manera indebida');
+				$this->redirect(array('action' => 'index'));
+			}
 			if(!$ct_id) {
 				$tipoDeContenidos = $this->Coleccion->find(
 					'list',
@@ -772,27 +778,139 @@
 					if($this->Auth->user('id')) {
 						$this->request->data['Coleccion']['usuario_id'] = $this->Auth->user('id');
 					}
-					$this->Coleccion->create();
-					if($this->Coleccion->save($this->request->data)) {
-						$this->Session->setFlash(__('The coleccion has been saved'));
-						$this->redirect(array('action' => 'index'));
-					} else {
-						$this->Session->setFlash(__('The coleccion could not be saved. Please, try again.'));
-						debug($this->Coleccion->invalidFields());
+					/**
+					 * Validar campos
+					 */
+					$requeridosValido = true;
+					$datosValidos = true;
+					$unicosValido = true;
+					$errMsg = '';
+					// Requeridos
+					foreach($this->request->data['CamposColeccion'] as $key => $campo) {
+						if($campo['es_requerido']) {
+							switch($campo['tipos_de_campo_id']) {
+								case 1:
+									// Multilínea
+									empty($campo['multilinea']) ? $requeridosValido = false : $requeridosValido = true;
+									$errMsg = 'El campo ' . $campo['nombre'] . ' no puede estar sin completar';
+									break;
+								case 2:
+									// Texto
+									empty($campo['texto']) ? $requeridosValido = false : $requeridosValido = true;
+									$errMsg = 'El campo ' . $campo['nombre'] . ' no puede estar sin completar';
+									break;
+								case 3:
+									// Archivo
+									empty($campo['nombre_de_archivo']) ? $requeridosValido = false : $requeridosValido = true;
+									$errMsg = 'Debe subir un archivo para el campo ' . $campo['nombre'];
+									break;
+								case 4:
+									// Imagen
+									empty($campo['imagen']) ? $requeridosValido = false : $requeridosValido = true;
+									$errMsg = 'Debe subir una imagen para el campo ' . $campo['nombre'];
+									break;
+								case 5:
+									// Lista
+									empty($campo['seleccion_lista_predefinida']) ? $requeridosValido = false : $requeridosValido = true;
+									$errMsg = 'Debe seleccionar un valor para el campo ' . $campo['nombre'];
+									break;
+								case 6:
+									// Número
+									empty($campo['numero']) ? $requeridosValido = false : $requeridosValido = true;
+									$errMsg = 'El campo ' . $campo['nombre'] . ' no puede estar sin completar';
+									break;
+								case 7:
+									// Fecha
+									empty($campo['fecha']) ? $requeridosValido = false : $requeridosValido = true;
+									$errMsg = 'El campo ' . $campo['nombre'] . ' no puede estar sin completar';
+									break;
+							}
+						}
+						if(!$requeridosValido) break;
 					}
-				} else {
-					$contain = array(
-						'CamposColeccion' => array(
-							'order' => 'CamposColeccion.posicion ASC',
-							'conditions' => 'CamposColeccion.tipos_de_campo_id <> 8'
-						)
-					);
-					$options = array(
-						'contain' => $contain,
-						'conditions' => array('Coleccion.' . $this->Coleccion->primaryKey => $ct_id)
-					);
-					$this->request->data = $this->Coleccion->find('first', $options);
+					if($requeridosValido) {
+						// Datos correctos
+						foreach($this->request->data['CamposColeccion'] as $key => $campo) {
+							switch($campo['tipos_de_campo_id']) {
+								case 6:
+									// Número
+									is_numeric(trim($campo['numero'])) ? $datosValidos = true : $datosValidos = false;
+									$errMsg = 'Dato erróneo en el campo ' . $campo['nombre'];
+									break;
+								case 7:
+									// Fecha
+									$date_format = 'Y-m-d';
+									$input = trim($campo['fecha']);
+									$time = strtotime($input);
+									(date($date_format, $time) == $input) ? $datosValidos = true : $datosValidos = false;
+									$errMsg = 'Dato erróneo en el campo ' . $campo['nombre'];
+									break;
+							}
+							if(!$requeridosValido) break;
+						}
+						if($datosValidos) {
+							// Únicos
+							foreach($this->request->data['CamposColeccion'] as $keyA => $campo) {
+								if($campo['unico']) {
+									$padre_id = $campo['campo_padre'];
+									$this->Coleccion->CamposColeccion->contain('Hijos');
+									$campoPadre = $this->Coleccion->CamposColeccion->read(null, $padre_id);
+									$datoEncontrado = false;
+									foreach($campoPadre['Hijos'] as $keyB => $campoHijo) {
+										switch($campo['tipos_de_campo_id']) {
+											case 2:
+												// Texto
+												(trim($campo['texto']) == trim($campoHijo['texto'])) ? $datoEncontrado = true : $datoEncontrado = false;
+												$errMsg = 'El dato ingresado en el campo ' . $campo['nombre'] . ' ya existe';
+												break;
+											case 6:
+												// Número
+												($campo['numero'] == $campoHijo['numero']) ? $datoEncontrado = true : $datoEncontrado = false;
+												$errMsg = 'El dato ingresado en el campo ' . $campo['nombre'] . ' ya existe';
+												break;
+											case 7:
+												// Fecha
+												($campo['fecha'] == $campoHijo['fecha']) ? $datoEncontrado = true : $datoEncontrado = false;
+												$errMsg = 'El dato ingresado en el campo ' . $campo['nombre'] . ' ya existe';
+												break;
+										}
+										if($datoEncontrado) {
+											$unicosValido = false;
+											break;
+										}
+									}
+								}
+								if(!$unicosValido) break;
+							}
+						}
+					}
+					/**
+					 * Fin validar campos
+					 */
+					if(!$requeridosValido || !$datosValidos || !$unicosValido) {
+						$this->Session->setFlash($errMsg);
+					} else {
+						$this->Coleccion->create();
+						if($this->Coleccion->save($this->request->data)) {
+							$this->Session->setFlash(__('The coleccion has been saved'));
+							$this->redirect(array('action' => 'index'));
+						} else {
+							$this->Session->setFlash(__('The coleccion could not be saved. Please, try again.'));
+							debug($this->Coleccion->invalidFields());
+						}
+					}
 				}
+				$contain = array(
+					'CamposColeccion' => array(
+						'order' => 'CamposColeccion.posicion ASC',
+						'conditions' => 'CamposColeccion.tipos_de_campo_id <> 8'
+					)
+				);
+				$options = array(
+					'contain' => $contain,
+					'conditions' => array('Coleccion.' . $this->Coleccion->primaryKey => $ct_id)
+				);
+				$this->request->data = $this->Coleccion->find('first', $options);
 			}
 			$this->set('ct_id', $ct_id);
 		}
@@ -857,20 +975,137 @@
 		 * @return void
 		 */
 		private function _edit($id = null) {
-			if(($this->request->is('post') || $this->request->is('put')) && $this->verificarModificar($this->Auth->user('id'), $id)) {
-				$this->request->data['Coleccion']['user_id'] = $this->Auth->user('id');
-				if($this->request->data['Coleccion']['es_auditable']) {
-					$this->request->data['Coleccion']['publicada'] = 0;
-					$this->request->data['Coleccion']['auditada'] = 0;
+			if($id && $this->verificarModificar($this->Auth->user('id'), $id)) {
+				if(($this->request->is('post') || $this->request->is('put'))) {
+					$this->request->data['Coleccion']['user_id'] = $this->Auth->user('id');
+					if($this->request->data['Coleccion']['es_auditable']) {
+						$this->request->data['Coleccion']['publicada'] = 0;
+						$this->request->data['Coleccion']['auditada'] = 0;
+					}
+
+					/**
+					 * Validar campos
+					 */
+					$requeridosValido = true;
+					$datosValidos = true;
+					$unicosValido = true;
+					$errMsg = '';
+					// Requeridos
+					foreach($this->request->data['CamposColeccion'] as $key => $campo) {
+						if($campo['es_requerido']) {
+							switch($campo['tipos_de_campo_id']) {
+								case 1:
+									// Multilínea
+									empty($campo['multilinea']) ? $requeridosValido = false : $requeridosValido = true;
+									$errMsg = 'El campo ' . $campo['nombre'] . ' no puede estar sin completar';
+									break;
+								case 2:
+									// Texto
+									empty($campo['texto']) ? $requeridosValido = false : $requeridosValido = true;
+									$errMsg = 'El campo ' . $campo['nombre'] . ' no puede estar sin completar';
+									break;
+								case 3:
+									// Archivo
+									empty($campo['nombre_de_archivo']) ? $requeridosValido = false : $requeridosValido = true;
+									$errMsg = 'Debe subir un archivo para el campo ' . $campo['nombre'];
+									break;
+								case 4:
+									// Imagen
+									empty($campo['imagen']) ? $requeridosValido = false : $requeridosValido = true;
+									$errMsg = 'Debe subir una imagen para el campo ' . $campo['nombre'];
+									break;
+								case 5:
+									// Lista
+									empty($campo['seleccion_lista_predefinida']) ? $requeridosValido = false : $requeridosValido = true;
+									$errMsg = 'Debe seleccionar un valor para el campo ' . $campo['nombre'];
+									break;
+								case 6:
+									// Número
+									empty($campo['numero']) ? $requeridosValido = false : $requeridosValido = true;
+									$errMsg = 'El campo ' . $campo['nombre'] . ' no puede estar sin completar';
+									break;
+								case 7:
+									// Fecha
+									empty($campo['fecha']) ? $requeridosValido = false : $requeridosValido = true;
+									$errMsg = 'El campo ' . $campo['nombre'] . ' no puede estar sin completar';
+									break;
+							}
+						}
+						if(!$requeridosValido) break;
+					}
+					if($requeridosValido) {
+						// Datos correctos
+						foreach($this->request->data['CamposColeccion'] as $key => $campo) {
+							switch($campo['tipos_de_campo_id']) {
+								case 6:
+									// Número
+									is_numeric(trim($campo['numero'])) ? $datosValidos = true : $datosValidos = false;
+									$errMsg = 'Dato erróneo en el campo ' . $campo['nombre'];
+									break;
+								case 7:
+									// Fecha
+									$date_format = 'Y-m-d';
+									$input = trim($campo['fecha']);
+									$time = strtotime($input);
+									(date($date_format, $time) == $input) ? $datosValidos = true : $datosValidos = false;
+									$errMsg = 'Dato erróneo en el campo ' . $campo['nombre'];
+									break;
+							}
+							if(!$requeridosValido) break;
+						}
+						if($datosValidos) {
+							// Únicos
+							foreach($this->request->data['CamposColeccion'] as $keyA => $campo) {
+								if($campo['unico']) {
+									$padre_id = $campo['campo_padre'];
+									$this->Coleccion->CamposColeccion->contain('Hijos');
+									$campoPadre = $this->Coleccion->CamposColeccion->read(null, $padre_id);
+									$datoEncontrado = false;
+									foreach($campoPadre['Hijos'] as $keyB => $campoHijo) {
+										if($campo['id'] != $campoHijo['id']) {
+											switch($campo['tipos_de_campo_id']) {
+												case 2:
+													// Texto
+													(trim($campo['texto']) == trim($campoHijo['texto'])) ? $datoEncontrado = true : $datoEncontrado = false;
+													$errMsg = 'El dato ingresado en el campo ' . $campo['nombre'] . ' ya existe';
+													break;
+												case 6:
+													// Número
+													($campo['numero'] == $campoHijo['numero']) ? $datoEncontrado = true : $datoEncontrado = false;
+													$errMsg = 'El dato ingresado en el campo ' . $campo['nombre'] . ' ya existe';
+													break;
+												case 7:
+													// Fecha
+													($campo['fecha'] == $campoHijo['fecha']) ? $datoEncontrado = true : $datoEncontrado = false;
+													$errMsg = 'El dato ingresado en el campo ' . $campo['nombre'] . ' ya existe';
+													break;
+											}
+										}
+										if($datoEncontrado) {
+											$unicosValido = false;
+											break;
+										}
+									}
+								}
+								if(!$unicosValido) break;
+							}
+						}
+					}
+					/**
+					 * Fin validar campos
+					 */
+					if(!$requeridosValido || !$datosValidos || !$unicosValido) {
+						$this->Session->setFlash($errMsg);
+					} else {
+						if($this->Coleccion->save($this->request->data)) {
+							$this->Session->setFlash(__('The coleccion has been saved'));
+							$this->redirect(array('action' => 'index', $this->request->data['Coleccion']['coleccion_id']));
+						} else {
+							$this->Session->setFlash(__('The coleccion could not be saved. Please, try again.'));
+							debug($this->Coleccion->invalidFields());
+						}
+					}
 				}
-				if($this->Coleccion->save($this->request->data)) {
-					$this->Session->setFlash(__('The coleccion has been saved'));
-					$this->redirect(array('action' => 'index', $this->request->data['Coleccion']['coleccion_id']));
-				} else {
-					$this->Session->setFlash(__('The coleccion could not be saved. Please, try again.'));
-					debug($this->Coleccion->invalidFields());
-				}
-			} else {
 				$contain = array(
 					'CamposColeccion' => array(
 						'order' => 'CamposColeccion.posicion ASC',
@@ -890,6 +1125,12 @@
 					'conditions' => array('Coleccion.' . $this->Coleccion->primaryKey => $this->request->data['Coleccion']['coleccion_id'])
 				);
 				$this->set('coleccionBase', $this->Coleccion->find('first', $options));
+			} elseif(!$id) {
+				$this->Session->setFlash('Está tratando de acceder de manera indebida');
+				$this->redirect(array('action' => 'index'));
+			} else {
+				$this->Session->setFlash('No tiene permiso para ver esta sección.');
+				$this->redirect(array('action' => 'index'));
 			}
 		}
 
@@ -1029,9 +1270,20 @@
 					foreach($this->request->data['Campo'] as $key1 => $data) {
 						$this->Coleccion->CamposColeccion->contain('Hijos');
 						$campo = $this->Coleccion->CamposColeccion->read(null, $data['id']);
+						//debug($campo);
 						$campo['CamposColeccion']['posicion'] = $data['posicion'];
+						$campo['CamposColeccion']['listado'] = $data['listado'];
+						if(isset($data['filtro']))
+							$campo['CamposColeccion']['filtro'] = $data['filtro'];
+						if(isset($data['unico']))
+						$campo['CamposColeccion']['unico'] = $data['unico'];
 						foreach($campo['Hijos'] as $key2 => $hijo) {
 							$hijo['posicion'] = $data['posicion'];
+							$hijo['listado'] = $data['listado'];
+							if(isset($data['filtro']))
+								$hijo['filtro'] = $data['filtro'];
+							if(isset($data['unico']))
+							$hijo['unico'] = $data['unico'];
 							$this->Coleccion->CamposColeccion->save($hijo);
 						}
 						$this->Coleccion->CamposColeccion->save($campo);

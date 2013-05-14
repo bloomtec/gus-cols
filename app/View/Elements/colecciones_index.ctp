@@ -20,7 +20,7 @@
 	$_SESSION['Filtros']['ultimo'] = $unContenido;
 ?>
 <div class="colecciones index">
-	<h2><?php echo __('Listado de: ' . $unContenido['TipoDeContenido']['nombre']); ?></h2>
+	<h2><?php echo __('Listado de: ' . $unContenido['Coleccion']['nombre']); ?></h2>
 	<?php if(!empty($filtros)) { ?>
 	<?php echo $this->Form->create('Coleccion', array('id' => 'FiltrosForm', 'action' => 'index/' . $coleccion_id . '/' . $auditable)); ?>
 	<table class="filtro">
@@ -69,7 +69,7 @@
 		</tr>
 	</table>
 	<?php echo $this->Form->end(); ?>
-	<script type="text/javascript">
+		<script type="text/javascript" language="JavaScript">
 		$(function() {
 			if($(".date")) {
 				var currentYear = (new Date).getFullYear();

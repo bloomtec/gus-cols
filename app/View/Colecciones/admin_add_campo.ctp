@@ -8,7 +8,7 @@
 </td>
 <td><?php echo $this->Form->input("Campo.$campo_id.es_requerido", array('class' => "req-$uid", 'label' => false, 'div' => false)); ?></td>
 <td class="actions"><a class="remover-campo-<?php echo $uid; ?>">Eliminar</a></td>
-<script type="text/javascript">
+<script type="text/javascript" language="JavaScript">
 	$(function(){
 		var campoReq = $('.req-<?php echo $uid; ?>'), campoEle = $('.elementos-<?php echo $uid; ?>'), divEle = $('.elemento-<?php echo $uid; ?>'), divLista = $('.div-lista-<?php echo $uid; ?>'), campoLista = $('.lista-<?php echo $uid; ?>'), divExt = $('.div-ext-<?php echo $uid; ?>'), campoExt = $('.extensiones-<?php echo $uid; ?>'), campoTipo = $('.tipo-campo-<?php echo $uid; ?>'), eliminarCampo = $('.remover-campo-<?php echo $uid; ?>');
 		divEle.css('display', 'none');

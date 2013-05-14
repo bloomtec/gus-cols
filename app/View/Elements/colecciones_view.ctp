@@ -75,14 +75,16 @@
 										$fileName = $fileNameTMP;
 										$encoded = json_encode(array($file, $fileName, $fileExt, $ct_path, $co_path));
 										$encoded = htmlentities($encoded, ENT_SUBSTITUTE, 'UTF-8', false);
-										echo $this->Html->link(
-											'Descargar',
-											array(
-												'controller' => 'colecciones',
-												'action' => 'download',
-												$encoded
-											)
-										);
+										if(!empty($file)) {
+											echo $this->Html->link(
+												'Descargar',
+												array(
+													'controller' => 'colecciones',
+													'action' => 'download',
+													$encoded
+												)
+											);
+										}
 									?>
 								</td>
 							<?php

@@ -140,7 +140,7 @@
 						<td class="actions">
 							<?php if(!$campo['campo_id'] && empty($campo['Hijos'])) : ?>
 							<a class="remover-campo-<?php echo $uid; ?>">Eliminar</a>
-							<script>
+								<script type="text/javascript" language="JavaScript">
 								$(function() {
 									$('.remover-campo-<?php echo $uid; ?>').click(function() {
 										if(confirm('¿Seguro desea eliminar el campo <?php echo $campo['nombre']; ?>?')) {
@@ -164,7 +164,7 @@
 							</script>
 							<?php endif; ?>
 						</td>
-						<script type="text/javascript">
+						<script type="text/javascript" language="JavaScript">
 							$(function() {
 								var campoReq = $('.req-<?php echo $uid; ?>'), campoEle = $('.elementos-<?php echo $uid; ?>'), divEle = $('.elemento-<?php echo $uid; ?>'), divLista = $('.div-lista-<?php echo $uid; ?>'), campoLista = $('.lista-<?php echo $uid; ?>'), divExt = $('.div-ext-<?php echo $uid; ?>'), campoExt = $('.extensiones-<?php echo $uid; ?>'), campoTipo = $('.tipo-campo-<?php echo $uid; ?>'), eliminarCampo = $('.remover-campo-<?php echo $uid; ?>');
 
@@ -217,7 +217,7 @@
 	</fieldset>
 	<?php echo $this->Form->end(__('Modificar')); ?>
 </div>
-<script type="text/javascript">
+<script type="text/javascript" language="JavaScript">
 	$(function() {
 		$('.campos').css('max-height', $('.info').height());
 	});
