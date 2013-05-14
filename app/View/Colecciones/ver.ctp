@@ -1,21 +1,6 @@
 <div class="colecciones view">
-	<h2><?php  echo __('Coleccion'); ?></h2>
+	<h2><?php echo h($coleccion['Coleccion']['nombre']); ?></h2>
 	<dl>
-		<dt><?php echo __('Nombre'); ?></dt>
-		<dd>
-			<?php echo h($coleccion['Coleccion']['nombre']); ?>
-			&nbsp;
-		</dd>
-		<dt><?php echo __('Publicado'); ?></dt>
-		<dd>
-			<?php if($coleccion['Coleccion']['publicada']) { ?>
-				<input type="checkbox" disabled="disabled" checked="checked" />
-			<?php } else { ?>
-				<input type="checkbox" disabled="disabled" />
-			<?php } ?>
-			&nbsp;
-		</dd>
-
 		<dt><?php echo __('Creado'); ?></dt>
 		<dd>
 			<?php echo h($coleccion['Coleccion']['created']); ?>

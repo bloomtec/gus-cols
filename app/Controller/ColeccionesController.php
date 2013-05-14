@@ -844,6 +844,7 @@
 		 * @param null $id
 		 */
 		public function ver($id = null) {
+			$this -> layout ="front";
 			$this->Coleccion->contain(
 				'Usuario',
 				'Grupo',
