@@ -9,8 +9,10 @@
 </p>
 <div class="paging">
 	<?php
-	echo $this->Paginator->prev('< ' . __('anterior'), array(), null, array('class' => 'prev disabled'));
-	echo $this->Paginator->numbers(array('separator' => ''));
-	echo $this->Paginator->next(__('siguiente') . ' >', array(), null, array('class' => 'next disabled'));
+		echo $this->Paginator->first('<< ' . __('primera', true), array('class' => 'prev'));
+		echo $this->Paginator->prev('< ' . __('anterior'), array(), null, array('class' => 'prev disabled'));
+		echo $this->Paginator->numbers(array('separator' => ''));
+		echo $this->Paginator->next(__('siguiente') . ' >', array(), null, array('class' => 'next disabled'));
+		echo $this->Paginator->last('>> ' . __('última', true), array('class' => 'next'));
 	?>
 </div>

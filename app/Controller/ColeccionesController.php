@@ -1536,26 +1536,28 @@
 		public function admin_modificar_presentacion($id = null) {
 			if($this->verificarModificar($this->Auth->user('id'), $id)) {
 				if($this->request->is('post')) {
-					foreach($this->request->data['Campo'] as $key1 => $data) {
-						$this->Coleccion->CamposColeccion->contain('Hijos');
-						$campo = $this->Coleccion->CamposColeccion->read(null, $data['id']);
-						//debug($campo);
-						$campo['CamposColeccion']['posicion'] = $data['posicion'];
-						$campo['CamposColeccion']['listado'] = $data['listado'];
-						if(isset($data['filtro']))
-							$campo['CamposColeccion']['filtro'] = $data['filtro'];
-						if(isset($data['unico']))
-						$campo['CamposColeccion']['unico'] = $data['unico'];
-						foreach($campo['Hijos'] as $key2 => $hijo) {
-							$hijo['posicion'] = $data['posicion'];
-							$hijo['listado'] = $data['listado'];
+					if(isset($this->request->data['Campo'])) {
+						foreach($this->request->data['Campo'] as $key1 => $data) {
+							$this->Coleccion->CamposColeccion->contain('Hijos');
+							$campo = $this->Coleccion->CamposColeccion->read(null, $data['id']);
+							//debug($campo);
+							$campo['CamposColeccion']['posicion'] = $data['posicion'];
+							$campo['CamposColeccion']['listado'] = $data['listado'];
 							if(isset($data['filtro']))
-								$hijo['filtro'] = $data['filtro'];
+								$campo['CamposColeccion']['filtro'] = $data['filtro'];
 							if(isset($data['unico']))
-							$hijo['unico'] = $data['unico'];
-							$this->Coleccion->CamposColeccion->save($hijo);
+								$campo['CamposColeccion']['unico'] = $data['unico'];
+							foreach($campo['Hijos'] as $key2 => $hijo) {
+								$hijo['posicion'] = $data['posicion'];
+								$hijo['listado'] = $data['listado'];
+								if(isset($data['filtro']))
+									$hijo['filtro'] = $data['filtro'];
+								if(isset($data['unico']))
+									$hijo['unico'] = $data['unico'];
+								$this->Coleccion->CamposColeccion->save($hijo);
+							}
+							$this->Coleccion->CamposColeccion->save($campo);
 						}
-						$this->Coleccion->CamposColeccion->save($campo);
 					}
 					$this->Session->setFlash('Se modificó la presentación de la colección');
 					$this->redirect(array('action' => 'index'));
