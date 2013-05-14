@@ -435,6 +435,19 @@
 			$this->redirect(array('action' => 'index'));
 		}
 
+		public function getPublicMenu() {
+			$colecciones = $this->Coleccion->find(
+				'all',
+				array(
+					'conditions' => array(
+						'Coleccion.es_tipo_de_contenido' => 1,
+						'Coleccion.acceso_anonimo' => 1
+					)
+				)
+			);
+			$this->exit(0);
+		}
+
 		/**
 		 * @param $coleccion_id
 		 */

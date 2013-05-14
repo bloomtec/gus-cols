@@ -1,5 +1,5 @@
 <div class="colecciones view">
-	<h2><?php echo h($coleccion['Coleccion']['nombre']); ?></h2>
+	<h2><?php echo h($coleccion['TipoDeContenido']['nombre']); ?></h2>
 	<dl>
 		<dt><?php echo __('Creado'); ?></dt>
 		<dd>
@@ -128,4 +128,7 @@
 				<?php endforeach; ?>
 		</table>
 	<?php endif; ?>
+</div>
+<div class="actions">
+	<?php echo $this->Html->link('Volver', array('action' => 'indice', $coleccion['Coleccion']['coleccion_id'])); ?>
 </div>
