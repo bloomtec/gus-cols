@@ -41,9 +41,21 @@
 			$this->_removerFiltro($coleccion_id, $auditable);
 		}
 
+		/**
+		 * @param $coleccion_id
+		 * @param $auditable
+		 */
 		private function _removerFiltro($coleccion_id, $auditable) {
 			$this->Session->write('Filtros.activos', 0);
 			$this->redirect(array('action' => 'index', $coleccion_id, $auditable));
+		}
+
+		/**
+		 * @param $coleccion_id
+		 */
+		public function removerFiltroPublico($coleccion_id) {
+			$this->Session->write('Filtros.activos', 0);
+			$this->redirect(array('action' => 'indice', $coleccion_id));
 		}
 
 		/**
@@ -424,6 +436,189 @@
 		}
 
 		/**
+		 * @param $coleccion_id
+		 */
+		public function indice($coleccion_id) {
+			$this -> layout ="front";
+			// Condiciones
+			$conditions = array();
+			$ultimosCampos = array();
+
+			if($coleccion_id) {
+				$this->Coleccion->contain(
+					'CamposColeccion',
+					'TipoDeContenido'
+				);
+				$this->set('coleccionBase', $this->Coleccion->read(null, $coleccion_id));
+				if(!$this->Session->read('Filtros.activos')) {
+					$this->Session->write('Filtros.activos', 0);
+				}
+				$this->Coleccion->contain(
+					'TipoDeContenido',
+					'CamposColeccion.listado = 1'
+				);
+				$conditions['Coleccion.publicada'] = 1;
+				$conditions['Coleccion.es_tipo_de_contenido'] = 0;
+				$conditions['Coleccion.coleccion_id'] = $coleccion_id;
+				if($this->request->is('post')) {
+					$ultimosCampos = $this->Session->read('Filtros.ultimo');
+					// Guardar los ID's de las colecciones que contengan campos que hayan salido
+					// con resultados para los filtros aplicados
+					$colecciones = array();
+
+					// Recorrer los filtros definidos
+					foreach($this->request->data['Filtros'] as $key => $filtro) {
+						$listados = array();
+						// Filtrado por listas
+						if(isset($filtro[5]) && !empty($filtro[5]['value'])) {
+							$this->Session->write('Filtros.activos', 1);
+							$listados = $this->Coleccion->CamposColeccion->find(
+								'list',
+								array(
+									'conditions' => array(
+										'CamposColeccion.seleccion_lista_predefinida LIKE' => '%' . $filtro[5]['value'] . '%',
+										'CamposColeccion.lista_predefinida' => $filtro[5]['lista']
+									),
+									'fields' => 'CamposColeccion.foreign_key'
+								)
+							);
+						}
+						// Filtrado por texto
+						if(isset($filtro[2]) && !empty($filtro[2]['value'])) {
+							$listados = $this->Coleccion->CamposColeccion->find(
+								'list',
+								array(
+									'conditions' => array(
+										'CamposColeccion.texto LIKE' => '%' . $filtro[2]['value'] . '%'
+									),
+									'fields' => 'CamposColeccion.foreign_key'
+								)
+							);
+						}
+						// Filtrado por fecha
+						if(isset($filtro[7])) {
+							$min_date = null;
+							$max_date = null;
+							if(!empty($filtro[7]['value']['min'])) $min_date = $filtro[7]['value']['min'];
+							if(!empty($filtro[7]['value']['max'])) $max_date = $filtro[7]['value']['max'];
+							if(($min_date || $max_date) && (!$min_date || !$max_date)) {
+								$this->Session->setFlash(
+									"Debe ingresar una fecha en ambos campos."
+										. "\n Si busca para un día especifico ingrese la misma fecha en ambos campos."
+								);
+							} else {
+								$min = strtotime($min_date);
+								$max = strtotime($max_date);
+
+								if($min > $max) {
+									$this->Session->setFlash(
+										"No puede poner la fecha menor con un valor superior a la fecha mayor"
+									);
+								} else {
+									$listados = $this->Coleccion->CamposColeccion->find(
+										'list',
+										array(
+											'conditions' => array(
+												'CamposColeccion.fecha BETWEEN ? AND ?' => array($min_date, $max_date)
+											),
+											'fields' => 'CamposColeccion.foreign_key'
+										)
+									);
+								}
+							}
+						}
+						// Filtrado por número
+						if(isset($filtro[6])) {
+							$min = null;
+							$max = null;
+							if(!empty($filtro[6]['value']['min'])) $min = $filtro[6]['value']['min'];
+							if(!empty($filtro[6]['value']['max'])) $max = $filtro[6]['value']['max'];
+							if((is_numeric($min) || is_numeric($max)) && (!is_numeric($min) || !is_numeric($max))) {
+								$this->Session->setFlash(
+									"Debe ingresar un valor en ambos campos numéricos."
+										. "\n Si busca un valor especifico ingrese el mismo valor en ambos campos."
+								);
+							} else {
+								if($min > $max) {
+									$this->Session->setFlash(
+										"No puede poner el número menor con un valor superior al número mayor"
+									);
+								} else {
+									$listados = $this->Coleccion->CamposColeccion->find(
+										'list',
+										array(
+											'conditions' => array(
+												'CamposColeccion.numero BETWEEN ? AND ?' => array($min, $max)
+											),
+											'fields' => 'CamposColeccion.foreign_key'
+										)
+									);
+								}
+							}
+						}
+						if(empty($colecciones)) {
+							foreach($listados as $key => $foreign_key) {
+								if(!in_array($foreign_key, $colecciones)) {
+									$colecciones[] = $foreign_key;
+								}
+							}
+						} else {
+							if(!empty($listados)) {
+								$found = false;
+								foreach($listados as $key => $foreign_key) {
+									if(in_array($foreign_key, $colecciones)) {
+										$found = true;
+									}
+								}
+								if(!$found) {
+									$colecciones = array();
+									break;
+								}
+							}
+						}
+					}
+
+					// Asignar el filtro de ID's
+					if(!empty($colecciones)) {
+						$conditions['Coleccion.id'] = $colecciones;
+						$this->Session->write('Filtros.activos', 1);
+					} else {
+						$this->Session->setFlash('La selección de filtros actual no ha retornado resultados');
+					}
+				}
+				$this->set('filtrado', $this->Session->read('Filtros.activos'));
+			} else {
+				$this->Coleccion->contain('TipoDeContenido', 'Contenido');
+				$conditions['Coleccion.es_tipo_de_contenido'] = true;
+			}
+
+			// Hay usuario logueado?
+			if(!$this->Auth->user('id')) {
+				$conditions['Coleccion.acceso_anonimo'] = 1;
+			}
+
+			//debug($conditions);
+
+			$this->paginate = array(
+				'conditions' => $conditions
+			);
+
+			$paginated = $this->paginate();
+
+			if($coleccion_id) {
+				foreach($paginated as $key => $value) {
+					$tmp = $value['CamposColeccion'];
+					unset($paginated[$key]['CamposColeccion']);
+					$paginated[$key]['Campo'] = $tmp;
+				}
+			}
+
+			$this->set('ultimosCampos', $ultimosCampos);
+			$this->set('colecciones', $paginated);
+			$this->set('coleccion_id', $coleccion_id);
+		}
+
+		/**
 		 * admin_index method
 		 *
 		 * @return void
@@ -438,8 +633,7 @@
 		 * @return void
 		 */
 		public function index($coleccion_id = null, $auditable = 0, $revision = 0) {
-            $this -> layout ="front";
-			$this->_index($coleccion_id, $auditable, $revision);
+            $this->_index($coleccion_id, $auditable, $revision);
 		}
 
 		/**

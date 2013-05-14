@@ -102,10 +102,8 @@
 				<th><?php echo $campo['nombre']; ?></th>
 				<?php endif; ?>
 			<?php endforeach; ?>
-            <?php /*
 			<th>Fecha de ingreso</th>
 			<th class="actions"><?php echo __('Acciones'); ?></th>
-                */ ?>
 		</tr>
 		<?php endif; ?>
 		<?php foreach($colecciones as $coleccion): ?>
@@ -135,7 +133,6 @@
 						}
 					}
 				?>
-               <?php /*
 				<td><?php echo $coleccion['Coleccion']['created']; ?></td>
 
 				<td class="actions">
@@ -146,10 +143,8 @@
 						}
 					?>
 				</td>
-				*/?>
 			</tr>
 		<?php endforeach; ?>
 	</table>
 	<?php echo $this -> element('paginator'); ?>
 </div>
-<?php //debug($unContenido); ?>
