@@ -1460,13 +1460,6 @@
 		 * @return void
 		 */
 		public function admin_edit_content_type($id = null) {
-			$this->Coleccion->contain(
-				'CamposColeccion.TiposDeCampo',
-				'CamposColeccion.Coleccion',
-				'CamposColeccion.Hijos',
-				'Grupo',
-				'Usuario'
-			);
 			if(!$this->Coleccion->exists($id)) {
 				throw new NotFoundException(__('Invalid coleccion'));
 			}
@@ -1478,33 +1471,96 @@
 				$this->request->data['Grupo'][2]['creación']              = '1';
 				$this->request->data['Grupo'][2]['acceso']                = '1';
 				//debug($this->request->data);
-				if($this->Coleccion->save($this->request->data)) {
-					$this->Session->setFlash(__('Ha modificado la colección. Revise la presentación de la misma ahora.'));
-					$this->redirect(array('action' => 'modificar_presentacion', $this->Coleccion->getID()));
+				/**
+				 * Verificar cambios
+				 */
+				$guardarCambios = true;
+				$datoEncontrado = true;
+				$errMsg = '';
+				foreach($this->request->data['Campo'] as $keyA => $campo) {
+					$this->Coleccion->CamposColeccion->contain('Hijos');
+					$campoColeccion = $this->Coleccion->CamposColeccion->read(null, $campo['id']);
+					foreach($campoColeccion['Hijos'] as $keyB => $campoHijo) {
+						switch($campoColeccion['CamposColeccion']['tipos_de_campo_id']) {
+							case 5:
+								// Lista
+								$textParts = explode("\n", $campo['lista_predefinida']);
+								foreach($textParts as $keyC => $text) $textParts[$keyC] = trim($text);
+								if(!in_array($campoHijo['seleccion_lista_predefinida'], $textParts)) {
+									$datoEncontrado = false;
+								}
+								break;
+						}
+						if(!$datoEncontrado) break;
+					}
+					if(!$datoEncontrado) break;
+				}
+				if(!$datoEncontrado) {
+					$guardarCambios = false;
+					$errMsg = 'Existen listados con opciones que no ha dejado en la lista de selección';
+				}
+				/**
+				 * Fin verificar cambios
+				 */
+				if($guardarCambios) {
+					if($this->Coleccion->save($this->request->data)) {
+						/**
+						 * Cambiar las listas en los hijos
+						 */
+						foreach($this->request->data['Campo'] as $keyA => $campo) {
+							$this->Coleccion->CamposColeccion->contain('Hijos');
+							$campoColeccion = $this->Coleccion->CamposColeccion->read(null, $campo['id']);
+							foreach($campoColeccion['Hijos'] as $keyB => $campoHijo) {
+								switch($campoColeccion['CamposColeccion']['tipos_de_campo_id']) {
+									case 5:
+										// Lista
+										$campoHijo['lista_predefinida'] = $campo['lista_predefinida'];
+										$this->Coleccion->CamposColeccion->save($campoHijo);
+										break;
+								}
+							}
+						}
+						/**
+						 * Fin cambio lista en los hijos
+						 */
+						$this->Session->setFlash(__('Ha modificado la colección. Revise la presentación de la misma ahora.'));
+						$this->redirect(array('action' => 'modificar_presentacion', $this->Coleccion->getID()));
+					} else {
+						$this->Session->setFlash(__('No se pudo crear la colección. Por favor, intente de nuevo.'));
+					}
 				} else {
-					$this->Session->setFlash(__('No se pudo crear la colección. Por favor, intente de nuevo.'));
-				}
-			} else {
-				// Obtener la Coleccion
-				$options             = array('conditions' => array('Coleccion.' . $this->Coleccion->primaryKey => $id));
-				$this->request->data = $this->Coleccion->find('first', $options);
-				// Procesar los campos
-				$this->request->data['Campo'] = $this->request->data['CamposColeccion'];
-				unset($this->request->data['CamposColeccion']);
-				// Procesar los grupos (los permisos)
-				foreach($this->request->data['Grupo'] as $key => $grupo) {
-					if(!$grupo) {
-						unset($this->request->data['Grupo'][$key]);
-					}
-				}
-				$permisos                     = $this->request->data['Grupo'];
-				$this->request->data['Grupo'] = array();
-				foreach($permisos as $key => $permiso) {
-					if(is_array($permiso) && $permiso['ColeccionesGrupo']['grupo_id'] != 2) {
-						$this->request->data['Grupo'][$permiso['ColeccionesGrupo']['grupo_id']] = $permiso['ColeccionesGrupo'];
-					}
+					$this->Session->setFlash(__($errMsg));
 				}
 			}
+
+			$this->Coleccion->contain(
+				'CamposColeccion.TiposDeCampo',
+				'CamposColeccion.Coleccion',
+				'CamposColeccion.Hijos',
+				'Grupo',
+				'Usuario'
+			);
+
+			// Obtener la Coleccion
+			$options             = array('conditions' => array('Coleccion.' . $this->Coleccion->primaryKey => $id));
+			$this->request->data = $this->Coleccion->find('first', $options);
+			// Procesar los campos
+			$this->request->data['Campo'] = $this->request->data['CamposColeccion'];
+			unset($this->request->data['CamposColeccion']);
+			// Procesar los grupos (los permisos)
+			foreach($this->request->data['Grupo'] as $key => $grupo) {
+				if(!$grupo) {
+					unset($this->request->data['Grupo'][$key]);
+				}
+			}
+			$permisos                     = $this->request->data['Grupo'];
+			$this->request->data['Grupo'] = array();
+			foreach($permisos as $key => $permiso) {
+				if(is_array($permiso) && $permiso['ColeccionesGrupo']['grupo_id'] != 2) {
+					$this->request->data['Grupo'][$permiso['ColeccionesGrupo']['grupo_id']] = $permiso['ColeccionesGrupo'];
+				}
+			}
+
 			$grupos        = $this->Coleccion->Grupo->find('list', array('conditions' => array('Grupo.id <>' => 2)));
 			$tiposDeCampos = $this->Campo->TiposDeCampo->find('list');
 			$colecciones = $this->Coleccion->find(

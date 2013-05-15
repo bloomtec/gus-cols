@@ -112,12 +112,12 @@
 							?>
 							<?php
 								if($campo['tipos_de_campo_id'] == 5) {
-									echo $this->Form->hidden("Campo.$campo_id.lista_predefinida", array('class' => "lista-$uid", 'placeholder' => 'Una opción por línea', 'style' => 'height: 75px', 'div' => array('class' => "input textarea div-lista-$uid")));
-									$textParts = explode("\n", $campo['lista_predefinida']);
+									echo $this->Form->input("Campo.$campo_id.lista_predefinida", array('class' => "lista-$uid", 'placeholder' => 'Una opción por línea', 'style' => 'height: 75px', 'div' => array('class' => "input textarea div-lista-$uid")));
+									/*$textParts = explode("\n", $campo['lista_predefinida']);
 									echo '<br />';
 									foreach($textParts as $key => $text) {
 										echo '<br />' . trim($text);
-									}
+									}*/
 								} else {
 									echo $this->Form->input("Campo.$campo_id.lista_predefinida", array('class' => "lista-$uid", 'placeholder' => 'Una opción por línea', 'style' => 'height: 75px', 'div' => array('class' => "input textarea div-lista-$uid")));
 								}
