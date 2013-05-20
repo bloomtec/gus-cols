@@ -367,16 +367,32 @@
 				)
 			);
 			$path = WWW_ROOT . 'files';
-			$handle = opendir($path);
-			if ($handle) {
-				while (false !== ($entry = readdir($handle))) {
-					if ($entry != "." && $entry != ".." && $entry != "empty") {
-						if(!in_array($entry, $directories)) {
-							rmdir($path . DS . $entry);
+			$this->deleteFiles($path, $directories);
+		}
+
+		/**
+		 * @param $path
+		 * @param $directories
+		 */
+		private function deleteFiles($path, $directories) {
+			if(is_dir($path)) {
+				$handle = opendir($path);
+				if ($handle) {
+					while (false !== ($entry = readdir($handle))) {
+						if ($entry != "." && $entry != ".." && $entry != "empty") {
+							$innerPath = $path . DS . $entry;
+							if(!in_array($entry, $directories)) {
+								$this->deleteFiles($innerPath, $directories);
+								if(is_dir($innerPath)) {
+									rmdir($innerPath);
+								}
+							}
 						}
 					}
+					closedir($handle);
 				}
-				closedir($handle);
+			} else {
+				unlink($path);
 			}
 		}
 

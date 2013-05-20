@@ -1479,19 +1479,21 @@
 				$errMsg = '';
 				foreach($this->request->data['Campo'] as $keyA => $campo) {
 					$this->Coleccion->CamposColeccion->contain('Hijos');
-					$campoColeccion = $this->Coleccion->CamposColeccion->read(null, $campo['id']);
-					foreach($campoColeccion['Hijos'] as $keyB => $campoHijo) {
-						switch($campoColeccion['CamposColeccion']['tipos_de_campo_id']) {
-							case 5:
-								// Lista
-								$textParts = explode("\n", $campo['lista_predefinida']);
-								foreach($textParts as $keyC => $text) $textParts[$keyC] = trim($text);
-								if(!in_array($campoHijo['seleccion_lista_predefinida'], $textParts)) {
-									$datoEncontrado = false;
-								}
-								break;
+					if(isset($campo['id'])) {
+						$campoColeccion = $this->Coleccion->CamposColeccion->read(null, $campo['id']);
+						foreach($campoColeccion['Hijos'] as $keyB => $campoHijo) {
+							switch($campoColeccion['CamposColeccion']['tipos_de_campo_id']) {
+								case 5:
+									// Lista
+									$textParts = explode("\n", $campo['lista_predefinida']);
+									foreach($textParts as $keyC => $text) $textParts[$keyC] = trim($text);
+									if(!in_array($campoHijo['seleccion_lista_predefinida'], $textParts)) {
+										$datoEncontrado = false;
+									}
+									break;
+							}
+							if(!$datoEncontrado) break;
 						}
-						if(!$datoEncontrado) break;
 					}
 					if(!$datoEncontrado) break;
 				}
@@ -1508,15 +1510,17 @@
 						 * Cambiar las listas en los hijos
 						 */
 						foreach($this->request->data['Campo'] as $keyA => $campo) {
-							$this->Coleccion->CamposColeccion->contain('Hijos');
-							$campoColeccion = $this->Coleccion->CamposColeccion->read(null, $campo['id']);
-							foreach($campoColeccion['Hijos'] as $keyB => $campoHijo) {
-								switch($campoColeccion['CamposColeccion']['tipos_de_campo_id']) {
-									case 5:
-										// Lista
-										$campoHijo['lista_predefinida'] = $campo['lista_predefinida'];
-										$this->Coleccion->CamposColeccion->save($campoHijo);
-										break;
+							if(isset($campo['id'])) {
+								$this->Coleccion->CamposColeccion->contain('Hijos');
+								$campoColeccion = $this->Coleccion->CamposColeccion->read(null, $campo['id']);
+								foreach($campoColeccion['Hijos'] as $keyB => $campoHijo) {
+									switch($campoColeccion['CamposColeccion']['tipos_de_campo_id']) {
+										case 5:
+											// Lista
+											$campoHijo['lista_predefinida'] = $campo['lista_predefinida'];
+											$this->Coleccion->CamposColeccion->save($campoHijo);
+											break;
+									}
 								}
 							}
 						}
