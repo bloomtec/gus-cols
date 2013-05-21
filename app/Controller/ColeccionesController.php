@@ -78,9 +78,12 @@
 			$conditions = array(
 				'Coleccion.es_auditable' => 1,
 				'Coleccion.auditada' => 0,
-				'Coleccion.grupo_id' => $grupos_usuario,
+				//'Coleccion.grupo_id' => $grupos_usuario,
 				'Coleccion.es_tipo_de_contenido' => 0
 			);
+			if(!in_array(2, $grupos_usuario)) {
+				$conditions['Coleccion.grupo_id'] = $grupos_usuario;
+			}
 			if($ct_index) {
 				$conditions['Coleccion.coleccion_id'] = $id;
 			} else {
@@ -131,22 +134,24 @@
 					)
 				)
 			);
+			$conditions = array(
+				'Coleccion.es_auditable' => 1,
+				'Coleccion.auditada' => 0,
+				'Coleccion.es_tipo_de_contenido' => 0
+			);
+			if(!in_array(2, $grupos_usuario)) {
+				$conditions['Coleccion.grupo_id'] = $grupos_usuario;
+			}
 			$this->Coleccion->contain('Grupo');
 			$auditables = $this->Coleccion->find(
 				'list',
 				array(
-					'conditions' => array(
-						'Coleccion.es_auditable' => 1,
-						'Coleccion.auditada' => 0,
-						'Coleccion.grupo_id' => $grupos_usuario,
-						'Coleccion.es_tipo_de_contenido' => 0
-					),
+					'conditions' => $conditions,
 					'fields' => array(
 						'Coleccion.id'
 					)
 				)
 			);
-			debug($auditables);
 			return $auditables;
 		}
 
