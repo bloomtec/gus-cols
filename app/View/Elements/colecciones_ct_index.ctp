@@ -21,28 +21,30 @@
 				<td class="actions">
 					<?php
 						if($this->requestAction('/colecciones/verificarListar/' . $coleccion['Coleccion']['id'])) {
-							echo $this->Html->link(__('Listar'), array('action' => 'index', $coleccion['Coleccion']['id']));
+							echo $this->Html->link(__('Listar ítems'), array('action' => 'index', $coleccion['Coleccion']['id']));
 						} else {
-							echo '<a>No hay ítems listados</a>';
+							echo '<a>No hay ítems</a>';
 						}
 					?>
 					<?php
 						$user_id = $this->Session->read('Auth.User.id');
 						if($user_id && $this->requestAction('/colecciones/verificarCrear/' . $user_id . '/' . $coleccion['Coleccion']['id'])) {
-							echo $this->Html->link(__('Crear'), array('action' => 'add', $coleccion['Coleccion']['id']));
+							echo $this->Html->link(__('Crear ítem'), array('action' => 'add', $coleccion['Coleccion']['id']));
 						}
 						if($user_id && $this->requestAction('/colecciones/verificarModificar/' . $user_id . '/' . $coleccion['Coleccion']['id'])) {
+							echo $this->Html->link(__('Modificar colección'), array('action' => 'edit_content_type', $coleccion['Coleccion']['id']));
 							echo $this->Html->link(__('Cambiar Presentación'), array('action' => 'modificar_presentacion', $coleccion['Coleccion']['id']));
-							echo $this->Html->link(__('Modificar'), array('action' => 'edit_content_type', $coleccion['Coleccion']['id']));
 						}
 						if($user_id && $this->requestAction('/colecciones/verificarEliminar/' . $user_id . '/' . $coleccion['Coleccion']['id'])) {
-							echo $this->Html->link(__('Eliminar'), array('action' => 'delete', $coleccion['Coleccion']['id']));
+							echo $this->Html->link(__('Eliminar colección'), array('action' => 'delete', $coleccion['Coleccion']['id']));
 						}
+						// Auditor
 						if($this->requestAction('/colecciones/esAuditable/' . $coleccion['Coleccion']['id'] . '/1')) {
-							echo $this->Html->link(__('Contenido Para Auditar'), array('action' => 'index', $coleccion['Coleccion']['id'], 1));
+							echo $this->Html->link(__('Publicaciones para auditar'), array('action' => 'index', $coleccion['Coleccion']['id'], 1));
 						}
+						// Creador
 						if($this->requestAction('/colecciones/verificarContenidoARevisar/' . $coleccion['Coleccion']['id'])) {
-							echo $this->Html->link(__('Contenido Para Revisar'), array('action' => 'index', $coleccion['Coleccion']['id'], 0, 1));
+							echo $this->Html->link(__('Publicaciones sin auditar'), array('action' => 'index', $coleccion['Coleccion']['id'], 0, 1));
 						}
 					?>
 				</td>

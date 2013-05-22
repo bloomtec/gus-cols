@@ -1,7 +1,7 @@
 <div class="colecciones view">
-	<h2><?php  echo __('Coleccion'); ?></h2>
+	<h2><?php  echo __('Coleccion :: ' . $coleccion['TipoDeContenido']['nombre']); ?></h2>
 	<dl>
-		<dt><?php echo __('Nombre'); ?></dt>
+		<dt><?php echo __('ID Interno'); ?></dt>
 		<dd>
 			<?php echo h($coleccion['Coleccion']['nombre']); ?>
 			&nbsp;
@@ -147,24 +147,44 @@
 	<?php endif; ?>
 </div>
 <?php if($auditar) : ?>
-<?php echo $this->Form->create('Coleccion'); ?>
-<fieldset>
-	<?php echo $this->Form->hidden('es_tipo_de_contenido', array('value' => $coleccion['Coleccion']['es_tipo_de_contenido'])); ?>
-	<?php echo $this->Form->hidden('auditada', array('value' => 1)); ?>
-	<?php echo $this->Form->hidden('user_id', array('value' => $user_id)); ?>
-	<?php echo $this->Form->input('id', array('value' => $coleccion['Coleccion']['id'])); ?>
-	<?php
-		echo $this->Form->input(
-			'publicada',
-			array(
-				'type' => 'select',
-				'value' => $coleccion['Coleccion']['publicada'] ? 1 : 0,
-				'options' => array('1' => 'Sí', '0' => 'No')
-			)
-		);
-	?>
-	<?php echo $this->Form->input('observación', array('type' => 'textarea')); ?>
-	<?php echo $this->Form->submit('Enviar'); ?>
-</fieldset>
-<?php echo $this->Form->end(); ?>
+<br />
+<div>
+	<h2><?php echo __('Auditoría'); ?></h2>
+	<table>
+		<caption><h4>Historial de revisiones</h4></caption>
+		<tr>
+			<th>Fecha Revision</th>
+			<th>Comentario</th>
+		</tr>
+		<?php foreach($coleccion['Auditoria'] as $key => $auditoria) : ?>
+			<tr>
+				<td><?php echo $auditoria['created']; ?></td>
+				<td><?php echo $auditoria['observación']; ?></td>
+			</tr>
+		<?php endforeach; ?>
+	</table>
+	<br />
+	<?php echo $this->Form->create('Coleccion'); ?>
+	<h4>Revisión</h4>
+	<fieldset>
+		<?php echo $this->Form->hidden('es_tipo_de_contenido', array('value' => $coleccion['Coleccion']['es_tipo_de_contenido'])); ?>
+		<?php echo $this->Form->hidden('auditada', array('value' => 1)); ?>
+		<?php echo $this->Form->hidden('user_id', array('value' => $user_id)); ?>
+		<?php echo $this->Form->input('id', array('value' => $coleccion['Coleccion']['id'])); ?>
+		<?php
+			echo $this->Form->input(
+				'publicada',
+				array(
+					'type' => 'select',
+					'label' => 'Estado',
+					'value' => $coleccion['Coleccion']['publicada'] ? 1 : 0,
+					'options' => array('1' => 'Aceptada', '0' => 'Rechazada')
+				)
+			);
+		?>
+		<?php echo $this->Form->input('observación', array('type' => 'textarea', 'label' => 'Motivo de rechazo')); ?>
+		<?php echo $this->Form->submit('Enviar'); ?>
+	</fieldset>
+	<?php echo $this->Form->end(); ?>
+</div>
 <?php endif; ?>

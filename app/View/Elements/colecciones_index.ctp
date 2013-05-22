@@ -102,6 +102,9 @@
 				<th><?php echo $campo['nombre']; ?></th>
 				<?php endif; ?>
 			<?php endforeach; ?>
+			<?php if(count($this->params['pass']) === 3) : ?>
+				<th>Auditado</th>
+			<?php endif; ?>
 			<th>Fecha de ingreso</th>
 			<th class="actions"><?php echo __('Acciones'); ?></th>
 		</tr>
@@ -133,10 +136,23 @@
 						}
 					}
 				?>
+				<?php if(count($this->params['pass']) === 3) : ?>
+					<td>
+						<?php if($coleccion['Coleccion']['auditada']) { ?>
+							<input type="checkbox" disabled="disabled" checked="checked" />
+						<?php } else { ?>
+							<input type="checkbox" disabled="disabled" />
+						<?php } ?>
+					</td>
+				<?php endif; ?>
 				<td><?php echo $coleccion['Coleccion']['created']; ?></td>
-
 				<td class="actions">
-					<?php echo $this->Html->link(__('Ver'), array('action' => 'view', $coleccion['Coleccion']['id'])); ?>
+					<?php
+						//debug($this->params['pass']);
+						if(count($this->params['pass']) !== 3) {
+							echo $this->Html->link(__('Ver'), array('action' => 'view', $coleccion['Coleccion']['id']));
+						}
+					?>
 					<?php
 						if($user_id && $this->requestAction('/colecciones/verificarModificar/' . $user_id . '/' . $coleccion['Coleccion']['id'])) {
 							echo $this->Html->link(__('Modificar'), array('action' => 'edit', $coleccion['Coleccion']['id']));

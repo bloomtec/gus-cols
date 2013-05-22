@@ -49,6 +49,7 @@
 <div id="container">
 	<div id="header">
 		<?php echo $this -> element('admin/menu'); ?>
+		<?php echo $this -> element('logged_user'); ?>
 	</div>
 	<div id="content">
 		<?php echo $this->Session->flash(); ?>

@@ -50,6 +50,10 @@
 			$this -> authConfig();
 			// Asignar el layout acorde el contexto
 			$this -> layoutConfig();
+			// Para poner el dato de la persona logueada en el header
+			if($this->Auth->user('id')) {
+				$this->set('user', $this->Auth->user());
+			}
 		}
 
 		/**

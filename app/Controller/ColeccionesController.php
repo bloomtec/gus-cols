@@ -86,8 +86,6 @@
 			}
 			if($ct_index) {
 				$conditions['Coleccion.coleccion_id'] = $id;
-			} else {
-				// TODO
 			}
 			$auditables = $this->Coleccion->find(
 				'list',
@@ -101,6 +99,11 @@
 			return !empty($auditables) ? 1 : 0;
 		}
 
+		/**
+		 * @param $coleccion_id
+		 *
+		 * @return int
+		 */
 		public function verificarContenidoARevisar($coleccion_id) {
 			$user_id = $this->Auth->user('id');
 			$colecciones = $this->Coleccion->find(
@@ -108,7 +111,7 @@
 				array(
 					'conditions' => array(
 						'Coleccion.es_auditable' => 1,
-						'Coleccion.auditada' => 1,
+						//'Coleccion.auditada' => 1,
 						'Coleccion.publicada' => 0,
 						'Coleccion.usuario_id' => $user_id,
 						'Coleccion.coleccion_id' => $coleccion_id
@@ -689,8 +692,9 @@
 					$conditions['Coleccion.publicada'] = 1;
 				} elseif($revision) {
 					$conditions['Coleccion.es_auditable'] = 1;
-					$conditions['Coleccion.auditada'] = 1;
+					//$conditions['Coleccion.auditada'] = 1;
 					$conditions['Coleccion.publicada'] = 0;
+					$conditions['Coleccion.usuario_id'] = $this->Auth->user('id');
 				} else {
 					$conditions['Coleccion.es_auditable'] = 1;
 					$conditions['Coleccion.auditada'] = 0;
