@@ -6,7 +6,7 @@
 		if($campo['tipos_de_campo_id'] == 1) {
 			//Texto multilínea
 			?>
-			<td class="dato texto-multilínea"><?php echo $campo['multilinea']; ?></td>
+			<td class="dato texto-multilinea"><?php echo $campo['multilinea']; ?></td>
 		<?php
 		} elseif($campo['tipos_de_campo_id'] == 2) {
 			//Texto

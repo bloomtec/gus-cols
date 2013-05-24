@@ -6,7 +6,7 @@
 		if($campo['tipos_de_campo_id'] == 1) {
 			//Texto multilínea
 			?>
-			<td class="dato texto-multilínea">
+			<td class="dato texto-multilinea">
 				<?php //echo $campo['multilinea']; ?>
 				<?php echo $this->Html->link($campo['multilinea'], array('action' => 'ver', $coleccion['Coleccion']['id'])); ?>
 			</td>
