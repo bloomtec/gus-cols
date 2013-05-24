@@ -1,5 +1,6 @@
 <div class="colecciones view">
 	<h2><?php echo h($coleccion['TipoDeContenido']['nombre']); ?></h2>
+	<?php /*
 	<dl>
 		<dt><?php echo __('Creado'); ?></dt>
 		<dd>
@@ -12,20 +13,49 @@
 			&nbsp;
 		</dd>
 	</dl>
+    */ ?>
 </div>
 <div class="related">
-	<h3><?php echo __('Campos'); ?></h3>
+	<?php /*<h3><?php echo __('Campos'); ?></h3>*/ ?>
 	<?php if (!empty($coleccion['CamposColeccion'])): ?>
 		<table cellpadding = "0" cellspacing = "0">
-			<tr>
+			<?php /*<tr>
 				<th><?php echo __('Nombre'); ?></th>
 				<th><?php echo __('Dato'); ?></th>
-			</tr>
+			</tr>*/ ?>
 			<?php
 				$i = 0;
-				foreach ($coleccion['CamposColeccion'] as $campo): ?>
+				foreach ($coleccion['CamposColeccion'] as $campo):
+					$mostrar = true;
+					switch($campo['tipos_de_campo_id']) {
+						case 1:
+							empty($campo['multilinea']) ? $mostrar = false : $mostrar = true;
+							break;
+						case 2:
+							empty($campo['texto']) ? $mostrar = false : $mostrar = true;
+							break;
+						case 3:
+							empty($campo['nombre_de_archivo']) ? $mostrar = false : $mostrar = true;
+							break;
+						case 4:
+							empty($campo['imagen']) ? $mostrar = false : $mostrar = true;
+							break;
+						case 5:
+							empty($campo['seleccion_lista_predefinida']) ? $mostrar = false : $mostrar = true;
+							break;
+						case 6:
+							empty($campo['numero']) ? $mostrar = false : $mostrar = true;
+							break;
+						case 7:
+							empty($campo['fecha']) ? $mostrar = false : $mostrar = true;
+							break;
+					}
+					if($mostrar) :
+			?>
+
 					<tr>
 						<td><?php echo $campo['nombre']; ?></td>
+						<td>::</td>
 						<?php
 							/**
 							 * Organizar acorde el tipo de campo
@@ -127,7 +157,10 @@
 							}
 						?>
 					</tr>
-				<?php endforeach; ?>
+			<?php
+					endif;
+				endforeach;
+			?>
 		</table>
 	<?php endif; ?>
 </div>
