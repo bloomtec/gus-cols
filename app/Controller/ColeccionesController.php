@@ -424,8 +424,6 @@
 			$decoded = html_entity_decode($encoded);
 			$json = (array) json_decode($decoded);
 			$path = WWW_ROOT . 'files' . DS . $json[3] . DS . $json[4] . DS . $json[0];
-			debug($json);
-			debug($path);
 			$this->response->file(
 				$path,
 				array(
