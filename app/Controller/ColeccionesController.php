@@ -384,13 +384,14 @@
 		 *
 		 * @param $ruta
 		 */
-		public function uploaded($coleccion, $nombre) {
-			$ruta = WWW_ROOT . 'files' . DS . $coleccion . DS . $nombre;
+		public function uploaded($coleccion, $directorio, $archivo) {
+			$ruta = WWW_ROOT . 'files' . DS . $coleccion . DS . $directorio . DS . $archivo;
 			echo json_encode(
 				array(
 					'success' => file_exists($ruta),
 					'coleccion' => $coleccion,
-					'nombre' => $nombre,
+					'directorio' => $directorio,
+					'archivo' => $archivo,
 					'ruta' => $ruta
 				)
 			);
@@ -666,7 +667,10 @@
 			//debug($conditions);
 
 			$this->paginate = array(
-				'conditions' => $conditions
+				'conditions' => $conditions,
+				'order' => array(
+					'Coleccion.created' => 'DESC'
+				)
 			);
 
 			$paginated = $this->paginate();
@@ -880,7 +884,10 @@
 			//debug($conditions);
 
 			$this->paginate = array(
-				'conditions' => $conditions
+				'conditions' => $conditions,
+				'order' => array(
+					'Coleccion.created' => 'DESC'
+				)
 			);
 
 			$paginated = $this->paginate();
@@ -1259,6 +1266,7 @@
 			$this->layout = 'ajax';
 			$this->Campo->contain();
 			$campo = $this->Campo->read(null, $campo_id);
+			$path = WWW_ROOT . 'files';
 			$exts = '';
 			$seleccionListaPredefinidas = null;
 			if($campo['Campo']['tipos_de_campo_id'] == 3) {
@@ -1266,9 +1274,10 @@
 				$j = count($TMPexts);
 				for($i = 0; $i < $j; $i += 1) {
 					if($i < $j - 1) {
-						$exts .= '*.' . trim($TMPexts[$i] . '; ');
+						//$exts .= '*.' . trim($TMPexts[$i] . '; ');
+						$exts .= "'" . trim($TMPexts[$i]) . "', ";
 					} else {
-						$exts .= '*.' . trim($TMPexts[$i]);
+						$exts .= "'" . trim($TMPexts[$i]) . "'";
 					}
 				}
 			} elseif($campo['Campo']['tipos_de_campo_id'] == 5) {
@@ -1281,9 +1290,7 @@
 					}
 				}
 			}
-			//$c_name = urldecode($c_name);
-			//$uid = urldecode($uid);
-			$this->set(compact('index', 'c_name', 'uid', 'campo', 'campo_id', 'exts', 'seleccionListaPredefinidas'));
+			$this->set(compact('path', 'index', 'c_name', 'uid', 'campo', 'campo_id', 'exts', 'seleccionListaPredefinidas'));
 		}
 
 		/**
@@ -1620,8 +1627,22 @@
 						/**
 						 * Fin cambio lista en los hijos
 						 */
+						/**
+						 * Cambiar opciones en los contenidos de este tipo
+						 */
+						$this->Coleccion->contain('Contenido');
+						$contentType = $this->Coleccion->read(null, $id);
+						foreach($contentType['Contenido'] as $key => $contenido) {
+							$this->Coleccion->id=$contenido['id'];
+							$this->Coleccion->saveField('es_auditable', $contentType['Coleccion']['es_auditable']);
+							$this->Coleccion->saveField('grupo_id', $contentType['Coleccion']['grupo_id']);
+							$this->Coleccion->saveField('acceso_anonimo', $contentType['Coleccion']['acceso_anonimo']);
+						}
+						/**
+						 * Fin cambio de opciones en los contenidos de este tipo
+						 */
 						$this->Session->setFlash(__('Ha modificado la colección. Revise la presentación de la misma ahora.'));
-						$this->redirect(array('action' => 'modificar_presentacion', $this->Coleccion->getID()));
+						$this->redirect(array('action' => 'modificar_presentacion', $id));
 					} else {
 						$this->Session->setFlash(__('No se pudo crear la colección. Por favor, intente de nuevo.'));
 					}

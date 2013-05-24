@@ -96,42 +96,45 @@ if($campo['Campo']['tipos_de_campo_id'] == 1) {
 	?>
 	<div class="upload-container">
 		<label id="Label<?php echo $campo_id; ?>" for="Upload<?php echo $campo_id; ?>"><?php echo $campo['Campo']['nombre'] ?></label>
+		<h4>Puede subir archivos con extensiones tipo: <?php echo $exts; ?></h4>
 		<div id="Upload<?php echo $campo_id; ?>"></div>
 		<div id="Result<?php echo $campo_id; ?>"></div>
 	</div>
 	<script type="text/javascript" language="JavaScript">
 		$(function() {
-			$('#Upload<?php echo $campo_id; ?>').uploadify({
-				//'debug'           : true,
-				'multi'           : false,
-				'buttonText'      : 'Buscar archivo...',
-				'fileTypeDesc'    : 'Archivos <?php echo $campo['Campo']['extensiones']; ?>',
-				'fileTypeExts'    : '<?php echo $exts; ?>',
-				//'checkExisting'  : '/check-exists.php',
-				'swf'             : '/swf/swf-uploader.swf',
-				'uploader'        : '/swf-uploader.php',
-				'formData'        : {
-					'token'      : '<?php echo $token; ?>',
-					'timestamp'  : '<?php echo $timestamp; ?>',
-					'contentType': '<?php echo $c_name; ?>',
-					'directory'  : '<?php echo $uid; ?>'
+			$('#Upload<?php echo $campo_id; ?>').ajaxupload({
+				url : '/upload.php',
+				maxConnections : 2,
+				maxFiles : 1,
+				allowExt : [<?php echo $exts; ?>],
+				autoStart : true,
+				editFilename : false,
+				remotePath : '<?php echo $path; ?>',
+				data : {
+					token : '<?php echo $token; ?>',
+					timestamp : '<?php echo $timestamp; ?>',
+					contentType : '<?php echo $c_name; ?>',
+					directory : '<?php echo $uid; ?>'
 				},
-				'onUploadComplete': function(file) {
+				finish : function (filesName){
 					$.ajax({
-						url: "/colecciones/uploaded/<?php echo urlencode($c_name); ?>/<?php echo urlencode($uid); ?>",
+						url: "/colecciones/uploaded/<?php echo urlencode($c_name); ?>/<?php echo urlencode($uid); ?>/" + encodeURIComponent(filesName),
 						cache: false,
 						async: false,
 						dataType: 'json',
 						success: function(response) {
 							if(response.success) {
-								$('#CamposColeccion<?php echo $index; ?>NombreDeArchivo<?php echo $campo_id; ?>').val(file.name);
+								$('#CamposColeccion<?php echo $index; ?>NombreDeArchivo<?php echo $campo_id; ?>').val(response.archivo);
 								$('#Upload<?php echo $campo_id; ?>').remove();
-								$('#Result<?php echo $campo_id; ?>').html('Se ha subido el archivo');
+								$('#Result<?php echo $campo_id; ?>').html('Se ha subido el archivo ' + response.archivo);
 							} else {
 								$('#Result<?php echo $campo_id; ?>').html('Ocurrió un error al subir el archivo. Por favor, intente de nuevo.');
 							}
 						}
 					});
+				},
+				error : function (err, fileName) {
+					alert('Error: ' + err + '. Al tratar de subir el archivo: ' + fileName);
 				}
 			});
 		});
@@ -148,29 +151,45 @@ if($campo['Campo']['tipos_de_campo_id'] == 1) {
 	?>
 	<div class="upload-container">
 		<label id="Label<?php echo $campo_id; ?>" for="Upload<?php echo $campo_id; ?>"><?php echo $campo['Campo']['nombre'] ?></label>
+		<h4>Puede subir archivos con extensiones tipo: 'gif', 'jpg', 'png'</h4>
 		<div id="Upload<?php echo $campo_id; ?>"></div>
 		<div id="Result<?php echo $campo_id; ?>"></div>
 	</div>
 	<script type="text/javascript" language="JavaScript">
 		$(function() {
-			$('#Upload<?php echo $campo_id; ?>').uploadify({
-				'multi'           : false,
-				'buttonText'      : 'Buscar imagen...',
-				'fileTypeDesc'    : 'Archivos de imagen',
-				'fileTypeExts'    : '*.gif; *.jpg; *.png',
-				'checkExisting'   : '/check-exists.php',
-				'swf'             : '/swf/swf-uploader.swf',
-				'uploader'        : '/swf-uploader.php',
-				'formData'        : {
-					'token'      : '<?php echo $token; ?>',
-					'timestamp'  : '<?php echo $timestamp; ?>',
-					'contentType': '<?php echo $c_name; ?>',
-					'directory'  : '<?php echo $uid; ?>'
+			$('#Upload<?php echo $campo_id; ?>').ajaxupload({
+				url : '/upload.php',
+				maxConnections : 2,
+				maxFiles : 1,
+				allowExt : ['gif', 'jpg', 'png'],
+				autoStart : true,
+				editFilename : false,
+				remotePath : '<?php echo $path; ?>',
+				data : {
+					token : '<?php echo $token; ?>',
+					timestamp : '<?php echo $timestamp; ?>',
+					contentType : '<?php echo $c_name; ?>',
+					directory : '<?php echo $uid; ?>'
 				},
-				'onUploadComplete': function(file) {
-					$('#CamposColeccion<?php echo $index; ?>Imagen<?php echo $campo_id; ?>').val(file.name);
-					$('#Upload<?php echo $campo_id; ?>').remove();
-					$('#Result<?php echo $campo_id; ?>').html('Se ha subido el archivo');
+				finish : function (filesName){
+					$.ajax({
+						url: "/colecciones/uploaded/<?php echo urlencode($c_name); ?>/<?php echo urlencode($uid); ?>/" + encodeURIComponent(filesName),
+						cache: false,
+						async: false,
+						dataType: 'json',
+						success: function(response) {
+							if(response.success) {
+								$('#CamposColeccion<?php echo $index; ?>Imagen<?php echo $campo_id; ?>').val(response.archivo);
+								$('#Upload<?php echo $campo_id; ?>').remove();
+								$('#Result<?php echo $campo_id; ?>').html('Se ha subido el archivo ' + response.archivo);
+							} else {
+								$('#Result<?php echo $campo_id; ?>').html('Ocurrió un error al subir el archivo. Por favor, intente de nuevo.');
+							}
+						}
+					});
+				},
+				error : function (err, fileName) {
+					alert('Error: ' + err + '. Al tratar de subir el archivo: ' + fileName);
 				}
 			});
 		});

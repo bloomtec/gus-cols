@@ -142,12 +142,13 @@
 		 *
 		 * @return bool
 		 */
-		public function beforeDelete($cascade = true) {
+		/*public function beforeDelete($cascade = true) {
 			$this->recursive = -1;
 			$coleccion = $this->read(null, $this->id);
 			$path = WWW_ROOT . 'files' . DS . $coleccion['Coleccion']['nombre'];
+			$this->limpiarDirectorios();
 			return rmdir($path);
-		}
+		}*/
 
 		/**
 		 * afterSave method
@@ -158,10 +159,12 @@
 			/**
 			 * Verificar si es tipo de contenido o contenido
 			 */
-			if($this->data['Coleccion']['es_tipo_de_contenido']) {
-				$this->afterSaveTipoDeContenido($created);
-			} else {
-				$this->afterSaveContenido($created);
+			if(isset($this->data['Coleccion']['es_tipo_de_contenido'])) {
+				if($this->data['Coleccion']['es_tipo_de_contenido']) {
+					$this->afterSaveTipoDeContenido($created);
+				} else {
+					$this->afterSaveContenido($created);
+				}
 			}
 			$this->limpiarDirectorios();
 		}

@@ -36,7 +36,8 @@
 					}
 					$fileName = $fileNameTMP;
 					$encoded = json_encode(array($file, $fileName, $fileExt, $ct_path, $co_path));
-					$encoded = htmlentities($encoded, ENT_SUBSTITUTE, 'UTF-8', false);
+					//$encoded = htmlentities($encoded, ENT_SUBSTITUTE, 'UTF-8', false);
+					$encoded = htmlentities($encoded);
 					if(!empty($file)) {
 						echo $this->Html->link(
 							'Descargar',
@@ -67,7 +68,8 @@
 					}
 					$fileName = $fileNameTMP;
 					$encoded = json_encode(array($file, $fileName, $fileExt, $ct_path, $co_path));
-					$encoded = htmlentities($encoded, ENT_SUBSTITUTE, 'UTF-8', false);
+					//$encoded = htmlentities($encoded, ENT_SUBSTITUTE, 'UTF-8', false);
+					$encoded = htmlentities($encoded);
 					if(!empty($file)) {
 						echo $this->Html->link(
 							'Descargar',

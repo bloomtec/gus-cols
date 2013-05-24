@@ -32,12 +32,14 @@
 	echo $this->Html->css('uploadify');
 	echo $this->Html->css('styles');
 	echo $this->Html->css('admin.styles');
+	echo $this->Html->css('style');
 
 	echo $this->Html->script('jquery-1.9.1.min');
 	echo $this->Html->script('jquery-migrate-1.2.1.min');
 	echo $this->Html->script('jquery-ui-1.10.2.custom.min');
 	echo $this->Html->script('jquery.uploadify.min');
 	echo $this->Html->script('jquery.tools.min');
+	echo $this->Html->script('ajaxupload-min');
 	echo $this->Html->script('admin');
 
 	echo $this->fetch('meta');
