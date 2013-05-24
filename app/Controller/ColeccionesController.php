@@ -100,6 +100,44 @@
 		}
 
 		/**
+		 * @param null $nombre
+		 * @return bool
+		 */
+		private function verificarNombreArchivo($nombre = null) {
+
+			$chars = array(
+				'á',
+				'é',
+				'í',
+				'ó',
+				'ú',
+				'ä',
+				'ë',
+				'ï',
+				'ö',
+				'ü',
+				'à',
+				'è',
+				'ì',
+				'ò',
+				'ù',
+				'â',
+				'ê',
+				'î',
+				'ô',
+				'û',
+			);
+
+			foreach($chars as $char) {
+				if(stristr($nombre, $char) !== false) {
+					return 0;
+				}
+			}
+
+			return 1;
+		}
+
+		/**
 		 * @param $coleccion_id
 		 *
 		 * @return int
@@ -158,7 +196,7 @@
 			return $auditables;
 		}
 
-		/**
+		/**;
 		 * verificarCrear method
 		 *
 		 * @param $usuario_id
@@ -385,8 +423,11 @@
 		private function _download($encoded) {
 			$decoded = html_entity_decode($encoded);
 			$json = (array) json_decode($decoded);
+			$path = WWW_ROOT . 'files' . DS . $json[3] . DS . $json[4] . DS . $json[0];
+			debug($json);
+			debug($path);
 			$this->response->file(
-				WWW_ROOT . 'files' . DS . $json[3] . DS . $json[4] . DS . $json[0],
+				$path,
 				array(
 					'download' => true,
 					'name' => $json[1]
@@ -1106,6 +1147,28 @@
 						// Datos correctos
 						foreach($this->request->data['CamposColeccion'] as $key => $campo) {
 							switch($campo['tipos_de_campo_id']) {
+								case 3:
+									// Archivo
+									if(!empty($campo['nombre_de_archivo'])) {
+										if(!$this->verificarNombreArchivo($campo['nombre_de_archivo'])) {
+											$datosValidos = false;
+											$errMsg = 'Verifique que el nombre del archivo no contenga acentos para el campo ' . $campo['nombre'];
+										} else {
+											$datosValidos = true;
+										}
+									}
+									break;
+								case 4:
+									// Imagen
+									if(!empty($campo['imagen'])) {
+										if(!$this->verificarNombreArchivo($campo['imagen'])) {
+											$datosValidos = false;
+											$errMsg = 'Verifique que el nombre de la imagen no contenga acentos para el campo ' . $campo['nombre'];
+										} else {
+											$datosValidos = true;
+										}
+									}
+									break;
 								case 6:
 									// Número
 									is_numeric(trim($campo['numero'])) ? $datosValidos = true : $datosValidos = false;
@@ -1120,7 +1183,7 @@
 									$errMsg = 'Dato erróneo en el campo ' . $campo['nombre'];
 									break;
 							}
-							if(!$requeridosValido) break;
+							if(!$datosValidos) break;
 						}
 						if($datosValidos) {
 							// Únicos
@@ -1311,6 +1374,28 @@
 						// Datos correctos
 						foreach($this->request->data['CamposColeccion'] as $key => $campo) {
 							switch($campo['tipos_de_campo_id']) {
+								case 3:
+									// Archivo
+									if(!empty($campo['nombre_de_archivo'])) {
+										if(!$this->verificarNombreArchivo($campo['nombre_de_archivo'])) {
+											$datosValidos = false;
+											$errMsg = 'Verifique que el nombre del archivo no contenga acentos para el campo ' . $campo['nombre'];
+										} else {
+											$datosValidos = true;
+										}
+									}
+									break;
+								case 4:
+									// Imagen
+									if(!empty($campo['imagen'])) {
+										if(!$this->verificarNombreArchivo($campo['imagen'])) {
+											$datosValidos = false;
+											$errMsg = 'Verifique que el nombre de la imagen no contenga acentos para el campo ' . $campo['nombre'];
+										} else {
+											$datosValidos = true;
+										}
+									}
+									break;
 								case 6:
 									// Número
 									is_numeric(trim($campo['numero'])) ? $datosValidos = true : $datosValidos = false;
@@ -1325,7 +1410,7 @@
 									$errMsg = 'Dato erróneo en el campo ' . $campo['nombre'];
 									break;
 							}
-							if(!$requeridosValido) break;
+							if(!$datosValidos) break;
 						}
 						if($datosValidos) {
 							// Únicos
