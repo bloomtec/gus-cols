@@ -63,7 +63,7 @@ echo $this->Form->hidden(
  */
 if($campo['Campo']['tipos_de_campo_id'] == 1) {
 	// Texto multilínea
-	$options['class'] = "campo-$index campo-multilínea";
+	$options['class'] = "campo-$index campo-multilinea";
 	$options['id']    = "CamposColeccion$index" . "Multilinea$campo_id";
 	$options['type']  = 'textarea';
 	if(!empty($campo['Campo']['multilinea'])) $options['value'] = $campo['Campo']['multilinea'];

@@ -158,6 +158,11 @@
 							echo $this->Html->link(__('Modificar'), array('action' => 'edit', $coleccion['Coleccion']['id']));
 						}
 					?>
+					<?php
+						if($user_id && $this->requestAction('/colecciones/verificarEliminar/' . $user_id . '/' . $coleccion['Coleccion']['id'])) {
+							echo $this->Html->link(__('Eliminar'), array('action' => 'delete', $coleccion['Coleccion']['id']));
+						}
+					?>
 				</td>
 			</tr>
 		<?php endforeach; ?>

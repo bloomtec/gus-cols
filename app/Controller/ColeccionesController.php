@@ -7,6 +7,13 @@
 	 */
 	class ColeccionesController extends AppController {
 
+		/**
+		 * Parámetro interno para definir el limite de ítemes listados
+		 * en el indice público.
+		 * @var int
+		 */
+		private $publicIndexLimit = 5;
+
 		public $uses = array('Coleccion', 'Campo');
 
 		/**
@@ -470,16 +477,16 @@
 			$usuario_id = $this->Auth->user('id');
 			$this->Coleccion->id = $id;
 			if(!$this->Coleccion->exists()) {
-				throw new NotFoundException(__('Colección no válida'));
+				throw new NotFoundException(__('Está tratando de eliminar un dato inexistente'));
 			}
 			if($this->verificarEliminar($usuario_id, $id)) {
 				if($this->Coleccion->delete()) {
-					$this->Session->setFlash(__('Se eliminó la colección'));
+					$this->Session->setFlash(__('Información eliminada'));
 					$this->redirect(array('action' => 'index'));
 				}
-				$this->Session->setFlash(__('No se pudo eliminar la colección'));
+				$this->Session->setFlash(__('No se pudo eliminar la información'));
 			} else {
-				$this->Session->setFlash(__('No tiene permiso para realizar esta acción o la colección tiene listados'));
+				$this->Session->setFlash(__('No tiene permiso para realizar esta acción o está tratando de eliminar una colección con listados'));
 			}
 			$this->redirect(array('action' => 'index'));
 		}
@@ -670,7 +677,8 @@
 				'conditions' => $conditions,
 				'order' => array(
 					'Coleccion.created' => 'DESC'
-				)
+				),
+				'limit' => $this->publicIndexLimit
 			);
 
 			$paginated = $this->paginate();
@@ -1177,7 +1185,7 @@
 								case 6:
 									// Número
 									is_numeric(trim($campo['numero'])) ? $datosValidos = true : $datosValidos = false;
-									$errMsg = 'Dato erróneo en el campo ' . $campo['nombre'];
+									$errMsg = 'El dato ingresado para el campo ' . $campo['nombre'] . ' no es numérico.';
 									break;
 								case 7:
 									// Fecha
@@ -1185,7 +1193,7 @@
 									$input = trim($campo['fecha']);
 									$time = strtotime($input);
 									(date($date_format, $time) == $input) ? $datosValidos = true : $datosValidos = false;
-									$errMsg = 'Dato erróneo en el campo ' . $campo['nombre'];
+									$errMsg = 'Ha ingresado en un formato no aceptado la fecha para el campo ' . $campo['nombre'];
 									break;
 							}
 							if(!$datosValidos) break;
@@ -1404,7 +1412,7 @@
 								case 6:
 									// Número
 									is_numeric(trim($campo['numero'])) ? $datosValidos = true : $datosValidos = false;
-									$errMsg = 'Dato erróneo en el campo ' . $campo['nombre'];
+									$errMsg = 'El dato ingresado para el campo ' . $campo['nombre'] . ' no es numérico.';
 									break;
 								case 7:
 									// Fecha
@@ -1412,7 +1420,7 @@
 									$input = trim($campo['fecha']);
 									$time = strtotime($input);
 									(date($date_format, $time) == $input) ? $datosValidos = true : $datosValidos = false;
-									$errMsg = 'Dato erróneo en el campo ' . $campo['nombre'];
+									$errMsg = 'Ha ingresado en un formato no aceptado la fecha para el campo ' . $campo['nombre'];
 									break;
 							}
 							if(!$datosValidos) break;

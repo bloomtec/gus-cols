@@ -187,7 +187,7 @@
 						$campoColeccion['CamposColeccion']['usuario_id'] = $this->data['Coleccion']['usuario_id'];
 						$this->CamposColeccion->create();
 						if(!$this->CamposColeccion->save($campoColeccion)) {
-							$this->CamposColeccion->log('Coleccion (185)::' . print_r($this->CamposColeccion->invalidFields(), true));
+							$this->CamposColeccion->log('Coleccion (190)::' . print_r($this->CamposColeccion->invalidFields(), true));
 						}
 					}
 				}
@@ -224,7 +224,7 @@
 							$this->CamposColeccion->create();
 						}
 						if(!$this->CamposColeccion->save($campoColeccion)) {
-							$this->CamposColeccion->log('Coleccion (185)::' . print_r($this->CamposColeccion->invalidFields(), true));
+							$this->CamposColeccion->log('Coleccion (227)::' . print_r($this->CamposColeccion->invalidFields(), true));
 						}
 					}
 				}
