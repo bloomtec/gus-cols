@@ -36,6 +36,9 @@ echo $this -> Html -> script('supersubs');
 		<?php echo $this -> Html -> link('Registros', array('controller' => 'logs', 'action' => 'index')); ?>
 	</li>
 	<li>
+		<?php echo $this -> Html -> link('Respaldos', array('controller' => 'backups', 'action' => 'manage')); ?>
+	</li>
+	<li>
 		<?php echo $this -> Html -> link('Cerrar Sesión', array('controller' => 'usuarios', 'action' => 'logout')); ?>
 	</li>
 </ul>

@@ -165,7 +165,7 @@
 			'Elemento' => array(
 				'className'    => 'Coleccion',
 				'foreignKey'   => 'coleccion_id',
-				'dependent'    => false,
+				'dependent'    => true,
 				'conditions'   => '',
 				'fields'       => '',
 				'order'        => '',

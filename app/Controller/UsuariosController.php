@@ -91,7 +91,7 @@
 		 * @return void
 		 */
 		public function admin_view($id = null) {
-			$this->Usuario->contain('Grupo', 'Auditoria', 'Coleccion');
+			$this->Usuario->contain('Grupo', 'Auditoria', 'Coleccion.TipoDeContenido');
 			if(!$this->Usuario->exists($id)) {
 				throw new NotFoundException(__('El usuario no existe'));
 			}

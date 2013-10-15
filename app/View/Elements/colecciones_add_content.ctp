@@ -5,7 +5,8 @@
 		$auditable = $this->request->data['Coleccion']['es_auditable'] ? 1 : 0;
 		$anonimo = $this->request->data['Coleccion']['acceso_anonimo'] ? 1 : 0;
 		$publicada = $auditable ? 0 : 1;
-		mkdir(WWW_ROOT . 'files' . DS . $this->request->data['Coleccion']['nombre'] . DS . $uid, 0777);
+		//mkdir(WWW_ROOT . 'files' . DS . $this->request->data['Coleccion']['nombre'] . DS . $uid, 0777);
+		mkdir(WWW_ROOT . 'files' . DS . $ct_id . DS . $uid, 0777);
 		?>
 		<div class="colecciones form">
 			<?php echo $this->Form->create('Coleccion', array('controller' => 'colecciones', 'action' => 'add', $ct_id)); ?>
@@ -30,7 +31,7 @@
 				var campos = $('.campos').add(), count = campos.length;
 				campos.each(function(key, node) {
 					var div = $(node);
-					div.load('/colecciones/add_campo_form_contenido/' + div.attr('campo_id') + '/' + '<?php echo urlencode($this->request->data['Coleccion']['nombre']); ?>' + '/' + '<?php echo $uid; ?>' + '/' + key);
+					div.load('/colecciones/add_campo_form_contenido/' + div.attr('campo_id') + '/' + '<?php echo urlencode($this->request->data['Coleccion']['nombre']); ?>' + '/' + '<?php echo $uid; ?>' + '/' + key + '/' + <?php echo $ct_id; ?>);
 					count--;
 					if(!count) {
 						//Agregar la validación del form

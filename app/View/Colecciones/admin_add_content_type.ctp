@@ -46,13 +46,26 @@
 			</thead>
 			<tbody id="CamposColeccion">
 			<?php if(isset($this->request->data['Campo'])) : ?>
-			<?php foreach($this->request->data['Campo'] as $campo_id => $campo) : ?>
-				<tr class="campo-<?php echo $campo_id; ?>">
-					<td class="nombre"><?php echo $this->Form->input("Campo.$campo_id.nombre", array('label' => false, 'div' => false)); ?></td>
-					<td><?php echo $this->Form->input("Campo.$campo_id.tipos_de_campo_id", array('empty' => 'Seleccione...', 'label' => false, 'div' => false)); ?></td>
-					<td><?php echo $this->Form->input("Campo.$campo_id.es_requerido", array('label' => false, 'div' => false)); ?></td>
-				</tr>
-			<?php endforeach; ?>
+				<?php foreach($this->request->data['Campo'] as $campo_id => $campo) : ?>
+					<script>
+						/**
+						 * Agrega un campo a la colección
+						 */
+						$(function() {
+							var campos = $('#CamposColeccion'), campoClass = 'campo-' + <?php echo $campo_id; ?>;
+							if (campos) {
+								campos.append('<tr class="' + campoClass + '"></tr>');
+								campo = $('.' + campoClass);
+								campo.load('/admin/colecciones/add_campo/' + <?php echo $campo_id; ?> + '/' + $('#ColeccionId').val() + '/' + <?php echo $campo['tipos_de_campo_id']; ?>, function() {
+									$('#Campo<?php echo $campo_id ?>Nombre').val('<?php echo $campo['nombre']; ?>');
+									<?php if($campo['es_requerido']): ?>
+									$('#Campo<?php echo $campo_id ?>EsRequerido').attr('checked', true);
+									<?php endif; ?>
+								});
+							}
+						});
+					</script>
+				<?php endforeach; ?>
 			<?php endif; ?>
 			</tbody>
 		</table>

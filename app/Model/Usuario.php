@@ -109,6 +109,34 @@
 					//'on' => 'create', // Limit validation to 'create' or 'update' operations
 				),
 			),
+			'correo'            => array(
+				'notempty' => array(
+					'rule'    => array('notempty'),
+					'message' => 'Ingrese su correo',
+					//'allowEmpty' => false,
+					//'required' => false,
+					//'last' => false, // Stop validation after this rule
+					//'on' => 'create', // Limit validation to 'create' or 'update' operations
+				),
+				'isUnique' => array(
+					'rule'    => array('isUnique'),
+					'message' => 'Este correo ya está registrado',
+					//'allowEmpty' => false,
+					//'required' => false,
+					//'last' => false, // Stop validation after this rule
+					//'on' => 'create', // Limit validation to 'create' or 'update' operations
+				),
+			),
+			'recibir_correos'               => array(
+				'boolean' => array(
+					'rule' => array('boolean'),
+					//'message' => 'Your custom message here',
+					//'allowEmpty' => false,
+					//'required' => false,
+					//'last' => false, // Stop validation after this rule
+					//'on' => 'create', // Limit validation to 'create' or 'update' operations
+				),
+			),
 			'activo'               => array(
 				'boolean' => array(
 					'rule' => array('boolean'),
@@ -168,7 +196,7 @@
 			'Auditoria' => array(
 				'className'    => 'Auditoria',
 				'foreignKey'   => 'usuario_id',
-				'dependent'    => false,
+				'dependent'    => true,
 				'conditions'   => '',
 				'fields'       => '',
 				'order'        => '',
@@ -181,7 +209,7 @@
 			'Coleccion' => array(
 				'className'    => 'Coleccion',
 				'foreignKey'   => 'usuario_id',
-				'dependent'    => false,
+				'dependent'    => true,
 				'conditions'   => '',
 				'fields'       => '',
 				'order'        => '',

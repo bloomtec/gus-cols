@@ -151,6 +151,15 @@
 		}*/
 
 		/**
+		 * @param bool $cascade
+		 *
+		 * @return bool|void
+		 */
+		public function beforeDelete($cascade = true) {
+			$this->saveField('order_field', null);
+		}
+
+		/**
 		 * afterSave method
 		 *
 		 * @return void
@@ -166,7 +175,7 @@
 					$this->afterSaveContenido($created);
 				}
 			}
-			$this->limpiarDirectorios();
+			//$this->limpiarDirectorios();
 		}
 
 		/**
@@ -187,7 +196,7 @@
 						$campoColeccion['CamposColeccion']['usuario_id'] = $this->data['Coleccion']['usuario_id'];
 						$this->CamposColeccion->create();
 						if(!$this->CamposColeccion->save($campoColeccion)) {
-							$this->CamposColeccion->log('Coleccion (190)::' . print_r($this->CamposColeccion->invalidFields(), true));
+							$this->CamposColeccion->log('Coleccion (199)::' . print_r($this->CamposColeccion->invalidFields(), true));
 						}
 					}
 				}
@@ -224,7 +233,7 @@
 							$this->CamposColeccion->create();
 						}
 						if(!$this->CamposColeccion->save($campoColeccion)) {
-							$this->CamposColeccion->log('Coleccion (227)::' . print_r($this->CamposColeccion->invalidFields(), true));
+							$this->CamposColeccion->log('Coleccion (236)::' . print_r($this->CamposColeccion->invalidFields(), true));
 						}
 					}
 				}
@@ -239,7 +248,7 @@
 		private function afterSaveTipoDeContenido($created) {
 			$coleccion_id = $this->id;
 			$user_id = null;
-			if(!$created) {
+			if(!$created && isset($this->data['Grupo'])) {
 				$permisosActuales = $this->ColeccionesGrupo->find(
 					'all',
 					array(
@@ -249,7 +258,7 @@
 					)
 				);
 				$this->ColeccionesGrupo->deleteAll($permisosActuales);
-				$camposActuales = $this->CamposColeccion->find(
+				/*$camposActuales = $this->CamposColeccion->find(
 					'all',
 					array(
 						'conditions' => array(
@@ -258,7 +267,7 @@
 						)
 					)
 				);
-				/*foreach($camposActuales as $key => $campo) {
+				foreach($camposActuales as $key => $campo) {
 					$this->CamposColeccion->delete($campo['CamposColeccion']['id']);
 				}*/
 				$user_id = $this->data['Coleccion']['user_id'];
@@ -267,23 +276,26 @@
 				$user_id = $this->data['Coleccion']['usuario_id'];
 			}
 			// Crear el directorio
-			$path = WWW_ROOT . 'files' . DS . $this->data['Coleccion']['nombre'];
+			//$path = WWW_ROOT . 'files' . DS . $this->data['Coleccion']['nombre'];
+			$path = WWW_ROOT . 'files' . DS . $this->id;
 			if(!file_exists($path)) {
 				mkdir($path, 0777);
 			}
-			// Crear los permisos de acceso y creación
-			foreach($this->data['Grupo'] as $grupo_id => $permisos) {
-				if($permisos['creación'] || $permisos['acceso']) {
-					$coleccionesGrupo = array(
-						'ColeccionesGrupo' => array(
-							'coleccion_id' => $coleccion_id,
-							'grupo_id' => $grupo_id,
-							'creación' => $permisos['creación'],
-							'acceso' => $permisos['acceso']
-						)
-					);
-					$this->ColeccionesGrupo->create();
-					$this->ColeccionesGrupo->save($coleccionesGrupo);
+			if(isset($this->data['Grupo'])) {
+				// Crear los permisos de acceso y creación
+				foreach($this->data['Grupo'] as $grupo_id => $permisos) {
+					if($permisos['creación'] || $permisos['acceso']) {
+						$coleccionesGrupo = array(
+							'ColeccionesGrupo' => array(
+								'coleccion_id' => $coleccion_id,
+								'grupo_id' => $grupo_id,
+								'creación' => $permisos['creación'],
+								'acceso' => $permisos['acceso']
+							)
+						);
+						$this->ColeccionesGrupo->create();
+						$this->ColeccionesGrupo->save($coleccionesGrupo);
+					}
 				}
 			}
 			// Crear los campos
@@ -427,7 +439,14 @@
 				'conditions' => '',
 				'fields'     => '',
 				'order'      => ''
-			)
+			),
+			'CampoOrdenamiento'   => array(
+				'className'  => 'Campo',
+				'foreignKey' => 'order_field',
+				'conditions' => '',
+				'fields'     => '',
+				'order'      => ''
+			),
 		);
 
 		/**
@@ -475,7 +494,7 @@
 			'Contenido' => array(
 				'className'    => 'Coleccion',
 				'foreignKey'   => 'coleccion_id',
-				'dependent'    => false,
+				'dependent'    => true,
 				'conditions'   => '',
 				'fields'       => '',
 				'order'        => '',
@@ -488,7 +507,7 @@
 			'Auditoria' => array(
 				'className'    => 'Auditoria',
 				'foreignKey'   => 'foreign_key',
-				'dependent'    => false,
+				'dependent'    => true,
 				'conditions'   => array('Auditoria.model' => 'Coleccion'),
 				'fields'       => '',
 				'order'        => '',

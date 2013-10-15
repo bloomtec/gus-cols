@@ -66,6 +66,112 @@
 		}
 
 		/**
+		 * @param      $coleccion_id
+		 * @param bool $grupo_auditor
+		 */
+		public function admin_sendMail($coleccion_id, $grupo_auditor = false) {
+			$this->_sendMail($coleccion_id, $grupo_auditor);
+		}
+
+		/**
+		 * @param      $coleccion_id
+		 * @param bool $grupo_auditor
+		 */
+		public function sendMail($coleccion_id, $grupo_auditor = false) {
+			$this->_sendMail($coleccion_id, $grupo_auditor);
+		}
+
+		/**
+		 * @param      $coleccion_id
+		 * @param bool $grupo_auditor
+		 */
+		private function _sendMail($coleccion_id, $grupo_auditor = false) {
+			$this->autoRender=false;
+			$this->Coleccion->contain(
+				'Usuario',
+				'Grupo'
+			);
+			$coleccion = $this->Coleccion->read(null, $coleccion_id);
+
+			// Enviar al grupo auditor o al usuario?
+			if(!$grupo_auditor) {
+				$email = $coleccion['Usuario']['correo'];
+				$nombre = $coleccion['Usuario']['nombres'] . ' ' . $coleccion['Usuario']['apellidos'];
+
+				if(!empty($email)) {
+					// Enviar el correo al usuario
+
+					// subject
+					$subject = 'Notificación aplicación personería';
+
+					// message
+					$message =
+						'<html>
+							<head>
+								  <title>Notificación Perrsonería Cali</title>
+							</head>
+							<body>
+								  <p>Un listado ha sido auditado.</p>
+								  <p>Ingresa <a href="' . $_SERVER['HTTP_HOST'] . '">aquí</a> para revisar el listado.</p>
+								</body>
+							</html>';
+
+					// To send HTML mail, the Content-type header must be set
+					$headers  = 'MIME-Version: 1.0' . "\r\n";
+					$headers .= 'Content-type: text/html; charset=iso-8859-1' . "\r\n";
+
+					// Additional headers
+					$headers .= "To: $nombre <$email>" . "\r\n";
+					$headers .= 'From: Aplicación Personería <no-reply@personeriacali.gov.co>' . "\r\n";
+
+					// Mail it
+					mail($email, $subject, $message, $headers);
+				}
+			} else {
+				$grupo_id = $coleccion['Grupo']['id'];
+				$this->Coleccion->Grupo->contain(
+					'Usuario'
+				);
+				$grupo = $this->Coleccion->Grupo->read(null, $grupo_id);
+				if(isset($grupo['Usuario']) && !empty($grupo['Usuario'])) {
+					foreach($grupo['Usuario'] as $key => $usuario) {
+						$email = $usuario['correo'];
+						$nombre = $usuario['nombres'] . ' ' . $usuario['apellidos'];
+						if(!empty($email)) {
+							// Enviar el correo al usuario
+
+							// subject
+							$subject = 'Notificación aplicación personería';
+
+							// message
+							$message =
+								'<html>
+									<head>
+										  <title>Notificación Perrsonería Cali</title>
+									</head>
+									<body>
+										  <p>Hay un nuevo listado por auditar.</p>
+										  <p>Ingresa <a href="' . $_SERVER['HTTP_HOST'] . '">aquí</a> para revisar el listado.</p>
+								</body>
+							</html>';
+
+							// To send HTML mail, the Content-type header must be set
+							$headers  = 'MIME-Version: 1.0' . "\r\n";
+							$headers .= 'Content-type: text/html; charset=iso-8859-1' . "\r\n";
+
+							// Additional headers
+							$headers .= "To: $nombre <$email>" . "\r\n";
+							$headers .= 'From: Aplicación Personería <no-reply@personeriacali.gov.co>' . "\r\n";
+
+							// Mail it
+							mail($email, $subject, $message, $headers);
+						}
+					}
+				}
+			}
+		}
+
+		/**
 		 * @return array
 		 */
 		public function esAuditable($id, $ct_index) {
@@ -392,16 +498,64 @@
 		 * @param $ruta
 		 */
 		public function uploaded($coleccion, $directorio, $archivo) {
-			$ruta = WWW_ROOT . 'files' . DS . $coleccion . DS . $directorio . DS . $archivo;
-			echo json_encode(
-				array(
-					'success' => file_exists($ruta),
-					'coleccion' => $coleccion,
-					'directorio' => $directorio,
-					'archivo' => $archivo,
-					'ruta' => $ruta
-				)
+
+			$chars = array(
+				'á' => 'a',
+				'é' => 'e',
+				'í' => 'i',
+				'ó' => 'o',
+				'ú' => 'u',
+				'ä' => 'a',
+				'ë' => 'e',
+				'ï' => 'i',
+				'ö' => 'o',
+				'ü' => 'u',
+				'à' => 'a',
+				'è' => 'e',
+				'ì' => 'i',
+				'ò' => 'o',
+				'ù' => 'u',
+				'â' => 'a',
+				'ê' => 'e',
+				'î' => 'i',
+				'ô' => 'o',
+				'û' => 'u',
+				' ' => '_'
 			);
+
+			$nombreOriginal = $archivo;
+			$nombreNuevo = $archivo;
+
+			foreach($chars as $search => $replace) {
+				$nombreNuevo = str_ireplace($search, $replace, $nombreNuevo);
+			}
+
+			$rutaOriginal = WWW_ROOT . 'files' . DS . $coleccion . DS . $directorio . DS . $nombreOriginal;
+			$rutaNueva = WWW_ROOT . 'files' . DS . $coleccion . DS . $directorio . DS . $nombreNuevo;
+
+			if(rename($rutaOriginal, $rutaNueva)) {
+				echo json_encode(
+					array(
+						'success' => 1,
+						'coleccion' => $coleccion,
+						'directorio' => $directorio,
+						'nombreOriginal' => $nombreOriginal,
+						'nombreNuevo' => $nombreNuevo,
+						'ruta' => $rutaNueva
+					)
+				);
+			} else {
+				echo json_encode(
+					array(
+						'success' => 0,
+						'coleccion' => $coleccion,
+						'directorio' => $directorio,
+						'nombreOriginal' => $nombreOriginal,
+						'nombreNuevo' => $nombreNuevo,
+						'ruta' => $rutaNueva
+					)
+				);
+			}
 			exit(0);
 		}
 
@@ -671,13 +825,19 @@
 				$conditions['Coleccion.acceso_anonimo'] = 1;
 			}
 
-			//debug($conditions);
+			// Sección ordenamiento
+			$order = array(
+				'Coleccion.created' => 'DESC'
+			);
+			$base = $this->Coleccion->read(null, $coleccion_id);
+			if($base['Coleccion']['order_field']) {
+				unset($order['Coleccion.created']);
+				$order['Coleccion.order_field_data'] = $base['Coleccion']['order_asc'] ? 'ASC' : 'DESC';
+			}
 
 			$this->paginate = array(
 				'conditions' => $conditions,
-				'order' => array(
-					'Coleccion.created' => 'DESC'
-				),
+				'order' => $order,
 				'limit' => $this->publicIndexLimit
 			);
 
@@ -889,13 +1049,19 @@
 				$conditions['Coleccion.acceso_anonimo'] = 1;
 			}
 
-			//debug($conditions);
+			// Sección ordenamiento
+			$order = array(
+				'Coleccion.created' => 'DESC'
+			);
+			$base = $this->Coleccion->read(null, $coleccion_id);
+			if($base['Coleccion']['order_field']) {
+				unset($order['Coleccion.created']);
+				$order['Coleccion.order_field_data'] = $base['Coleccion']['order_asc'] ? 'ASC' : 'DESC';
+			}
 
 			$this->paginate = array(
 				'conditions' => $conditions,
-				'order' => array(
-					'Coleccion.created' => 'DESC'
-				)
+				'order' => $order
 			);
 
 			$paginated = $this->paginate();
@@ -1012,7 +1178,7 @@
 				'Grupo',
 				'CamposColeccion.TiposDeCampo',
 				'TipoDeContenido',
-				'Auditoria'
+				'Auditoria.Usuario'
 			);
 			if(!$this->Coleccion->exists($id)) {
 				throw new NotFoundException(__('Invalid coleccion'));
@@ -1036,11 +1202,12 @@
 								'usuario_id' => $this->request->data['Coleccion']['user_id'],
 								'model' => 'Coleccion',
 								'foreign_key' => $this->request->data['Coleccion']['id'],
-								'coleccion_aprobada' => $this->request->data['Coleccion']['publicada'],
+								'colección_aprobada' => $this->request->data['Coleccion']['publicada'] ? 1 : 0,
 								'observación' => $this->request->data['Coleccion']['observación']
 							)
 						);
 						if($this->Coleccion->Auditoria->save($auditoria)) {
+							$this->_sendMail($id, false);
 							$this->Session->setFlash('Se guardó su revisión');
 						} else {
 							$this->Session->setFlash('Ocurrió un error al tratar de guardar la información de auditoría');
@@ -1242,6 +1409,7 @@
 					} else {
 						$this->Coleccion->create();
 						if($this->Coleccion->save($this->request->data)) {
+							$this->cuadrarOrdenamiento($ct_id);
 							$this->Session->setFlash(__('Se guardó la información'));
 							$this->redirect(array('action' => 'index'));
 						} else {
@@ -1270,7 +1438,7 @@
 		 *
 		 * @param int $campo_id
 		 */
-		public function add_campo_form_contenido($campo_id, $c_name, $uid, $index) {
+		public function add_campo_form_contenido($campo_id, $c_name, $uid, $index, $ct_id) {
 			$this->layout = 'ajax';
 			$this->Campo->contain();
 			$campo = $this->Campo->read(null, $campo_id);
@@ -1298,7 +1466,7 @@
 					}
 				}
 			}
-			$this->set(compact('path', 'index', 'c_name', 'uid', 'campo', 'campo_id', 'exts', 'seleccionListaPredefinidas'));
+			$this->set(compact('path', 'index', 'c_name', 'uid', 'campo', 'campo_id', 'exts', 'seleccionListaPredefinidas', 'ct_id'));
 		}
 
 		/**
@@ -1470,7 +1638,10 @@
 						$this->Session->setFlash($errMsg);
 					} else {
 						if($this->Coleccion->save($this->request->data)) {
+							$contenido = $this->Coleccion->read(null, $this->Coleccion->id);
+							$this->cuadrarOrdenamiento($contenido['Coleccion']['coleccion_id']);
 							$this->Session->setFlash(__('Se guardó la información'));
+							$this->_sendMail($id, true);
 							$this->redirect(array('action' => 'index', $this->request->data['Coleccion']['coleccion_id']));
 						} else {
 							$this->Session->setFlash(__('No se pudo guardar la información. Por favor, intente de nuevo.'));
@@ -1485,7 +1656,8 @@
 					),
 					'Auditoria' => array(
 						'order' => 'Auditoria.created DESC'
-					)
+					),
+					'Auditoria.Usuario'
 				);
 				$options = array(
 					'contain' => $contain,
@@ -1519,13 +1691,35 @@
 				$this->request->data['Grupo'][2]                          = array();
 				$this->request->data['Grupo'][2]['creación']              = '1';
 				$this->request->data['Grupo'][2]['acceso']                = '1';
-				// Crear el tipo de contenido
-				$this->Coleccion->create();
-				if($this->Coleccion->save($this->request->data)) {
-					$this->Session->setFlash(__('Se creó la colección. Si desea modificar la presentación hagalo ahora.'));
-					$this->redirect(array('action' => 'modificar_presentacion', $this->Coleccion->getLastInsertID()));
+
+				// Validar campos
+				$valid = true;
+				$errMsg = '';
+				if(isset($this->request->data['Campo']) && !empty($this->request->data['Campo'])) {
+					foreach($this->request->data['Campo'] as $key=>$campo) {
+						switch($campo['tipos_de_campo_id']) {
+							case 3:
+								if(empty($campo['extensiones'])) {
+									$valid = false;
+									$errMsg = 'Debe ingresar al menos una extensión para el campo ' . $campo['nombre'];
+								}
+								break;
+						}
+					}
+				}
+
+				if($valid) {
+					// Crear el tipo de contenido
+					$this->Coleccion->create();
+					if($this->Coleccion->save($this->request->data)) {
+						$this->Session->setFlash(__('Se creó la colección. Si desea modificar la presentación hagalo ahora.'));
+						$this->redirect(array('action' => 'modificar_presentacion', $this->Coleccion->getLastInsertID()));
+					} else {
+						$this->Session->setFlash(__('No se pudo crear la colección. Por favor, intente de nuevo.'));
+					}
 				} else {
-					$this->Session->setFlash(__('No se pudo crear la colección. Por favor, intente de nuevo.'));
+					$this->Session->setFlash($errMsg);
+					//$this->request->data['Campo'] = array();
 				}
 			}
 			$grupos        = $this->Coleccion->Grupo->find('list', array('conditions' => array('Grupo.id <>' => 2)));
@@ -1538,7 +1732,7 @@
 		 *
 		 * @param $campo_id
 		 */
-		public function admin_add_campo($campo_id, $coleccion_id = null) {
+		public function admin_add_campo($campo_id, $coleccion_id = null, $tipo_de_campo = null) {
 			$this->layout  = 'ajax';
 			$tiposDeCampos = $this->Campo->TiposDeCampo->find('list');
 			$colecciones = array();
@@ -1555,7 +1749,7 @@
 			} else {
 				$colecciones = $this->Coleccion->find('list', array('conditions' => 'Coleccion.es_tipo_de_contenido = 1'));
 			}
-			$this->set(compact('campo_id', 'tiposDeCampos', 'colecciones'));
+			$this->set(compact('campo_id', 'tiposDeCampos', 'colecciones', 'tipo_de_campo'));
 		}
 
 		/**
@@ -1568,6 +1762,7 @@
 		 * @return void
 		 */
 		public function admin_edit_content_type($id = null) {
+			$uno = 1;
 			if(!$this->Coleccion->exists($id)) {
 				throw new NotFoundException(__('Invalid coleccion'));
 			}
@@ -1641,8 +1836,24 @@
 						$this->Coleccion->contain('Contenido');
 						$contentType = $this->Coleccion->read(null, $id);
 						foreach($contentType['Contenido'] as $key => $contenido) {
+							/*$coleccion = $this->Coleccion->read(null, $contenido['id']);
+							$coleccion['Coleccion']['es_auditable'] = $contentType['Coleccion']['es_auditable'];
+							if($contentType['Coleccion']['es_auditable']) {
+								$coleccion['Coleccion']['publicada'] = 0;
+							} else {
+								$coleccion['Coleccion']['publicada'] = 1;
+							}
+							$coleccion['Coleccion']['grupo_id'] = $contentType['Coleccion']['grupo_id'];
+							$coleccion['Coleccion']['acceso_anonimo'] = $contentType['Coleccion']['acceso_anonimo'];
+							$this->Coleccion->save($coleccion);*/
+							//--------------------
 							$this->Coleccion->id=$contenido['id'];
 							$this->Coleccion->saveField('es_auditable', $contentType['Coleccion']['es_auditable']);
+							if($contentType['Coleccion']['es_auditable']) {
+								$this->Coleccion->saveField('publicada', 0);
+							} else {
+								$this->Coleccion->saveField('publicada', 1);
+							}
 							$this->Coleccion->saveField('grupo_id', $contentType['Coleccion']['grupo_id']);
 							$this->Coleccion->saveField('acceso_anonimo', $contentType['Coleccion']['acceso_anonimo']);
 						}
@@ -1711,13 +1922,32 @@
 		 * @return void
 		 */
 		public function admin_modificar_presentacion($id = null) {
+			$uno = 1;
+			$contain = array(
+				'CamposColeccion' => array(
+					'conditions' => array(
+						'CamposColeccion.tipos_de_campo_id <>' => 8
+					),
+					'order' => 'CamposColeccion.posicion ASC'
+				),
+				'CamposColeccion.TiposDeCampo',
+				'CamposColeccion.Coleccion',
+				'CampoOrdenamiento',
+				'Contenido'
+			);
+			$options             = array(
+				'contain' => $contain,
+				'conditions' => array('Coleccion.' . $this->Coleccion->primaryKey => $id)
+			);
 			if($this->verificarModificar($this->Auth->user('id'), $id)) {
-				if($this->request->is('post')) {
+				if($this->request->is('post') || $this->request->is('put')) {
 					if(isset($this->request->data['Campo'])) {
+						set_time_limit(60);
+						$campos = array();
+						$hijos = array();
 						foreach($this->request->data['Campo'] as $key1 => $data) {
 							$this->Coleccion->CamposColeccion->contain('Hijos');
 							$campo = $this->Coleccion->CamposColeccion->read(null, $data['id']);
-							//debug($campo);
 							$campo['CamposColeccion']['posicion'] = $data['posicion'];
 							$campo['CamposColeccion']['listado'] = $data['listado'];
 							if(isset($data['filtro']))
@@ -1731,44 +1961,120 @@
 									$hijo['filtro'] = $data['filtro'];
 								if(isset($data['unico']))
 									$hijo['unico'] = $data['unico'];
-								$this->Coleccion->CamposColeccion->save($hijo);
+								//$this->Coleccion->CamposColeccion->save($hijo);
+								$hijos[]['Campo'] = $hijo;
 							}
-							$this->Coleccion->CamposColeccion->save($campo);
+							//$this->Coleccion->CamposColeccion->save($campo);
+							$campos[]['Campo'] = $campo['CamposColeccion'];
+						}
+						$this->loadModel('Campo');
+						set_time_limit(60);
+						if(
+							!$this->Campo->saveMany(
+								$campos,
+								array(
+									'validate' => false,
+									'atomic' => true,
+									'deep' => false,
+								)
+							)
+						) {
+							$this->Campo->log('Coleccion (1970)');
+						}
+						set_time_limit(60);
+						if(
+							!$this->Campo->saveMany(
+								$hijos,
+								array(
+									'validate' => false,
+									'atomic' => true,
+									'deep' => false,
+								)
+							)
+						) {
+							$this->Campo->log('Coleccion (1975)');
+						}
+					}
+					if(isset($this->request->data['Coleccion'])) {
+						if($this->Coleccion->save($this->request->data['Coleccion'])) {
+							$this->cuadrarOrdenamiento($id);
 						}
 					}
 					$this->Session->setFlash('Se modificó la presentación de la colección');
 					$this->redirect(array('action' => 'index'));
-				} else {
-					$contain = array(
-						'CamposColeccion' => array(
-							'conditions' => array(
-								'CamposColeccion.tipos_de_campo_id <>' => 8
-							),
-							'order' => 'CamposColeccion.posicion ASC'
-						),
-						'CamposColeccion.TiposDeCampo',
-						'CamposColeccion.Coleccion'
-					);
-
-					if(!$this->Coleccion->exists($id)) {
-						throw new NotFoundException(__('Invalid coleccion'));
-					}
-
-					// Obtener la Coleccion
-					$options             = array(
-						'contain' => $contain,
-						'conditions' => array('Coleccion.' . $this->Coleccion->primaryKey => $id)
-					);
-					$this->request->data = $this->Coleccion->find('first', $options);
-
-					// Procesar los campos
-					$this->request->data['Campo'] = $this->request->data['CamposColeccion'];
-					unset($this->request->data['CamposColeccion']);
-					unset($this->request->data['Coleccion']);
 				}
+				if(!$this->Coleccion->exists($id)) {
+					throw new NotFoundException(__('Invalid coleccion'));
+				}
+
+				// Obtener la Coleccion
+				$this->request->data = $this->Coleccion->find('first', $options);
+
+				// Procesar los campos
+				$this->request->data['Campo'] = $this->request->data['CamposColeccion'];
+				unset($this->request->data['CamposColeccion']);
+				//unset($this->request->data['Coleccion']);
 			} else  {
 				$this->Session->setFlash('Esta colección tiene listados así que no puede ser modificada');
 				$this->redirect(array('action' => 'index'));
+			}
+		}
+
+		/**
+		 * @param $ct_id
+		 */
+		private function cuadrarOrdenamiento($ct_id) {
+			$contain = array(
+				'CamposColeccion' => array(
+					'conditions' => array(
+						'CamposColeccion.tipos_de_campo_id <>' => 8
+					),
+					'order' => 'CamposColeccion.posicion ASC'
+				),
+				'CamposColeccion.TiposDeCampo',
+				'CamposColeccion.Coleccion',
+				'CampoOrdenamiento',
+				'Contenido'
+			);
+			$options = array(
+				'contain' => $contain,
+				'conditions' => array('Coleccion.' . $this->Coleccion->primaryKey => $ct_id)
+			);
+			$base = $this->Coleccion->find('first', $options);
+			foreach($base['Contenido'] as $key1 => $contenido) {
+				$opciones             = array(
+					'contain' => $contain,
+					'conditions' => array('Coleccion.' . $this->Coleccion->primaryKey => $contenido['id'])
+				);
+				$contenido = $this->Coleccion->find('first', $opciones);
+				foreach($contenido['CamposColeccion'] as $key2 => $campo) {
+					if($campo['campo_padre'] === $base['Coleccion']['order_field']) {
+						$contenido['Coleccion']['order_field'] = $campo['id'];
+						switch($campo['tipos_de_campo_id']) {
+							case 2:
+								// texto
+								$contenido['Coleccion']['order_field_data'] = $campo['texto'];
+								break;
+							case 5:
+								// Lista
+								$contenido['Coleccion']['order_field_data'] = $campo['seleccion_lista_predefinida'];
+								break;
+							case 6:
+								// Número
+								$contenido['Coleccion']['order_field_data'] = $campo['numero'];
+								break;
+							case 7:
+								// Fecha
+								$contenido['Coleccion']['order_field_data'] = $campo['fecha']; //strtotime($campo['fecha']);
+								break;
+						}
+					}
+				}
+				$contenido['Coleccion']['order_asc'] = $base['Coleccion']['order_asc'] ? 1 : 0;
+				$this->Coleccion->id = $contenido['Coleccion']['id'];
+				$this->Coleccion->saveField('order_field', $contenido['Coleccion']['order_field']);
+				$this->Coleccion->saveField('order_field_data', $contenido['Coleccion']['order_field_data']);
+				$this->Coleccion->saveField('order_asc', $contenido['Coleccion']['order_asc']);
 			}
 		}
 

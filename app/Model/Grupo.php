@@ -54,7 +54,7 @@
 			'Coleccion' => array(
 				'className'    => 'Coleccion',
 				'foreignKey'   => 'grupo_id',
-				'dependent'    => false,
+				'dependent'    => true,
 				'conditions'   => '',
 				'fields'       => '',
 				'order'        => '',

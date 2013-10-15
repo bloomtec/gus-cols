@@ -26,7 +26,7 @@
 			'Campo' => array(
 				'className'    => 'Campo',
 				'foreignKey'   => 'tipos_de_campo_id',
-				'dependent'    => false,
+				'dependent'    => true,
 				'conditions'   => '',
 				'fields'       => '',
 				'order'        => '',

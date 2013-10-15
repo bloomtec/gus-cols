@@ -7,6 +7,9 @@ $es_unico = $campo['Campo']['unico'] ? 1 : 0;
 $es_filtro = $campo['Campo']['filtro'] ? 1 : 0;
 $es_listado = $campo['Campo']['listado'] ? 1 : 0;
 $es_requerido = $campo['Campo']['es_requerido'] ? 1 : 0;
+//Cambio de ruta de guardar archivos
+$c_name = $ct_id;
+
 if($es_requerido) {
 	$options['required'] = 'required';
 } else {
@@ -90,6 +93,13 @@ if($campo['Campo']['tipos_de_campo_id'] == 1) {
 		$options
 	);
 	echo $this->Form->hidden(
+		"CamposColeccion.$index.link_descarga",
+		array(
+			'value' => $campo['Campo']['link_descarga'],
+			'id' => "CamposColeccion$index" . "LinkDescarga$campo_id",
+		)
+	);
+	echo $this->Form->hidden(
 		"CamposColeccion.$index.extensiones",
 		array('value' => $campo['Campo']['extensiones'])
 	);
@@ -124,9 +134,12 @@ if($campo['Campo']['tipos_de_campo_id'] == 1) {
 						dataType: 'json',
 						success: function(response) {
 							if(response.success) {
-								$('#CamposColeccion<?php echo $index; ?>NombreDeArchivo<?php echo $campo_id; ?>').val(response.archivo);
+								$('#CamposColeccion<?php echo $index; ?>NombreDeArchivo<?php echo $campo_id; ?>').val(response.nombreNuevo);
 								$('#Upload<?php echo $campo_id; ?>').remove();
-								$('#Result<?php echo $campo_id; ?>').html('Se ha subido el archivo ' + response.archivo);
+								$('#Result<?php echo $campo_id; ?>').html('Se ha subido el archivo ' + response.nombreOriginal);
+								<?php if(empty($campo['Campo']['link_descarga']) || $campo['Campo']['link_descarga'] !== 'Descarga') : ?>
+								$('#CamposColeccion<?php echo $index; ?>LinkDescarga<?php echo $campo_id; ?>').val(response.nombreOriginal);
+								<?php endif; ?>
 							} else {
 								$('#Result<?php echo $campo_id; ?>').html('Ocurrió un error al subir el archivo. Por favor, intente de nuevo.');
 							}
@@ -147,6 +160,10 @@ if($campo['Campo']['tipos_de_campo_id'] == 1) {
 	echo $this->Form->hidden(
 		"CamposColeccion.$index.imagen",
 		$options
+	);
+	echo $this->Form->hidden(
+		"CamposColeccion.$index.link_descarga",
+		array('value' => $campo['Campo']['link_descarga'])
 	);
 	?>
 	<div class="upload-container">
@@ -254,6 +271,15 @@ if($campo['Campo']['tipos_de_campo_id'] == 1) {
 } elseif($campo['Campo']['tipos_de_campo_id'] == 8) {
 	// Elemento
 	/** Y esto es... **/
+} elseif($campo['Campo']['tipos_de_campo_id'] == 9) {
+	// Enlace
+	$options['class'] = "campo-$index campo-enlace";
+	$options['id']    = "CamposColeccion$index" . "Texto$campo_id";
+	if(!empty($campo['Campo']['texto'])) $options['value'] = $campo['Campo']['texto'];
+	echo $this->Form->input(
+		"CamposColeccion.$index.texto",
+		$options
+	);
 }
 ?>
 <script type="text/javascript" language="JavaScript">

@@ -3,6 +3,7 @@
 <td class="tipo">
 	<?php echo $this->Form->input("Campo.$campo_id.tipos_de_campo_id", array('empty' => 'Seleccione...', 'label' => false, 'div' => false, 'class' => "tipo-campo-$uid")); ?>
 	<?php echo $this->Form->input("Campo.$campo_id.coleccion_id", array('empty' => 'Seleccione...', 'class' => "elementos-$uid", 'div' => array('class' => "input select elemento-$uid"))); ?>
+	<?php echo $this->Form->input("Campo.$campo_id.link_descarga", array('class' => "link-$uid", 'div' => array('class' => "input text div-link-$uid"), 'placeholder' => 'Texto enlace descarga')); ?>
 	<?php echo $this->Form->input("Campo.$campo_id.extensiones", array('class' => "extensiones-$uid", 'div' => array('class' => "input text div-ext-$uid"), 'placeholder' => 'ext1, ext2, ..., extN')); ?>
 	<?php echo $this->Form->input("Campo.$campo_id.lista_predefinida", array('class' => "lista-$uid", 'placeholder' => 'Una opción por línea', 'style' => 'height: 75px', 'div' => array('class' => "input textarea div-lista-$uid"))); ?>
 </td>
@@ -10,16 +11,38 @@
 <td class="actions"><a class="remover-campo-<?php echo $uid; ?>">Eliminar</a></td>
 <script type="text/javascript" language="JavaScript">
 	$(function(){
-		var campoReq = $('.req-<?php echo $uid; ?>'), campoEle = $('.elementos-<?php echo $uid; ?>'), divEle = $('.elemento-<?php echo $uid; ?>'), divLista = $('.div-lista-<?php echo $uid; ?>'), campoLista = $('.lista-<?php echo $uid; ?>'), divExt = $('.div-ext-<?php echo $uid; ?>'), campoExt = $('.extensiones-<?php echo $uid; ?>'), campoTipo = $('.tipo-campo-<?php echo $uid; ?>'), eliminarCampo = $('.remover-campo-<?php echo $uid; ?>');
+		var campoReq = $('.req-<?php echo $uid; ?>'),
+			campoEle = $('.elementos-<?php echo $uid; ?>'),
+			divEle = $('.elemento-<?php echo $uid; ?>'),
+			divLista = $('.div-lista-<?php echo $uid; ?>'),
+			campoLista = $('.lista-<?php echo $uid; ?>'),
+			divExt = $('.div-ext-<?php echo $uid; ?>'),
+			divLink = $('.div-link-<?php echo $uid; ?>'),
+			campoExt = $('.extensiones-<?php echo $uid; ?>'),
+			campoLink = $('.link_descarga-<?php echo $uid; ?>'),
+			campoTipo = $('.tipo-campo-<?php echo $uid; ?>'),
+			eliminarCampo = $('.remover-campo-<?php echo $uid; ?>');
 		divEle.css('display', 'none');
 		divLista.css('display', 'none');
 		divExt.css('display', 'none');
-		campoTipo.change(function(){
+		divLink.css('display', 'none');
+		function cambios() {
+			<?php
+				if(isset($tipo_de_campo) && !empty($tipo_de_campo)) {
+					echo "campoTipo.val($tipo_de_campo);";
+				}
+			?>
 			if(campoTipo.val() == 3) {
 				divExt.css('display', 'inline');
 			} else {
 				campoExt.val('');
 				divExt.css('display', 'none');
+			}
+			if(campoTipo.val() == 3 || campoTipo.val() == 4) {
+				divLink.css('display', 'inline');
+			} else {
+				campoLink.val('');
+				divLink.css('display', 'none');
 			}
 			if(campoTipo.val() == 5) {
 				divLista.css('display', 'inline');
@@ -35,9 +58,13 @@
 				campoEle.val('');
 				divEle.css('display', 'none');
 			}
+		}
+		campoTipo.change(function(){
+			cambios();
 		});
 		eliminarCampo.click(function() {
 			eliminarCampo.parent().parent().remove();
 		});
+		cambios();
 	});
 </script>

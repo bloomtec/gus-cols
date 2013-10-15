@@ -1,6 +1,37 @@
+@font-face {
+    font-family: "myriadpro-r";
+    font-style: normal;
+    font-weight: normal;
+    src: url("../fonts/myriadpro-r.eot?#iefix") format("embedded-opentype"), url("../fonts/myriadpro-r.woff") format("woff"), url("../fonts/myriadpro-r.ttf") format("truetype"), url("../fonts/myriadpro-r.svg#myriadpro-r") format("svg");
+}
+@font-face {
+    font-family: "myriadpro-i";
+    font-style: normal;
+    font-weight: normal;
+    src: url("../fonts/myriadpro-i.eot?#iefix") format("embedded-opentype"), url("../fonts/myriadpro-i.woff") format("woff"), url("../fonts/myriadpro-i.ttf") format("truetype"), url("../fonts/myriadpro-i.svg#myriadpro-i") format("svg");
+}
+@font-face {
+    font-family: "myriadpro-b";
+    font-style: normal;
+    font-weight: normal;
+    src: url("../fonts/myriadpro-b.eot?#iefix") format("embedded-opentype"), url("../fonts/myriadpro-b.woff") format("woff"), url("../fonts/myriadpro-b.ttf") format("truetype"), url("../fonts/myriadpro-b.svg#myriadpro-b") format("svg");
+}
+@font-face {
+    font-family: "myriadpro-bi";
+    font-style: normal;
+    font-weight: normal;
+    src: url("../fonts/myriadpro-bi.eot?#iefix") format("embedded-opentype"), url("../fonts/myriadpro-bi.woff") format("woff"), url("../fonts/myriadpro-bi.ttf") format("truetype"), url("../fonts/myriadpro-bi.svg#myriadpro-bi") format("svg");
+}
 #container{
+    font-family: "myriadpro-r";
     max-width: 660px;
     margin: 0 auto;
+}
+#container p{
+    color: #6D6E71;
+    font-family: "myriadpro-r";
+    font-size: 14px;
+    text-align: justify;
 }
 #header{
 
@@ -11,10 +42,33 @@
 #footer{
 
 }
+h1{
+    background: url("../img/bg-h1.jpg") bottom left no-repeat;
+    color: #000;
+    font-family: "myriadpro-b";
+    font-family: "Arial Black"\0/;
+    font-size: 36px;
+    font-weight: normal;
+    font-weight: bold\0/;
+    margin-top: 0;
+    display:block;
+}
 h2{
     color:#58595B;
     font-size: 24px;
     font-family: "myriadpro-b";
+    font-weight: normal;
+}
+a{
+    color: #0375B4;
+    font-family: "myriadpro-bi";
+    font-style: normal;
+    text-decoration: none;
+    font-weight: bold\0/;
+    font-style: italic\0/;
+}
+a:hover{
+    text-decoration: underline;
 }
 /** Tables **/
 table {
@@ -57,4 +111,100 @@ td.actions {
 table td.actions a {
     margin: 0px 6px;
     padding:2px 5px;
+}
+/*Nuevos css*/
+td{
+    font-size: 14px;
+    color:#58595B;
+}
+table.filtro td.label{
+    color: #808184;
+    font-size: 16px;
+    font-family: "myriadpro-b";
+    padding-top: 12px;
+    text-align: right;
+}
+table.filtro input#Filtros07ValueMin,table.filtro input#Filtros07ValueMax {
+    border-radius: 4px; -webkit-border-radius: 4px;
+    border: #D0D2D3 1px solid;
+    color: #929497;
+    font-family: "myriadpro-r";
+    font-size: 13px;
+    height: 20px;
+    margin: 0;
+    padding: 0 5px;
+    width: 100px;
+}
+table.filtro input#Filtros12Value{
+    border-radius: 4px; -webkit-border-radius: 4px;
+    border: #D0D2D3 1px solid;
+    color: #929497;
+    font-family: "myriadpro-r";
+    font-size: 13px;
+    height: 20px;
+    margin: 0;
+    padding: 0 5px;  
+}
+table.filtro div.submit input{
+    background: #1C84B9 url('../img/f-btn-inputs.jpg') repeat-x;
+    background-size: auto 100%;
+    border-radius: 6px; -webkit-border-radius: 6px;
+    border: none;
+    color: #FFF;
+    cursor: pointer;
+    font-family: "myriadpro-bi";
+    font-size: 14px;
+    padding: 3px 10px 0;
+    text-align: center;
+    width: auto;
+}
+td.dato.fecha{
+    color: #6D6E71;
+    font-size: 12px;
+
+}
+td.dato.texto, td.dato.texto a{
+    color: #6D6E71;
+    font-size: 15px;
+    font-family: "myriadpro-b";
+}
+td.dato.archivo a{
+    font-size: 13px;
+}
+td.dato.texto-multilinea,td.dato.texto-multilinea a{
+    color: #6D6E71;
+    font-family: "myriadpro-r";
+    font-size: 13px;
+    text-align: justify;
+}
+.paging{
+    text-align: center;
+}
+.paging span{
+    border-right: 1px solid #6D6E71;
+    color: #6D6E71;
+    padding: 0 10px;
+}
+.paging span.current{
+    color: #000;
+    font-family: "myriadpro-b";
+}
+.paging span.prev:hover,.paging span.next:hover{
+    text-decoration: underline;
+}
+.paging span.prev{
+    border-left: 1px solid #6D6E71;
+}
+.paging span.prev,.paging span.next{
+    color: #0375B4;
+    cursor: pointer;
+    font-family: "myriadpro-bi";
+    font-style: normal;
+    font-size: 14px;
+    text-decoration: none;
+    font-weight: bold\0/;
+    font-style: italic\0/;
+}
+div.actions{
+
 }

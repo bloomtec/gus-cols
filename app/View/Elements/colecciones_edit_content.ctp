@@ -40,7 +40,7 @@ $publicada = $auditable ? 0 : 1;
 		var campos = $('.campos').add(), count = campos.length;
 		campos.each(function(key, node) {
 			var div = $(node);
-			div.load('/colecciones/add_campo_form_contenido/' + div.attr('campo_id') + '/' + '<?php echo urlencode($coleccionBase['Coleccion']['nombre']); ?>' + '/' + '<?php echo $uid; ?>' + '/' + key);
+			div.load('/colecciones/add_campo_form_contenido/' + div.attr('campo_id') + '/' + '<?php echo urlencode($coleccionBase['Coleccion']['nombre']); ?>' + '/' + '<?php echo $uid; ?>' + '/' + key + '/' + <?php echo $coleccionBase['Coleccion']['id']; ?>);
 			count--;
 			if(!count) {
 				//Agregar la validación del form
@@ -50,14 +50,25 @@ $publicada = $auditable ? 0 : 1;
 	});
 </script>
 <?php if(!empty($this->request->data['Auditoria']) && !$this->request->data['Coleccion']['publicada']) : ?>
-	<div class="colecciones info">
+	<div class="colecciones auditorias">
 		<table>
+			<caption><h4>Historial de revisiones</h4></caption>
 			<tr>
+				<th>Auditor</th>
+				<th>Aprobado</th>
 				<th>Fecha Revision</th>
 				<th>Comentario</th>
 			</tr>
 			<?php foreach($this->request->data['Auditoria'] as $key => $auditoria) : ?>
 				<tr>
+					<td><?php echo $auditoria['Usuario']['documento'] . ' :: ' . $auditoria['Usuario']['nombres'] . ' ' . $auditoria['Usuario']['apellidos']; ?></td>
+					<td>
+						<?php if($auditoria['colección_aprobada']) { ?>
+							<input type="checkbox" disabled="disabled" checked="checked">
+						<?php } else { ?>
+							<input type="checkbox" disabled="disabled">
+						<?php } ?>
+					</td>
 					<td><?php echo $auditoria['created']; ?></td>
 					<td><?php echo $auditoria['observación']; ?></td>
 				</tr>

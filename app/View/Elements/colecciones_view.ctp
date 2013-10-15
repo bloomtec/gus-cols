@@ -62,7 +62,8 @@
 								?>
 								<td class="dato archivo">
 									<?php
-										$ct_path = $coleccion['TipoDeContenido']['nombre'];
+										//$ct_path = $coleccion['TipoDeContenido']['nombre'];
+										$ct_path = $coleccion['TipoDeContenido']['id'];
 										$co_path = $coleccion['Coleccion']['nombre'];
 										$file = $campo['nombre_de_archivo'];
 										$fileName = explode('.', $file);
@@ -77,8 +78,9 @@
 										//$encoded = htmlentities($encoded, ENT_SUBSTITUTE, 'UTF-8', false);
 										$encoded = htmlentities($encoded);
 										if(!empty($file)) {
+											$link = !empty($campo['link_descarga']) ? $campo['link_descarga'] : 'Descarga';
 											echo $this->Html->link(
-												'Descargar',
+												$link,
 												array(
 													'controller' => 'colecciones',
 													'action' => 'download',
@@ -94,9 +96,10 @@
 								?>
 								<td class="dato imagen">
 									<?php
-										$ct_path = $coleccion['TipoDeContenido']['nombre'];
+										//$ct_path = $coleccion['TipoDeContenido']['nombre'];
+										$ct_path = $coleccion['TipoDeContenido']['id'];
 										$co_path = $coleccion['Coleccion']['nombre'];
-										$file = $campo['imagen'];
+										$file = $campo['nombre_de_archivo'];
 										$fileName = explode('.', $file);
 										$fileExt = $fileName[count($fileName) - 1];
 										$fileNameTMP = '';
@@ -109,8 +112,9 @@
 										//$encoded = htmlentities($encoded, ENT_SUBSTITUTE, 'UTF-8', false);
 										$encoded = htmlentities($encoded);
 										if(!empty($file)) {
+											$link = !empty($campo['link_descarga']) ? $campo['link_descarga'] : 'Descarga';
 											echo $this->Html->link(
-												'Descargar',
+												$link,
 												array(
 													'controller' => 'colecciones',
 													'action' => 'download',
@@ -141,6 +145,17 @@
 								?>
 								<td class="dato elemento"></td>
 							<?php
+							} elseif($campo['tipos_de_campo_id'] == 9) {
+								//Enlace
+								?>
+								<td class="dato enlace">
+									<?php
+										if(!empty($campo['texto'])) :
+									?>
+									<a href="<?php echo $campo['texto']; ?>" target="_blank"><?php echo $campo['texto']; ?></a>
+									<?php endif; ?>
+								</td>
+							<?php
 							}
 						?>
 					</tr>
@@ -155,11 +170,21 @@
 	<table>
 		<caption><h4>Historial de revisiones</h4></caption>
 		<tr>
+			<th>Auditor</th>
+			<th>Aprobado</th>
 			<th>Fecha Revision</th>
 			<th>Comentario</th>
 		</tr>
 		<?php foreach($coleccion['Auditoria'] as $key => $auditoria) : ?>
 			<tr>
+				<td><?php echo $auditoria['Usuario']['documento'] . ' :: ' . $auditoria['Usuario']['nombres'] . ' ' . $auditoria['Usuario']['apellidos']; ?></td>
+				<td>
+					<?php if($auditoria['colección_aprobada']) { ?>
+						<input type="checkbox" disabled="disabled" checked="checked">
+					<?php } else { ?>
+						<input type="checkbox" disabled="disabled">
+					<?php } ?>
+				</td>
 				<td><?php echo $auditoria['created']; ?></td>
 				<td><?php echo $auditoria['observación']; ?></td>
 			</tr>

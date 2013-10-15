@@ -15,7 +15,7 @@
 	$_SESSION['Filtros']['ultimo'] = $unContenido;
 ?>
 <div class="colecciones index">
-	<h2><?php echo __('Listado de: ' . $unContenido['Coleccion']['nombre']); ?></h2>
+	<h1><?php echo __($unContenido['Coleccion']['nombre']); ?></h1>
 	<?php if(!empty($filtros)) { ?>
 		<?php echo $this->Form->create('Coleccion', array('id' => 'FiltrosForm', 'action' => 'indice/' . $coleccion_id)); ?>
 		<table class="filtro">

@@ -27,9 +27,12 @@
     <?php
     echo $this->Html->meta('icon');
 
-
+	echo $this->Html->css('jquery-ui-1.10.2.custom');
     echo $this->Html->css('front');
-    echo $this->Html->script('front');
+
+    echo $this->Html->script('jquery-1.9.1.min');
+    echo $this->Html->script('jquery-migrate-1.2.1.min');
+    echo $this->Html->script('jquery-ui-1.10.2.custom.min');
 
     echo $this->fetch('meta');
     echo $this->fetch('css');

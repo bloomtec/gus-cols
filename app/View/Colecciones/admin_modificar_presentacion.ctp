@@ -95,6 +95,36 @@
 			</tbody>
 		</table>
 	</fieldset>
+	<fieldset class="ordenamiento">
+		<legend><?php echo __('Ordenamiento de la colección'); ?></legend>
+		<?php
+			$opciones = array();
+			$tipos_de_campo_id = array(2, 5, 6, 7);
+			foreach($this->request->data['Campo'] as $campo_id => $campo) {
+				if(in_array($campo['tipos_de_campo_id'], $tipos_de_campo_id)) {
+					$opciones[$campo['id']] = $campo['nombre'];
+				}
+			}
+			echo $this->Form->input('id', array('value' => $this->request->data['Coleccion']['id']));
+			echo $this->Form->input('order_field', array('label' => 'Campo a usar para ordenar el listado', 'type' => 'select', 'options' => $opciones));
+			echo $this->Form->input(
+				'order_asc',
+				array(
+					'label' => 'Orden',
+					'options' => array(1 => 'Ascendente', 0 => 'Descendente'),
+					'value' => $this->request->data['Coleccion']['order_asc'] ? 1 : 0
+				)
+			);
+		?>
+	</fieldset>
+	<style>
+		.ordenamiento .input {
+			clear: none;
+			float: left;
+			margin-right: 20px;
+			padding: 10px;
+		}
+	</style>
 	<?php echo $this->Form->end('Modificar'); ?>
 </div>
 <script type="text/javascript" language="JavaScript">
@@ -113,26 +143,6 @@
 					$('tr#' + info[i]).children('.position').val(i + 1);
 					$('tr#' + info[i]).children('.posicion').text(i + 1);
 				}
-				/*data = {};
-				for( i = 0; i < info.length; i += 1) {
-					data["data[Campo][" + info[i] + "]"] = (i + 1);
-				}
-				$.ajax({
-					url: '/campos/ordenar',
-					data: data,
-					cache: false,
-					async: false,
-					dataType: 'json',
-					success: function(response) {
-						if(response.success) {
-							for( i = 0; i < info.length; i += 1) {
-								$('tr#' + info[i]).children('.position').val(i + 1);
-							}
-						} else {
-							alert('Error al tratar de reordenar los elementos');
-						}
-					}
-				});*/
 			}
 		});
 	});

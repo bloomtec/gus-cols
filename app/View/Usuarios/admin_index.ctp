@@ -5,6 +5,8 @@
 			<th><?php echo $this->Paginator->sort('documento'); ?></th>
 			<th><?php echo $this->Paginator->sort('nombres'); ?></th>
 			<th><?php echo $this->Paginator->sort('apellidos'); ?></th>
+			<th><?php echo $this->Paginator->sort('correo'); ?></th>
+			<th><?php echo $this->Paginator->sort('recibir_correos'); ?></th>
 			<th><?php echo $this->Paginator->sort('activo'); ?></th>
 			<th><?php echo $this->Paginator->sort('created', 'Creado'); ?></th>
 			<th><?php echo $this->Paginator->sort('modified', 'Modificado'); ?></th>
@@ -15,6 +17,15 @@
 				<td><?php echo h($usuario['Usuario']['documento']); ?>&nbsp;</td>
 				<td><?php echo h($usuario['Usuario']['nombres']); ?>&nbsp;</td>
 				<td><?php echo h($usuario['Usuario']['apellidos']); ?>&nbsp;</td>
+				<td><?php echo h($usuario['Usuario']['correo']); ?>&nbsp;</td>
+				<td>
+					<?php if($usuario['Usuario']['recibir_correos']) { ?>
+						<input type="checkbox" disabled="disabled" checked="checked">
+					<?php } else { ?>
+						<input type="checkbox" disabled="disabled">
+					<?php } ?>
+					&nbsp;
+				</td>
 				<td>
 					<?php if($usuario['Usuario']['activo']) { ?>
 					<input type="checkbox" disabled="disabled" checked="checked">
