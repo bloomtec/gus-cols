@@ -1983,7 +1983,8 @@
 						}
 						set_time_limit(60);
 						if(
-							!$this->Campo->saveMany(
+							!empty($hijos)
+							&& !$this->Campo->saveMany(
 								$hijos,
 								array(
 									'validate' => false,
