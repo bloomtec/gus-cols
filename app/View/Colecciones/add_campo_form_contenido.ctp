@@ -104,6 +104,30 @@ if($campo['Campo']['tipos_de_campo_id'] == 1) {
 		array('value' => $campo['Campo']['extensiones'])
 	);
 	?>
+	<div class="file-info">
+		<span id="FileInfo<?php echo $campo_id; ?>">
+			<?php
+				if(!empty($campo['Campo']['nombre_de_archivo'])) {
+					echo $campo['Campo']['nombre'] . ' :: ' . $campo['Campo']['nombre_de_archivo'];
+				} else {
+					echo 'Actualmente no hay archivo para este campo';
+				}
+			?>
+		</span>
+	</div>
+	<div class="delete-link-wrapper">
+		<?php if($campo['Campo']['es_requerido']) : ?>
+			<span>Este campo no puede estar sin archivo relacionado.</span>
+			<br />
+			<span>Luego, no hay opción de elimar archivo.</span>
+		<?php else: ?>
+			<?php if(!empty($campo['Campo']['nombre_de_archivo'])): ?>
+			<div class="actions">
+				<a id="DeleteFile<?php echo $campo_id; ?>" href="#">Eliminar archivo <?php //echo $campo['Campo']['nombre_de_archivo']; ?></a>
+			</div>
+			<?php endif; ?>
+		<?php endif; ?>
+	</div>
 	<div class="upload-container">
 		<label id="Label<?php echo $campo_id; ?>" for="Upload<?php echo $campo_id; ?>"><?php echo $campo['Campo']['nombre'] ?></label>
 		<h4>Puede subir archivos con extensiones tipo: <?php echo $exts; ?></h4>
@@ -112,6 +136,26 @@ if($campo['Campo']['tipos_de_campo_id'] == 1) {
 	</div>
 	<script type="text/javascript" language="JavaScript">
 		$(function() {
+			var delete_link = $('#DeleteFile<?php echo $campo_id; ?>');
+			delete_link.click(function(e) {
+				e.preventDefault();
+				$.ajax({
+					'url':'/campos/eliminarArchivo',
+					'type': 'post',
+					'data': {
+						'campo_id': <?php echo $campo_id; ?>
+					},
+					'success': function(response) {
+						if(response == 1) {
+							delete_link.hide();
+							$('#FileInfo<?php echo $campo_id; ?>').html('Actualmente no hay archivo para este campo');
+							$('.delete-link-wrapper').append('<br /><span>Se eliminó el archivo</span>');
+						} else {
+
+						}
+					}
+				});
+			});
 			$('#Upload<?php echo $campo_id; ?>').ajaxupload({
 				url : '/upload.php',
 				maxConnections : 2,
@@ -137,7 +181,8 @@ if($campo['Campo']['tipos_de_campo_id'] == 1) {
 								$('#CamposColeccion<?php echo $index; ?>NombreDeArchivo<?php echo $campo_id; ?>').val(response.nombreNuevo);
 								$('#Upload<?php echo $campo_id; ?>').remove();
 								$('#Result<?php echo $campo_id; ?>').html('Se ha subido el archivo ' + response.nombreOriginal);
-								<?php if(empty($campo['Campo']['link_descarga']) || $campo['Campo']['link_descarga'] !== 'Descarga') : ?>
+								$('#FileInfo<?php echo $campo_id; ?>').html('');
+								<?php if(empty($campo['Campo']['link_descarga'])) : ?>
 								$('#CamposColeccion<?php echo $index; ?>LinkDescarga<?php echo $campo_id; ?>').val(response.nombreOriginal);
 								<?php endif; ?>
 							} else {

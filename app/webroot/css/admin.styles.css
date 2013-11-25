@@ -80,3 +80,13 @@ ul#admin-menu {
 #content .campos .actions {
     width: 200px;
 }
+.ax-clear.ax-button {
+    display: none;
+}
+#content .delete-link-wrapper .actions {
+    padding: 0;
+    width: 100%;
+}
+.file-info {
+    padding: 0;
+}

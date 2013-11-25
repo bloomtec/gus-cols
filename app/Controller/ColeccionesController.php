@@ -1248,6 +1248,7 @@
 		 * @return void
 		 */
 		private function _add($ct_id) {
+			$uno = 1;
 			if($ct_id && !$this->verificarCrear($this->Auth->user('id'), $ct_id)) {
 				$this->Session->setFlash('No tiene permiso para ver esta sección');
 				$this->redirect(array('action' => 'index'));
@@ -1818,6 +1819,11 @@
 								$campoColeccion = $this->Coleccion->CamposColeccion->read(null, $campo['id']);
 								foreach($campoColeccion['Hijos'] as $keyB => $campoHijo) {
 									switch($campoColeccion['CamposColeccion']['tipos_de_campo_id']) {
+										case 3:
+											// Archivo
+											$campoHijo['link_descarga'] = $campo['link_descarga'];
+											$this->Coleccion->CamposColeccion->save($campoHijo);
+											break;
 										case 5:
 											// Lista
 											$campoHijo['lista_predefinida'] = $campo['lista_predefinida'];

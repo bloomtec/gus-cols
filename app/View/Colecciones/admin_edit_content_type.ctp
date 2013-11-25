@@ -107,6 +107,7 @@
 									echo $this->Form->hidden("Campo.$campo_id.extensiones", array('class' => "extensiones-$uid", 'div' => array('class' => "input text div-ext-$uid"), 'placeholder' => 'ext1, ext2, ..., extN'));
 									echo '<br />' . '<br />' . $campo['extensiones'];
 								} else {
+									echo $this->Form->input("Campo.$campo_id.link_descarga", array('class' => "link-$uid", 'div' => array('class' => "input text div-link-$uid"), 'placeholder' => 'Texto enlace descarga'));
 									echo $this->Form->input("Campo.$campo_id.extensiones", array('class' => "extensiones-$uid", 'div' => array('class' => "input text div-ext-$uid"), 'placeholder' => 'ext1, ext2, ..., extN'));
 								}
 							?>

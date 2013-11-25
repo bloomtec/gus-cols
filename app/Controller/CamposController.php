@@ -7,6 +7,29 @@
 	 */
 	class CamposController extends AppController {
 
+		public function eliminarArchivo() {
+			$this->autoRender=false;
+			$campo_id = $this->request['data']['campo_id'];
+			$campo = $this->Campo->read(null, $campo_id);
+			$coleccion = $this->Campo->Coleccion->read(null, $campo['Campo']['foreign_key']);
+			$path = WWW_ROOT
+				. 'files'
+				. DS
+				. $coleccion['Coleccion']['coleccion_id']
+				. DS
+				. $coleccion['Coleccion']['nombre']
+				. DS
+				. $campo['Campo']['nombre_de_archivo'];
+			$campo['Campo']['nombre_de_archivo'] = null;
+			if($this->Campo->save($campo)) {
+				unlink($path);
+				echo 1;
+			} else {
+				echo 0;
+			}
+			exit(0);
+		}
+
 		/**
 		 * ordenar method
 		 */
