@@ -691,6 +691,8 @@
 				$conditions['Coleccion.es_tipo_de_contenido'] = 0;
 				$conditions['Coleccion.coleccion_id'] = $coleccion_id;
 				if($this->request->is('post')) {
+					$uno = 1;
+
 					$ultimosCampos = $this->Session->read('Filtros.ultimo');
 					// Guardar los ID's de las colecciones que contengan campos que hayan salido
 					// con resultados para los filtros aplicados
@@ -812,6 +814,7 @@
 					if(!empty($colecciones)) {
 						$conditions['Coleccion.id'] = $colecciones;
 						$this->Session->write('Filtros.activos', 1);
+						$this->Session->write('Filtros.conditions', $conditions);
 					} else {
 						$this->Session->setFlash('La selección de filtros actual no ha retornado resultados');
 					}
@@ -835,6 +838,11 @@
 			if($base['Coleccion']['order_field']) {
 				unset($order['Coleccion.created']);
 				$order['Coleccion.order_field_data'] = $base['Coleccion']['order_asc'] ? 'ASC' : 'DESC';
+			}
+
+			$tmp_conditions = $this->Session->read('Filtros.conditions');
+			if($this->Session->read('Filtros.activos') && !empty($tmp_conditions)) {
+				$conditions = $tmp_conditions;
 			}
 
 			$this->paginate = array(

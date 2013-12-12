@@ -18,16 +18,16 @@
 	<h1><?php echo __($unContenido['Coleccion']['nombre']); ?></h1>
 	<?php if(!empty($filtros)) { ?>
 		<?php echo $this->Form->create('Coleccion', array('id' => 'FiltrosForm', 'action' => 'indice/' . $coleccion_id)); ?>
-		<table class="filtro">
-			<tr>
+		<div class="filtro">
 				<?php
 					$filter_counter = 0;
 					foreach($filtros as $key => $campo) {
+						echo '<div class="div-filtros">';
 						if($campo['listado']){
-							echo '<td class="label">' . $campo['nombre'] . '</td>';
+							echo '<div class="label">' . $campo['nombre'] . '</div>';
 							if($campo['tipos_de_campo_id'] == 2) {
 								// TEXTO
-								echo '<td class="input text">' . $this->Form->input("Filtros.$filter_counter.2.value", array('label' => false, 'div' => false, 'type' => 'text')) . '</td>';
+								echo '<div class="input text">' . $this->Form->input("Filtros.$filter_counter.2.value", array('label' => false, 'div' => false, 'type' => 'text')) . '</div>';
 							} elseif($campo['tipos_de_campo_id'] == 5) {
 								// LISTA
 								$TMPOpciones = explode("\n", $campo['lista_predefinida']);
@@ -36,35 +36,35 @@
 									$val = trim($opcion);
 									$opciones[$val] = $val;
 								}
-								echo '<td class="input select">' . $this->Form->input("Filtros.$filter_counter.5.value", array('empty' => 'Seleccione...', 'label' => false, 'div' => false, 'type' => 'select', 'options' => $opciones)) . '</td>';
+								echo '<div class="input select">' . $this->Form->input("Filtros.$filter_counter.5.value", array('empty' => 'Seleccione...', 'label' => false, 'div' => false, 'type' => 'select', 'options' => $opciones)) . '</div>';
 								echo $this->Form->hidden("Filtros.$filter_counter.5.lista", array('value' => $campo['lista_predefinida']));
 							} elseif($campo['tipos_de_campo_id'] == 6) {
 								// NUMERO
 								echo
-									'<td class="input number">'
+									'<div class="input number">'
 									. $this->Form->input("Filtros.$filter_counter.6.value.min", array('label' => false, 'div' => false, 'type' => 'number'))
 									. ' - '
 									. $this->Form->input("Filtros.$filter_counter.6.value.max", array('label' => false, 'div' => false, 'type' => 'number'))
-									. '</td>';
+									. '</div>';
 							} elseif($campo['tipos_de_campo_id'] == 7) {
 								// FECHA
 								echo
-									'<td class="input dates">'
+									'<div class="input dates">'
 									. $this->Form->input("Filtros.$filter_counter.7.value.min", array('placeholder' => 'aaaa-mm-dd', 'label' => false, 'div' => false, 'type' => 'text', 'class' => 'date'))
 									. ' - '
 									. $this->Form->input("Filtros.$filter_counter.7.value.max", array('placeholder' => 'aaaa-mm-dd', 'label' => false, 'div' => false, 'type' => 'text', 'class' => 'date'))
-									. '</td>';
+									. '</div>';
 							}
 							$filter_counter += 1;
+							echo '</div>';
 						}
 					}
 				?>
-				<td class="input submit"><?php echo $this->Form->submit('Filtrar'); ?></td>
+				<div class="input submit"><?php echo $this->Form->submit('Filtrar'); ?></div>
 				<?php if($filtrado) : ?>
-					<td class="actions"><?php echo $this->Html->link(__('Remover filtro actual'), array('action' => 'removerFiltroPublico', $coleccion_id)); ?></td>
+					<div class="actions"><?php echo $this->Html->link(__('Remover filtro actual'), array('action' => 'removerFiltroPublico', $coleccion_id)); ?></div>
 				<?php endif; ?>
-			</tr>
-		</table>
+		</div>
 	<?php echo $this->Form->end(); ?>
 		<script type="text/javascript" language="JavaScript">
 			$(function() {
