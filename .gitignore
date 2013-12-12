@@ -2,6 +2,7 @@
 #################################################
 /app/Config/database.php
 /app/tmp
+/app/tmp/*
 #/app/webroot/img/uploads
 #/app/webroot/img/uploads/*
 /app/webroot/files
@@ -15,7 +16,6 @@
 .project
 /.idea
 /.idea/*
-app/tmp/*
 # OS generated files #
 ######################
 .DS_Store
