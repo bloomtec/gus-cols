@@ -40,7 +40,7 @@
 					//$encoded = htmlentities($encoded, ENT_SUBSTITUTE, 'UTF-8', false);
 					$encoded = htmlentities($encoded);
 					if(!empty($file)) {
-						$link = !empty($campo['link_descarga']) ? $campo['link_descarga'] : 'Descarga';
+						$link = !empty($campo['link_descarga']) ? $campo['link_descarga'] : $file;
 						echo $this->Html->link(
 							$link,
 							array(
@@ -74,7 +74,7 @@
 					//$encoded = htmlentities($encoded, ENT_SUBSTITUTE, 'UTF-8', false);
 					$encoded = htmlentities($encoded);
 					if(!empty($file)) {
-						$link = !empty($campo['link_descarga']) ? $campo['link_descarga'] : 'Descarga';
+						$link = !empty($campo['link_descarga']) ? $campo['link_descarga'] : $file;
 						echo $this->Html->link(
 							$link,
 							array(

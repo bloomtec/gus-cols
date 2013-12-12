@@ -495,7 +495,9 @@
 		/**
 		 * uploaded method
 		 *
-		 * @param $ruta
+		 * @param $coleccion
+		 * @param $directorio
+		 * @param $archivo
 		 */
 		public function uploaded($coleccion, $directorio, $archivo) {
 
@@ -1781,6 +1783,7 @@
 				$guardarCambios = true;
 				$datoEncontrado = true;
 				$errMsg = '';
+				set_time_limit(Configure::read('time_limit'));
 				foreach($this->request->data['Campo'] as $keyA => $campo) {
 					$this->Coleccion->CamposColeccion->contain('Hijos');
 					if(isset($campo['id'])) {
@@ -1809,29 +1812,50 @@
 				 * Fin verificar cambios
 				 */
 				if($guardarCambios) {
+					// TODO REVISAR AQUI
 					if($this->Coleccion->save($this->request->data)) {
 						/**
 						 * Cambiar las listas en los hijos
 						 */
-						foreach($this->request->data['Campo'] as $keyA => $campo) {
-							if(isset($campo['id'])) {
+						set_time_limit(Configure::read('time_limit'));
+						$hijos = array();
+						//foreach($this->request->data['Campo'] as $keyA => $campo) {
+						foreach($this->request->data['Campo'] as $data) {
+							if(isset($data['id'])) {
 								$this->Coleccion->CamposColeccion->contain('Hijos');
-								$campoColeccion = $this->Coleccion->CamposColeccion->read(null, $campo['id']);
-								foreach($campoColeccion['Hijos'] as $keyB => $campoHijo) {
-									switch($campoColeccion['CamposColeccion']['tipos_de_campo_id']) {
+								$campo = $this->Coleccion->CamposColeccion->read(null, $data['id']);
+								//foreach($campoColeccion['Hijos'] as $keyB => $campoHijo) {
+								foreach($campo['Hijos'] as $hijo) {
+									switch($campo['CamposColeccion']['tipos_de_campo_id']) {
 										case 3:
 											// Archivo
-											$campoHijo['link_descarga'] = $campo['link_descarga'];
-											$this->Coleccion->CamposColeccion->save($campoHijo);
+											$hijo['link_descarga'] = $data['link_descarga'];
+											//$this->Coleccion->CamposColeccion->save($campoHijo);
+											$hijos[]['Campo'] = $hijo;
 											break;
 										case 5:
 											// Lista
-											$campoHijo['lista_predefinida'] = $campo['lista_predefinida'];
-											$this->Coleccion->CamposColeccion->save($campoHijo);
+											$hijo['lista_predefinida'] = $data['lista_predefinida'];
+											//$this->Coleccion->CamposColeccion->save($campoHijo);
+											$hijos[]['Campo'] = $hijo;
 											break;
 									}
 								}
 							}
+						}
+						$this->loadModel('Campo');
+						set_time_limit(Configure::read('time_limit'));
+						if(
+						!$this->Campo->saveMany(
+							$hijos,
+							array(
+								'validate' => false,
+								'atomic' => true,
+								'deep' => false,
+							)
+						)
+						) {
+							$this->Campo->log('Colecciones (~1988)');
 						}
 						/**
 						 * Fin cambio lista en los hijos
@@ -1841,18 +1865,9 @@
 						 */
 						$this->Coleccion->contain('Contenido');
 						$contentType = $this->Coleccion->read(null, $id);
-						foreach($contentType['Contenido'] as $key => $contenido) {
-							/*$coleccion = $this->Coleccion->read(null, $contenido['id']);
-							$coleccion['Coleccion']['es_auditable'] = $contentType['Coleccion']['es_auditable'];
-							if($contentType['Coleccion']['es_auditable']) {
-								$coleccion['Coleccion']['publicada'] = 0;
-							} else {
-								$coleccion['Coleccion']['publicada'] = 1;
-							}
-							$coleccion['Coleccion']['grupo_id'] = $contentType['Coleccion']['grupo_id'];
-							$coleccion['Coleccion']['acceso_anonimo'] = $contentType['Coleccion']['acceso_anonimo'];
-							$this->Coleccion->save($coleccion);*/
-							//--------------------
+						//foreach($contentType['Contenido'] as $key => $contenido) {
+						set_time_limit(Configure::read('time_limit'));
+						foreach($contentType['Contenido'] as $contenido) {
 							$this->Coleccion->id=$contenido['id'];
 							$this->Coleccion->saveField('es_auditable', $contentType['Coleccion']['es_auditable']);
 							if($contentType['Coleccion']['es_auditable']) {
@@ -1948,10 +1963,12 @@
 			if($this->verificarModificar($this->Auth->user('id'), $id)) {
 				if($this->request->is('post') || $this->request->is('put')) {
 					if(isset($this->request->data['Campo'])) {
-						set_time_limit(60);
+						set_time_limit(Configure::read('time_limit'));
 						$campos = array();
+						// TODO REVISION PREVIA
 						$hijos = array();
-						foreach($this->request->data['Campo'] as $key1 => $data) {
+						//foreach($this->request->data['Campo'] as $key1 => $data) {
+						foreach($this->request->data['Campo'] as $data) {
 							$this->Coleccion->CamposColeccion->contain('Hijos');
 							$campo = $this->Coleccion->CamposColeccion->read(null, $data['id']);
 							$campo['CamposColeccion']['posicion'] = $data['posicion'];
@@ -1960,7 +1977,8 @@
 								$campo['CamposColeccion']['filtro'] = $data['filtro'];
 							if(isset($data['unico']))
 								$campo['CamposColeccion']['unico'] = $data['unico'];
-							foreach($campo['Hijos'] as $key2 => $hijo) {
+							//foreach($campo['Hijos'] as $key2 => $hijo) {
+							foreach($campo['Hijos'] as $hijo) {
 								$hijo['posicion'] = $data['posicion'];
 								$hijo['listado'] = $data['listado'];
 								if(isset($data['filtro']))
@@ -1974,7 +1992,7 @@
 							$campos[]['Campo'] = $campo['CamposColeccion'];
 						}
 						$this->loadModel('Campo');
-						set_time_limit(60);
+						set_time_limit(Configure::read('time_limit'));
 						if(
 							!$this->Campo->saveMany(
 								$campos,
@@ -1985,9 +2003,9 @@
 								)
 							)
 						) {
-							$this->Campo->log('Coleccion (1970)');
+							$this->Campo->log('Colecciones (~1988)');
 						}
-						set_time_limit(60);
+						set_time_limit(Configure::read('time_limit'));
 						if(
 							!empty($hijos)
 							&& !$this->Campo->saveMany(
@@ -1999,7 +2017,7 @@
 								)
 							)
 						) {
-							$this->Campo->log('Coleccion (1975)');
+							$this->Campo->log('Colecciones (~2002)');
 						}
 					}
 					if(isset($this->request->data['Coleccion'])) {

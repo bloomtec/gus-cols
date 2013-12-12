@@ -20,6 +20,8 @@
  * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
 
+	Configure::write('time_limit', 60);
+
 /**
  * CakePHP Debug Level:
  *
