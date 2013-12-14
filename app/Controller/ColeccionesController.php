@@ -690,21 +690,22 @@
 				$conditions['Coleccion.publicada'] = 1;
 				$conditions['Coleccion.es_tipo_de_contenido'] = 0;
 				$conditions['Coleccion.coleccion_id'] = $coleccion_id;
+
+				// Verificar si se envió el form de filtros
 				if($this->request->is('post')) {
-					$uno = 1;
 
 					$ultimosCampos = $this->Session->read('Filtros.ultimo');
 					// Guardar los ID's de las colecciones que contengan campos que hayan salido
 					// con resultados para los filtros aplicados
-					$colecciones = array();
+					$listados = array();
 
 					// Recorrer los filtros definidos
 					foreach($this->request->data['Filtros'] as $key => $filtro) {
-						$listados = array();
+
 						// Filtrado por listas
 						if(isset($filtro[5]) && !empty($filtro[5]['value'])) {
 							$this->Session->write('Filtros.activos', 1);
-							$listados = $this->Coleccion->CamposColeccion->find(
+							$listados[$key] = $this->Coleccion->CamposColeccion->find(
 								'list',
 								array(
 									'conditions' => array(
@@ -715,9 +716,10 @@
 								)
 							);
 						}
+
 						// Filtrado por texto
 						if(isset($filtro[2]) && !empty($filtro[2]['value'])) {
-							$listados = $this->Coleccion->CamposColeccion->find(
+							$listados[$key] = $this->Coleccion->CamposColeccion->find(
 								'list',
 								array(
 									'conditions' => array(
@@ -727,6 +729,7 @@
 								)
 							);
 						}
+
 						// Filtrado por fecha
 						if(isset($filtro[7])) {
 							$min_date = null;
@@ -747,7 +750,7 @@
 										"No puede poner la fecha menor con un valor superior a la fecha mayor"
 									);
 								} else {
-									$listados = $this->Coleccion->CamposColeccion->find(
+									$listados[7] = $this->Coleccion->CamposColeccion->find(
 										'list',
 										array(
 											'conditions' => array(
@@ -759,6 +762,7 @@
 								}
 							}
 						}
+
 						// Filtrado por número
 						if(isset($filtro[6])) {
 							$min = null;
@@ -776,7 +780,7 @@
 										"No puede poner el número menor con un valor superior al número mayor"
 									);
 								} else {
-									$listados = $this->Coleccion->CamposColeccion->find(
+									$listados[$key] = $this->Coleccion->CamposColeccion->find(
 										'list',
 										array(
 											'conditions' => array(
@@ -788,27 +792,10 @@
 								}
 							}
 						}
-						if(empty($colecciones)) {
-							foreach($listados as $key => $foreign_key) {
-								if(!in_array($foreign_key, $colecciones)) {
-									$colecciones[] = $foreign_key;
-								}
-							}
-						} else {
-							if(!empty($listados)) {
-								$found = false;
-								foreach($listados as $key => $foreign_key) {
-									if(in_array($foreign_key, $colecciones)) {
-										$found = true;
-									}
-								}
-								if(!$found) {
-									$colecciones = array();
-									break;
-								}
-							}
-						}
+
 					}
+
+					$colecciones = $this->_reunir_llaves_foraneas($listados);
 
 					// Asignar el filtro de ID's
 					if(!empty($colecciones)) {
@@ -818,11 +805,17 @@
 					} else {
 						$this->Session->setFlash('La selección de filtros actual no ha retornado resultados');
 					}
+
 				}
+				// Fin de sección filtro
+
 				$this->set('filtrado', $this->Session->read('Filtros.activos'));
+
 			} else {
+
 				$this->Coleccion->contain('TipoDeContenido', 'Contenido');
 				$conditions['Coleccion.es_tipo_de_contenido'] = true;
+
 			}
 
 			// Hay usuario logueado?
@@ -834,15 +827,26 @@
 			$order = array(
 				'Coleccion.created' => 'DESC'
 			);
+
 			$base = $this->Coleccion->read(null, $coleccion_id);
+
 			if($base['Coleccion']['order_field']) {
 				unset($order['Coleccion.created']);
 				$order['Coleccion.order_field_data'] = $base['Coleccion']['order_asc'] ? 'ASC' : 'DESC';
 			}
 
 			$tmp_conditions = $this->Session->read('Filtros.conditions');
+
 			if($this->Session->read('Filtros.activos') && !empty($tmp_conditions)) {
+
 				$conditions = $tmp_conditions;
+
+				if(isset($this->request->data['Filtros'])) {
+					$this->Session->write('Filtros.fields', $this->request->data);
+				}
+
+				$this->request->data = $this->Session->read('Filtros.fields');
+
 			}
 
 			$this->paginate = array(
@@ -864,6 +868,43 @@
 			$this->set('ultimosCampos', $ultimosCampos);
 			$this->set('colecciones', $paginated);
 			$this->set('coleccion_id', $coleccion_id);
+
+		}
+
+		/**
+		 * @param $listados
+		 *
+		 * @return mixed
+		 */
+		private function _reunir_llaves_foraneas($listados) {
+
+			$colecciones = array();
+
+			if(count($listados) == 1) {
+				$colecciones = $listados[0];
+			} elseif($listados > 1) {
+				switch(count($listados)) {
+					case 2:
+						$colecciones = array_intersect($listados[0], $listados[1]);
+						break;
+					case 3:
+						$colecciones = array_intersect($listados[0], $listados[1], $listados[2]);
+						break;
+					case 4:
+						$colecciones = array_intersect($listados[0], $listados[1], $listados[2], $listados[3]);
+						break;
+					case 5:
+						$colecciones = array_intersect($listados[0], $listados[1], $listados[2], $listados[3], $listados[4]);
+						break;
+					case 6:
+						$colecciones = array_intersect($listados[0], $listados[1], $listados[2], $listados[3], $listados[4], $listados[5]);
+						break;
+				}
+			}
+
+			$uno = 1;
+
+			return $colecciones;
 		}
 
 		/**
@@ -922,19 +963,20 @@
 				}
 				$conditions['Coleccion.es_tipo_de_contenido'] = 0;
 				$conditions['Coleccion.coleccion_id'] = $coleccion_id;
+
 				if($this->request->is('post')) {
 					$ultimosCampos = $this->Session->read('Filtros.ultimo');
 					// Guardar los ID's de las colecciones que contengan campos que hayan salido
 					// con resultados para los filtros aplicados
-					$colecciones = array();
+					$listados = array();
 
 					// Recorrer los filtros definidos
 					foreach($this->request->data['Filtros'] as $key => $filtro) {
-						$listados = array();
+
 						// Filtrado por listas
 						if(isset($filtro[5]) && !empty($filtro[5]['value'])) {
 							$this->Session->write('Filtros.activos', 1);
-							$listados = $this->Coleccion->CamposColeccion->find(
+							$listados[$key] = $this->Coleccion->CamposColeccion->find(
 								'list',
 								array(
 									'conditions' => array(
@@ -947,7 +989,7 @@
 						}
 						// Filtrado por texto
 						if(isset($filtro[2]) && !empty($filtro[2]['value'])) {
-							$listados = $this->Coleccion->CamposColeccion->find(
+							$listados[$key] = $this->Coleccion->CamposColeccion->find(
 								'list',
 								array(
 									'conditions' => array(
@@ -977,7 +1019,7 @@
 										"No puede poner la fecha menor con un valor superior a la fecha mayor"
 									);
 								} else {
-									$listados = $this->Coleccion->CamposColeccion->find(
+									$listados[$key] = $this->Coleccion->CamposColeccion->find(
 										'list',
 										array(
 											'conditions' => array(
@@ -1006,7 +1048,7 @@
 										"No puede poner el número menor con un valor superior al número mayor"
 									);
 								} else {
-									$listados = $this->Coleccion->CamposColeccion->find(
+									$listados[$key] = $this->Coleccion->CamposColeccion->find(
 										'list',
 										array(
 											'conditions' => array(
@@ -1018,36 +1060,20 @@
 								}
 							}
 						}
-						if(empty($colecciones)) {
-							foreach($listados as $key => $foreign_key) {
-								if(!in_array($foreign_key, $colecciones)) {
-									$colecciones[] = $foreign_key;
-								}
-							}
-						} else {
-							if(!empty($listados)) {
-								$found = false;
-								foreach($listados as $key => $foreign_key) {
-									if(in_array($foreign_key, $colecciones)) {
-										$found = true;
-									}
-								}
-								if(!$found) {
-									$colecciones = array();
-									break;
-								}
-							}
-						}
 					}
+
+					$colecciones = $this->_reunir_llaves_foraneas($listados);
 
 					// Asignar el filtro de ID's
 					if(!empty($colecciones)) {
 						$conditions['Coleccion.id'] = $colecciones;
 						$this->Session->write('Filtros.activos', 1);
+						$this->Session->write('Filtros.conditions', $conditions);
 					} else {
 						$this->Session->setFlash('La selección de filtros actual no ha retornado resultados');
 					}
 				}
+
 				$this->set('filtrado', $this->Session->read('Filtros.activos'));
 			} else {
 				$this->Coleccion->contain('TipoDeContenido', 'Contenido');
