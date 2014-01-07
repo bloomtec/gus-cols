@@ -795,13 +795,12 @@
 
 					}
 
-					$colecciones = $this->_reunir_llaves_foraneas($listados);
+					$conditions['Coleccion.id'] = $this->_reunir_llaves_foraneas($listados);
+					$this->Session->write('Filtros.conditions', $conditions);
 
 					// Asignar el filtro de ID's
-					if(!empty($colecciones)) {
-						$conditions['Coleccion.id'] = $colecciones;
+					if(!empty($conditions['Coleccion.id'])) {
 						$this->Session->write('Filtros.activos', 1);
-						$this->Session->write('Filtros.conditions', $conditions);
 					} else {
 						$this->Session->setFlash('La selección de filtros actual no ha retornado resultados');
 					}
@@ -812,10 +811,8 @@
 				$this->set('filtrado', $this->Session->read('Filtros.activos'));
 
 			} else {
-
 				$this->Coleccion->contain('TipoDeContenido', 'Contenido');
 				$conditions['Coleccion.es_tipo_de_contenido'] = true;
-
 			}
 
 			// Hay usuario logueado?
@@ -877,6 +874,12 @@
 		 * @return mixed
 		 */
 		private function _reunir_llaves_foraneas($listados) {
+
+			foreach($listados as $key => $lista) {
+				if(empty($lista)) { unset($listados[$key]); }
+			}
+
+			sort($listados);
 
 			$colecciones = array();
 
@@ -1062,16 +1065,16 @@
 						}
 					}
 
-					$colecciones = $this->_reunir_llaves_foraneas($listados);
+					$conditions['Coleccion.id'] = $this->_reunir_llaves_foraneas($listados);
+					$this->Session->write('Filtros.conditions', $conditions);
 
 					// Asignar el filtro de ID's
-					if(!empty($colecciones)) {
-						$conditions['Coleccion.id'] = $colecciones;
+					if(!empty($conditions['Coleccion.id'])) {
 						$this->Session->write('Filtros.activos', 1);
-						$this->Session->write('Filtros.conditions', $conditions);
 					} else {
 						$this->Session->setFlash('La selección de filtros actual no ha retornado resultados');
 					}
+
 				}
 
 				$this->set('filtrado', $this->Session->read('Filtros.activos'));

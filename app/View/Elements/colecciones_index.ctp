@@ -160,7 +160,15 @@
 					?>
 					<?php
 						if($user_id && $this->requestAction('/colecciones/verificarEliminar/' . $user_id . '/' . $coleccion['Coleccion']['id'])) {
-							echo $this->Html->link(__('Eliminar'), array('action' => 'delete', $coleccion['Coleccion']['id']));
+							echo $this->Form->postLink(
+								__('Eliminar'),
+								array(
+									'action' => 'delete',
+									$coleccion['Coleccion']['id']
+								),
+								null,
+								__('¿Confirma que desea eliminar el listado?', null)
+							);
 						}
 					?>
 				</td>
