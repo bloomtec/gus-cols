@@ -36,7 +36,15 @@
 							echo $this->Html->link(__('Cambiar Presentación'), array('action' => 'modificar_presentacion', $coleccion['Coleccion']['id']));
 						}
 						if($user_id && $this->requestAction('/colecciones/verificarEliminar/' . $user_id . '/' . $coleccion['Coleccion']['id'])) {
-							echo $this->Html->link(__('Eliminar colección'), array('action' => 'delete', $coleccion['Coleccion']['id']));
+							echo $this->Form->postLink(
+								__('Eliminar'),
+								array(
+									'action' => 'delete',
+									$coleccion['Coleccion']['id']
+								),
+								null,
+								__('¿Confirma que desea eliminar la colección?', null)
+							);
 						}
 						// Auditor
 						if($this->requestAction('/colecciones/esAuditable/' . $coleccion['Coleccion']['id'] . '/1')) {
